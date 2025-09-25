@@ -49,7 +49,7 @@ The system extracts the following from each PDF:
 - Scrum Roles:
     - Product owner: Duwon Ham
     - Scrum Master: Keven Guzman
-    - Development Team: Chiemeka Chukwueke, Zachary Critchfield, Lance Ilagan
+    - Development Team: Chiemeka Chukwueke, Zachary Critchfield, Lance Ilagan, Mehakjot Singh
 
 ## Sprint Goals
 1. Sprint 1: IDE Setup, Metadata extraction
