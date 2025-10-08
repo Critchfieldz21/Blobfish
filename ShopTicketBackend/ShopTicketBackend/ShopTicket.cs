@@ -1,4 +1,6 @@
-﻿namespace ShopTicketBackend
+﻿using PdfSharp.Pdf;
+
+namespace ShopTicketBackend
 {
     public class ShopTicket
     {
