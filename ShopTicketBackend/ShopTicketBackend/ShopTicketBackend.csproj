@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="PDFsharp" Version="6.2.2" />
+  </ItemGroup>
+
 </Project>
