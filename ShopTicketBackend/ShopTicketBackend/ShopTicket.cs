@@ -26,7 +26,7 @@ namespace ShopTicketBackend
         public required double SectionViewRectangleWidth { get; set; }      // Width of the section view rectangle (inches).
         public required double SectionViewRectangleHeight { get; set; }     // Height of the section view rectangle (inches).
 
-        public ShopTicket()
+        public ShopTicket(String Path)
         {
 
         }
