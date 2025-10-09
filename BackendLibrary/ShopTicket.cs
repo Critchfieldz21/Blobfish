@@ -31,9 +31,10 @@ namespace BackendLibrary
         {
             NumberOfPages = 2;
         }
-        public ShopTicket(String Path)
+        public ShopTicket(String pdfPath)
         {
-
+            PdfDocument pdf = PdfReader.Open(pdfPath);
+            NumberOfPages = pdf.PageCount;
         }
     }
 }
