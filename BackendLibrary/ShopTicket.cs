@@ -33,7 +33,10 @@ namespace BackendLibrary
         }
         public ShopTicket(String pdfPath)
         {
-            PdfDocument pdf = PdfReader.Open(pdfPath, PdfDocumentOpenMode.ReadOnly);
+            PdfDocument pdf = PdfReader.Open(pdfPath);
+            pdf.SecuritySettings.OwnerPassword = "admin";
+            pdf.SecuritySettings.PermitModifyDocument = false;
+            
             NumberOfPages = pdf.PageCount;
         }
     }
