@@ -33,11 +33,21 @@ namespace BackendLibrary
         }
         public ShopTicket(String pdfPath)
         {
+            // Use PdfSharp PdfReader to initialize a PdfDocument object off of the input file path
             PdfDocument pdf = PdfReader.Open(pdfPath);
+
+            // OwnerPassword property needs a password to set SecuritySettings
             pdf.SecuritySettings.OwnerPassword = "admin";
             pdf.SecuritySettings.PermitModifyDocument = false;
             
             NumberOfPages = pdf.PageCount;
+        }
+
+        public override string ToString()
+        {
+            String str =
+                "NumberOfPages: " + NumberOfPages + "\n";
+            return str;
         }
     }
 }
