@@ -10,7 +10,7 @@ namespace BackendLibrary
     {
         public int NumberOfPages { get; set; }                              // Number of pages in the PDF file.
         //public string[] PageNames { get; set; }                    // Page names extracted from view labels.
-        public required string FileName { get; set; }                       // File name of the PDF file.
+        //public required string FileName { get; set; }                       // File name of the PDF file.
         //public string? FileNamePieceMark { get; set; }                      // Piece Mark extracted from the file name.
         //public string ProjectNumber { get; set; }                  // Project Number from the title block labelled "JOB NO.".
         //public string ProjectName { get; set; }                    // Project Name from the title block labelled "PROJECT:".
@@ -56,15 +56,29 @@ namespace BackendLibrary
             }
             else
             {
-                return "File name not found";
+                return "File name not found!";
             }
-
 
         }
         
-        public void Height()
+        public String FilePieceMarkark(String pdfPath)
         {
-            
+            String filePath = pdfPath;
+            String fileName = Path.GetFileNameWithoutExtension(filePath);
+
+            String NameOfFile = fileName;
+            char sep = '-';
+            String[] NameSplit = NameOfFile.Split(sep);
+
+            if (File.Exists(filePath))
+            {
+                return NameSplit[2];
+            }
+            else
+            {
+                return "Piece Mark not found!";
+            }
+
         }
 
 
