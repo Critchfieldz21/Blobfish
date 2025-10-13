@@ -11,8 +11,8 @@ namespace BackendLibrary
         public int NumberOfPages { get; set; }                              // Number of pages in the PDF file.
         //public string[] PageNames { get; set; }                    // Page names extracted from view labels.
         public string FileName { get; set; }                       // File name of the PDF file.
-        //public string? FileNamePieceMark { get; set; }                      // Piece Mark extracted from the file name.
-        //public string ProjectNumber { get; set; }                  // Project Number from the title block labelled "JOB NO.".
+        public string? FileNamePieceMark { get; set; }                      // Piece Mark extracted from the file name.
+        public string ProjectNumber { get; set; }                  // Project Number from the title block labelled "JOB NO.".
         //public string ProjectName { get; set; }                    // Project Name from the title block labelled "PROJECT:".
         //public string FileContentPieceMark { get; set; }           // Piece Mark from the title block labelled "PIECE MARK".
         //public string[]? ControlNumbers { get; set; }                       // Control numbers from the square above the title block labelled "CONTROL NO.:".
@@ -43,6 +43,9 @@ namespace BackendLibrary
 
             NumberOfPages = pdf.PageCount;
             FileName = GetFileName(pdfPath);
+            FileNamePieceMark = GetFileNamePieceMark(pdfPath);
+            ProjectNumber = GetProjectNumber(pdfPath);
+
         }
         public String GetFileName(String pdfPath)
         {
@@ -62,7 +65,7 @@ namespace BackendLibrary
 
         }
 
-        public String FilePieceMarkark(String pdfPath)
+        public String GetFileNamePieceMark(String pdfPath)
         {
             String filePath = pdfPath;
             String fileName = Path.GetFileNameWithoutExtension(filePath);
@@ -82,7 +85,7 @@ namespace BackendLibrary
 
         }
 
-        public String ProjectNumber(String pdfPath)
+        public String GetProjectNumber(String pdfPath)
         {
             String filePath = pdfPath;
             String fileName = Path.GetFileNameWithoutExtension(filePath);
@@ -98,17 +101,18 @@ namespace BackendLibrary
             }
             else
             {
-                return "Piece Mark not found!";
+                return "Project Number not found!";
             }
         }
-
-
 
         public override string ToString()
         {
             String str =
                 "NumberOfPages: " + NumberOfPages + "\n" +
-                "FileName: " + FileName + "\n";
+                "FileName: " + FileName + "\n" +
+                "FileNamePieceMark: " + FileNamePieceMark + "\n" +
+                "ProjectNumber: " + ProjectNumber + "\n";
+                
                 
             return str;
         }
