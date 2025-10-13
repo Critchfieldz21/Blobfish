@@ -1,6 +1,8 @@
 ﻿using PdfSharp.Pdf;
 using PdfSharp.Pdf.Content;
 using PdfSharp.Pdf.IO;
+using System.IO;
+using System.IO.Enumeration;
 
 namespace BackendLibrary
 {
@@ -8,7 +10,7 @@ namespace BackendLibrary
     {
         public int NumberOfPages { get; set; }                              // Number of pages in the PDF file.
         //public string[] PageNames { get; set; }                    // Page names extracted from view labels.
-        //public string FileName { get; set; }                       // File name of the PDF file.
+        public required string FileName { get; set; }                       // File name of the PDF file.
         //public string? FileNamePieceMark { get; set; }                      // Piece Mark extracted from the file name.
         //public string ProjectNumber { get; set; }                  // Project Number from the title block labelled "JOB NO.".
         //public string ProjectName { get; set; }                    // Project Name from the title block labelled "PROJECT:".
@@ -43,9 +45,34 @@ namespace BackendLibrary
             // OwnerPassword property needs a password to set SecuritySettings
             pdf.SecuritySettings.OwnerPassword = "admin";
             pdf.SecuritySettings.PermitModifyDocument = false;
-            
+
             NumberOfPages = pdf.PageCount;
         }
+        public String GetFileName(String pdfPath)
+        {
+            String filePath = pdfPath;
+
+            String fileName = Path.GetFileNameWithoutExtension(filePath);
+
+            if (File.Exists(filePath))
+            {
+
+                return fileName;
+            }
+            else
+            {
+                return "File name not found";
+            }
+
+
+        }
+        
+        public void Height()
+        {
+            
+        }
+
+
 
         public override string ToString()
         {
