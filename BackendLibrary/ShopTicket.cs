@@ -14,7 +14,7 @@ namespace BackendLibrary
         public string? FileNamePieceMark { get; set; }                      // Piece Mark extracted from the file name.
         public string ProjectNumber { get; set; }                  // Project Number from the title block labelled "JOB NO.".
         //public string ProjectName { get; set; }                    // Project Name from the title block labelled "PROJECT:".
-        //public string FileContentPieceMark { get; set; }           // Piece Mark from the title block labelled "PIECE MARK".
+        public string FileContentPieceMark { get; set; }           // Piece Mark from the title block labelled "PIECE MARK".
         //public string[]? ControlNumbers { get; set; }                       // Control numbers from the square above the title block labelled "CONTROL NO.:".
         //public int PiecesRequired { get; set; }                    // Pieces required from the title block labelled "PIECES REQ'D:".
         //public decimal Weight { get; set; }                        // Weight from the title block labelled "WEIGHT:".
@@ -36,7 +36,7 @@ namespace BackendLibrary
 
             // Use PdfPig to extract text from pdf
             PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfPath);
-
+            
             // OwnerPassword property needs a password to set SecuritySettings
             pdf.SecuritySettings.OwnerPassword = "admin";
             pdf.SecuritySettings.PermitModifyDocument = false;
@@ -45,6 +45,7 @@ namespace BackendLibrary
             FileName = GetFileName(pdfPath);
             FileNamePieceMark = GetFileNamePieceMark(pdfPath);
             ProjectNumber = GetProjectNumber(pdfPath);
+            FileContentPieceMark = pdfTextExtractor.ExtractText("FileContentPieceMark");
 
         }
         public String GetFileName(String pdfPath)
@@ -111,9 +112,9 @@ namespace BackendLibrary
                 "NumberOfPages: " + NumberOfPages + "\n" +
                 "FileName: " + FileName + "\n" +
                 "FileNamePieceMark: " + FileNamePieceMark + "\n" +
-                "ProjectNumber: " + ProjectNumber + "\n";
-                
-                
+                "ProjectNumber: " + ProjectNumber + "\n" +
+                "FileContentPieceMark: " + FileContentPieceMark + "\n";
+
             return str;
         }
     }

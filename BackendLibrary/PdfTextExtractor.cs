@@ -1,6 +1,9 @@
-﻿using System;
+﻿using PdfSharp.Snippets.Font;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using UglyToad.PdfPig;
@@ -15,6 +18,59 @@ namespace BackendLibrary
         public PdfTextExtractor(String pdfPath)
         {
             pdf = PdfDocument.Open(File.OpenRead(pdfPath));
+        }
+
+        public string? ExtractText(string text)
+        {
+            IEnumerable<Page> pages = pdf.GetPages();
+            
+
+            //foreach (Word word in words)
+            //{
+            //    Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
+            //}
+            switch (text)
+            {
+                case "FileContentPieceMark":
+                    foreach (Page page in pages)
+                    {
+                        IEnumerable<Word> words = page.GetWords();
+                        List<Word> pieceWords = (from Word word in words
+                                                 where word.Text == "PIECE"
+                                                 select word).ToList();
+                        //foreach (Word word in pieceWords)
+                        //{
+                        //    Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
+                        //}
+                        foreach (Word word in pieceWords)
+                        {
+                            Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
+                            if (string.Equals(foundWord.Text, "MARK"))
+                            {
+                                Word? piecemarkWord = FindWordNextTo(word, words, -2, 2, -10, 0);
+                                if (piecemarkWord is null)
+                                {
+                                    return null;
+                                }
+                                return piecemarkWord.Text;
+                            }
+                        }
+                    }
+                    break;
+            }
+            return null;
+        }
+        
+        // Finds one word among IEnumerable<Word> words relative to an anchorWord given specified bounds
+        public Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
+        {
+            Word? foundWord = (from Word word in words
+                              where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
+                                    (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
+                                    (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
+                                    (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
+                              select word).FirstOrDefault();
+            return foundWord;
         }
     }
 }
