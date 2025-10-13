@@ -72,8 +72,11 @@ namespace BackendLibrary
             String fileName = Path.GetFileNameWithoutExtension(filePath);
 
             String NameOfFile = fileName;
-            char sep = '-';
+            char[] sep = {'-', '_' };
+            
             String[] NameSplit = NameOfFile.Split(sep);
+           
+
 
             if (File.Exists(filePath))
             {
