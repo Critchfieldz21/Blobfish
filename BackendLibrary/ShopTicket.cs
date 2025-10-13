@@ -57,13 +57,49 @@ namespace BackendLibrary
             }
             else
             {
-                return "File name not found";
+                return "File name not found!";
             }
+
         }
-        
-        public void Height()
+
+        public String FilePieceMarkark(String pdfPath)
         {
-            
+            String filePath = pdfPath;
+            String fileName = Path.GetFileNameWithoutExtension(filePath);
+
+            String NameOfFile = fileName;
+            char sep = '-';
+            String[] NameSplit = NameOfFile.Split(sep);
+
+            if (File.Exists(filePath))
+            {
+                return NameSplit[2];
+            }
+            else
+            {
+                return "Piece Mark not found!";
+            }
+
+        }
+
+        public String ProjectNumber(String pdfPath)
+        {
+            String filePath = pdfPath;
+            String fileName = Path.GetFileNameWithoutExtension(filePath);
+
+            String NameOfFile = fileName;
+            char sep = '-';
+            String[] NameSplit = NameOfFile.Split(sep);
+
+            if (File.Exists(filePath))
+            {
+                String proNum = NameSplit[0] + "-" + NameSplit[1];
+                return proNum;
+            }
+            else
+            {
+                return "Piece Mark not found!";
+            }
         }
 
 
