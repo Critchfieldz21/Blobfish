@@ -1,4 +1,5 @@
 ﻿using PdfSharp.Pdf;
+using PdfSharp.Pdf.Content;
 using PdfSharp.Pdf.IO;
 
 namespace BackendLibrary
@@ -35,6 +36,9 @@ namespace BackendLibrary
         {
             // Use PdfSharp PdfReader to initialize a PdfDocument object off of the input file path
             PdfDocument pdf = PdfReader.Open(pdfPath);
+
+            // Use PdfPig to extract text from pdf
+            PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfPath);
 
             // OwnerPassword property needs a password to set SecuritySettings
             pdf.SecuritySettings.OwnerPassword = "admin";
