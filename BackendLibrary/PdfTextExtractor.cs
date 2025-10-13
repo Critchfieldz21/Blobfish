@@ -23,12 +23,7 @@ namespace BackendLibrary
         public string? ExtractText(string text)
         {
             IEnumerable<Page> pages = pdf.GetPages();
-            
 
-            //foreach (Word word in words)
-            //{
-            //    Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
-            //}
             switch (text)
             {
                 case "FileContentPieceMark":
@@ -53,6 +48,28 @@ namespace BackendLibrary
                                     return null;
                                 }
                                 return piecemarkWord.Text;
+                            }
+                        }
+                    }
+                    break;
+                case "PiecesRequired":
+                    foreach (Page page in pages)
+                    {
+                        IEnumerable<Word> words = page.GetWords();
+                        List<Word> piecesWords = (from Word word in words
+                                                 where word.Text == "PIECES"
+                                                 select word).ToList();
+                        foreach (Word word in piecesWords)
+                        {
+                            Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
+                            if (string.Equals(foundWord.Text, "REQ'D:"))
+                            {
+                                Word? piecesreqdWord = FindWordNextTo(word, words, -2, 30, -10, -4);
+                                if (piecesreqdWord is null)
+                                {
+                                    return null;
+                                }
+                                return piecesreqdWord.Text;
                             }
                         }
                     }

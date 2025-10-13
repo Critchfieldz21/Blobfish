@@ -16,7 +16,7 @@ namespace BackendLibrary
         //public string ProjectName { get; set; }                    // Project Name from the title block labelled "PROJECT:".
         public string FileContentPieceMark { get; set; }           // Piece Mark from the title block labelled "PIECE MARK".
         //public string[]? ControlNumbers { get; set; }                       // Control numbers from the square above the title block labelled "CONTROL NO.:".
-        //public int PiecesRequired { get; set; }                    // Pieces required from the title block labelled "PIECES REQ'D:".
+        public int PiecesRequired { get; set; }                    // Pieces required from the title block labelled "PIECES REQ'D:".
         //public decimal Weight { get; set; }                        // Weight from the title block labelled "WEIGHT:".
         //public string DesignNumber { get; set; }                   // Design number from the title block labelled "DESIGN:".
         //public int RectanglePage { get; set; }                              // 0-based index of the page containing form and section view rectangles.
@@ -46,7 +46,7 @@ namespace BackendLibrary
             FileNamePieceMark = GetFileNamePieceMark(pdfPath);
             ProjectNumber = GetProjectNumber(pdfPath);
             FileContentPieceMark = pdfTextExtractor.ExtractText("FileContentPieceMark");
-
+            PiecesRequired = int.Parse(pdfTextExtractor.ExtractText("PiecesRequired"));
         }
         public String GetFileName(String pdfPath)
         {
@@ -113,7 +113,8 @@ namespace BackendLibrary
                 "FileName: " + FileName + "\n" +
                 "FileNamePieceMark: " + FileNamePieceMark + "\n" +
                 "ProjectNumber: " + ProjectNumber + "\n" +
-                "FileContentPieceMark: " + FileContentPieceMark + "\n";
+                "FileContentPieceMark: " + FileContentPieceMark + "\n" +
+                "PiecesRequired: " + PiecesRequired + "\n";
 
             return str;
         }
