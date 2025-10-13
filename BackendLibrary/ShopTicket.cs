@@ -29,11 +29,6 @@ namespace BackendLibrary
         //public double SectionViewRectangleWidth { get; set; }      // Width of the section view rectangle (inches).
         //public double SectionViewRectangleHeight { get; set; }     // Height of the section view rectangle (inches).
 
-        // test
-        public ShopTicket()
-        {
-            NumberOfPages = 2;
-        }
         public ShopTicket(String pdfPath)
         {
             // Use PdfSharp PdfReader to initialize a PdfDocument object off of the input file path
