@@ -23,8 +23,8 @@ namespace BackendLibrary
         public string? ExtractText(string text)
         {
             IEnumerable<Page> pages = pdf.GetPages();
-            
 
+            
             //foreach (Word word in words)
             //{
             //    Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
