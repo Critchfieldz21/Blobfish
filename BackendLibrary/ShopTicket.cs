@@ -18,7 +18,7 @@ namespace BackendLibrary
         //public string[]? ControlNumbers { get; set; }                       // Control numbers from the square above the title block labelled "CONTROL NO.:".
         public int PiecesRequired { get; set; }                    // Pieces required from the title block labelled "PIECES REQ'D:".
         //public decimal Weight { get; set; }                        // Weight from the title block labelled "WEIGHT:".
-        //public string DesignNumber { get; set; }                   // Design number from the title block labelled "DESIGN:".
+        public string DesignNumber { get; set; }                   // Design number from the title block labelled "DESIGN:".
         //public int RectanglePage { get; set; }                              // 0-based index of the page containing form and section view rectangles.
         //public double FormViewRectangleX { get; set; }             // Distance from left edge of PDF to left edge of the form view rectangle (inches).
         //public double FormViewRectangleY { get; set; }             // Distance from top edge of PDF to top edge of the form view rectangle (inches).
@@ -47,6 +47,8 @@ namespace BackendLibrary
             ProjectNumber = GetProjectNumber(pdfPath);
             FileContentPieceMark = pdfTextExtractor.ExtractText("FileContentPieceMark");
             PiecesRequired = int.Parse(pdfTextExtractor.ExtractText("PiecesRequired"));
+            DesignNumber = pdfTextExtractor.ExtractText("DesignNumber");
+            
         }
         public String GetFileName(String pdfPath)
         {
@@ -116,8 +118,10 @@ namespace BackendLibrary
                 "FileName: " + FileName + "\n" +
                 "FileNamePieceMark: " + FileNamePieceMark + "\n" +
                 "ProjectNumber: " + ProjectNumber + "\n" +
-                "FileContentPieceMark: " + FileContentPieceMark + "\n" +
-                "PiecesRequired: " + PiecesRequired + "\n";
+                "FileContentPieceMark: " + FileContentPieceMark + "\n" + 
+                "PiecesRequired: " + PiecesRequired + "\n" 
+                + "DesignNumber: " + DesignNumber + "\n";
+                
 
             return str;
         }

@@ -7,9 +7,9 @@ class Program
 {
     static void Main(string[] args)
     {
-        //String filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/20-NE0881-W001_P2.pdf";
+        String filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/20-NE0881-W001_P2.pdf";
         //String filePath = "C:/Users/lance/Downloads/ShopTicketData/pdfs/24-NE1096-W029_P0.pdf";
-        String filePath = "";
+        //String filePath = "";
 
         ShopTicket pdf = new ShopTicket(filePath);
 
