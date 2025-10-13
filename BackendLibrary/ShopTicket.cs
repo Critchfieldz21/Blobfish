@@ -10,7 +10,7 @@ namespace BackendLibrary
     {
         public int NumberOfPages { get; set; }                              // Number of pages in the PDF file.
         //public string[] PageNames { get; set; }                    // Page names extracted from view labels.
-        public required string FileName { get; set; }                       // File name of the PDF file.
+        public string FileName { get; set; }                       // File name of the PDF file.
         //public string? FileNamePieceMark { get; set; }                      // Piece Mark extracted from the file name.
         //public string ProjectNumber { get; set; }                  // Project Number from the title block labelled "JOB NO.".
         //public string ProjectName { get; set; }                    // Project Name from the title block labelled "PROJECT:".
@@ -42,6 +42,7 @@ namespace BackendLibrary
             pdf.SecuritySettings.PermitModifyDocument = false;
 
             NumberOfPages = pdf.PageCount;
+            FileName = GetFileName(pdfPath);
         }
         public String GetFileName(String pdfPath)
         {
@@ -58,8 +59,6 @@ namespace BackendLibrary
             {
                 return "File name not found";
             }
-
-
         }
         
         public void Height()
@@ -72,7 +71,9 @@ namespace BackendLibrary
         public override string ToString()
         {
             String str =
-                "NumberOfPages: " + NumberOfPages + "\n";
+                "NumberOfPages: " + NumberOfPages + "\n" +
+                "FileName: " + FileName + "\n";
+                
             return str;
         }
     }
