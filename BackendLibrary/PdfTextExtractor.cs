@@ -33,10 +33,10 @@ namespace BackendLibrary
                         List<Word> pieceWords = (from Word word in words
                                                  where word.Text == "PIECE"
                                                  select word).ToList();
-                        //foreach (Word word in pieceWords)
-                        //{
-                        //    Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
-                        //}
+                        // foreach (Word word in words)
+                        // {
+                        //     Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
+                        // }
                         foreach (Word word in pieceWords)
                         {
                             Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
@@ -92,11 +92,11 @@ namespace BackendLibrary
                             return designnumberWord.Text;
                         }
                     }
-                   
+
                     break;
 
                 case "ProjectNumber":
-                     foreach (Page page in pages)
+                    foreach (Page page in pages)
                     {
                         IEnumerable<Word> words = page.GetWords();
                         List<Word> piecesWords = (from Word word in words
@@ -117,8 +117,25 @@ namespace BackendLibrary
                         }
                     }
                     break;
-            }
-            
+                case "Weight":
+                    foreach (Page page in pages)
+                    {
+                        IEnumerable<Word> words = page.GetWords();
+                        List<Word> weightWords = (from Word word in words
+                                                  where word.Text == "WEIGHT:"
+                                                  select word).ToList();
+                        foreach (Word word in weightWords)
+                        {
+                            Word? weightWord = FindWordNextTo(word, words, -10, 30, -20, -1);
+                            if (weightWord is null)
+                            {
+                                return null;
+                            }
+                            return weightWord.Text;
+                        }
+                    }
+                    break;
+            }     
             return null;
         }
         

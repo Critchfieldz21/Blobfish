@@ -8,6 +8,8 @@ class Program
     static void Main(string[] args)
     {
         String filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/20-NE0881-W001_P2.pdf";
+        //String filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/24-NE1096-DT023_P0.pdf";
+        //String filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/25-NE1203.01-W015_P2.pdf";
         //String filePath = "C:/Users/lance/Downloads/ShopTicketData/pdfs/24-NE1096-W029_P0.pdf";
         //String filePath = "";
 
