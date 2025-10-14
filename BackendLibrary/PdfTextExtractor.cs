@@ -84,7 +84,7 @@ namespace BackendLibrary
                                                   select word).ToList();
                         foreach (Word word in designWords)
                         {
-                            Word? designnumberWord = FindWordNextTo(word, words, -2, 30, -10, -4);
+                            Word? designnumberWord = FindWordNextTo(word, words, -2, 30, -40, -4);
                             if (designnumberWord is null)
                             {
                                 return null;
@@ -95,7 +95,27 @@ namespace BackendLibrary
                    
                     break;
 
-                case "": 
+                case "ProjectNumber":
+                     foreach (Page page in pages)
+                    {
+                        IEnumerable<Word> words = page.GetWords();
+                        List<Word> piecesWords = (from Word word in words
+                                                  where word.Text == "JOB"
+                                                  select word).ToList();
+                        foreach (Word word in piecesWords)
+                        {
+                            Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
+                            if (string.Equals(foundWord.Text, "NO."))
+                            {
+                                Word? piecesreqdWord = FindWordNextTo(word, words, -4, 4, -10, -4);
+                                if (piecesreqdWord is null)
+                                {
+                                    return null;
+                                }
+                                return piecesreqdWord.Text;
+                            }
+                        }
+                    }
                     break;
             }
             

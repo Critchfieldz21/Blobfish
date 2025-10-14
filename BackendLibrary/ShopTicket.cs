@@ -3,6 +3,7 @@ using PdfSharp.Pdf.Content;
 using PdfSharp.Pdf.IO;
 using System.IO;
 using System.IO.Enumeration;
+using UglyToad.PdfPig.Core;
 
 namespace BackendLibrary
 {
@@ -44,7 +45,7 @@ namespace BackendLibrary
             NumberOfPages = pdf.PageCount;
             FileName = GetFileName(pdfPath);
             FileNamePieceMark = GetFileNamePieceMark(pdfPath);
-            ProjectNumber = GetProjectNumber(pdfPath);
+            ProjectNumber = pdfTextExtractor.ExtractText("ProjectNumber");
             FileContentPieceMark = pdfTextExtractor.ExtractText("FileContentPieceMark");
             PiecesRequired = int.Parse(pdfTextExtractor.ExtractText("PiecesRequired"));
             DesignNumber = pdfTextExtractor.ExtractText("DesignNumber");
@@ -90,27 +91,6 @@ namespace BackendLibrary
             }
 
         }
-
-        public String GetProjectNumber(String pdfPath)
-        {
-            String filePath = pdfPath;
-            String fileName = Path.GetFileNameWithoutExtension(filePath);
-
-            String NameOfFile = fileName;
-            char sep = '-';
-            String[] NameSplit = NameOfFile.Split(sep);
-
-            if (File.Exists(filePath))
-            {
-                String proNum = NameSplit[0] + "-" + NameSplit[1];
-                return proNum;
-            }
-            else
-            {
-                return "Project Number not found!";
-            }
-        }
-
         public override string ToString()
         {
             String str =
@@ -118,9 +98,9 @@ namespace BackendLibrary
                 "FileName: " + FileName + "\n" +
                 "FileNamePieceMark: " + FileNamePieceMark + "\n" +
                 "ProjectNumber: " + ProjectNumber + "\n" +
-                "FileContentPieceMark: " + FileContentPieceMark + "\n" + 
-                "PiecesRequired: " + PiecesRequired + "\n" 
-                + "DesignNumber: " + DesignNumber + "\n";
+                "FileContentPieceMark: " + FileContentPieceMark + "\n" +
+                "PiecesRequired: " + PiecesRequired + "\n" +
+                "DesignNumber: " + DesignNumber + "\n";
                 
 
             return str;
