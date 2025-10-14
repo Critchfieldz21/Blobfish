@@ -1757,24 +1757,26 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\cchuk\\.nuget\\packages\\": {}
+    "C:\\Users\\lance\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\cchuk\\Documents\\SoftwareEngineering\\Blobfish\\BlobfishWebApp\\BlobfishWebApp.csproj",
+      "projectUniqueName": "C:\\Users\\lance\\source\\repos\\BlobfishBackend\\BlobfishWebApp\\BlobfishWebApp.csproj",
       "projectName": "BlobfishWebApp",
-      "projectPath": "C:\\Users\\cchuk\\Documents\\SoftwareEngineering\\Blobfish\\BlobfishWebApp\\BlobfishWebApp.csproj",
-      "packagesPath": "C:\\Users\\cchuk\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\cchuk\\Documents\\SoftwareEngineering\\Blobfish\\BlobfishWebApp\\obj\\",
+      "projectPath": "C:\\Users\\lance\\source\\repos\\BlobfishBackend\\BlobfishWebApp\\BlobfishWebApp.csproj",
+      "packagesPath": "C:\\Users\\lance\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\lance\\source\\repos\\BlobfishBackend\\BlobfishWebApp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\cchuk\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\lance\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
