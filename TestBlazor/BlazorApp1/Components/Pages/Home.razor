@@ -3,16 +3,14 @@
 @using Microsoft.AspNetCore.Components.Forms
 @inject NavigationManager Navigation
 
-
-
 <PageTitle>Home</PageTitle>
 <h1>Home</h1>
 
 <div class="d-flex justify-content-center align-items-center" style="height:20vh;">
 	<InputFile OnChange="HandleFileSelected" accept=".pdf" />
-	@if (pdfPath != null)
+	@if (pdfName != null)
 	{
-    <p>Loaded PDF: @pdfPath</p>
+    <p>Loaded PDF: @pdfName</p>
 	}
 </div>
 <div class="d-flex justify-content-center align-items-center" style="height:60vh;">
@@ -24,7 +22,7 @@
 
 @code {
 	// Example handlers - replace with real logic as needed
-	private string? pdfPath;
+	private string? pdfName;
 	private void OnPrimary()
 	{
 		Console.WriteLine("Primary clicked");
@@ -36,15 +34,22 @@
 		Console.WriteLine("Secondary clicked");
 	}
 
-	 private async Task HandleFileSelected(InputFileChangeEventArgs e)
-    {
-        var file = e.File;
-        if (file != null && file.ContentType == "application/pdf")
-        {
-            pdfPath = file.Name;
+	private IBrowserFile? uploadedFile;
 
-        }
-    }
-}
+	private async Task HandleFileSelected(InputFileChangeEventArgs e)
+	{
+		uploadedFile = e.File;
+
+		using var stream = uploadedFile.OpenReadStream(maxAllowedSize: 10_000_000); // 10MB
+		using var memoryStream = new MemoryStream();
+		await stream.CopyToAsync(memoryStream);
+
+		byte[]? pdfBytes = memoryStream.ToArray();
+
+		// Pass to your service or helper class
+		//ShopTicket shopTicket = new ShopTicket();
+		//PDFDocument pdf = shopTicket.LoadPdf(pdfBytes);
+	}
+	}
 
 }
