@@ -2,6 +2,7 @@
 @using BlazorApp1.Components.Layout
 @using Microsoft.AspNetCore.Components.Forms
 @inject NavigationManager Navigation
+@using BackendLibrary
 
 <PageTitle>Home</PageTitle>
 <h1>Home</h1>
@@ -47,8 +48,8 @@
 		byte[]? pdfBytes = memoryStream.ToArray();
 
 		// Pass to your service or helper class
-		//ShopTicket shopTicket = new ShopTicket();
-		//PDFDocument pdf = shopTicket.LoadPdf(pdfBytes);
+		// ShopTicket shopTicket = new ShopTicket();
+		// PDFDocument pdf = shopTicket.LoadPdf(pdfBytes);
 	}
 	}
 
