@@ -10,9 +10,9 @@
 
 <div class="d-flex justify-content-center align-items-center" style="height:20vh;">
 	<InputFile OnChange="HandleFileSelected" accept=".pdf" />
-	@if (pdfName != null)
+	@if (pdfPath != null)
 	{
-    <p>Loaded PDF: @pdfName</p>
+    <p>Loaded PDF: @pdfPath</p>
 	}
 </div>
 <div class="d-flex justify-content-center align-items-center" style="height:60vh;">
@@ -24,7 +24,7 @@
 
 @code {
 	// Example handlers - replace with real logic as needed
-	private string? pdfName;
+	private string? pdfPath;
 	private void OnPrimary()
 	{
 		Console.WriteLine("Primary clicked");
@@ -41,7 +41,7 @@
         var file = e.File;
         if (file != null && file.ContentType == "application/pdf")
         {
-            pdfName = file.Name;
+            pdfPath = file.Name;
 
         }
     }
