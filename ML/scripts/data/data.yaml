@@ -1,0 +1,10 @@
+path: ShopTicketData # dataset root dir
+
+train: train/images/ # train images (relative to 'path') 4 images
+val: valid/images/ # val images (relative to 'path') 4 images
+test: # test images (optional)
+
+# Classes
+names:
+  0: section
+  1: form
