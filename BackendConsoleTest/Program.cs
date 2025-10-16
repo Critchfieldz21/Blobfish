@@ -9,11 +9,13 @@ class Program
     {
         //String filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/20-NE0881-W001_P2.pdf";
         //String filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/24-NE1096-DT023_P0.pdf";
-        String filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/25-NE1203.01-W015_P2.pdf";
-        //String filePath = "C:/Users/lance/Downloads/ShopTicketData/pdfs/24-NE1096-W029_P0.pdf";
+        //String filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/25-NE1203.01-W015_P2.pdf";
+        String filePath = "C:/Users/lance/Downloads/ShopTicketData/pdfs/25-NE1212-W245_P2.pdf";
         //String filePath = "";
 
-        ShopTicket pdf = new ShopTicket(filePath);
+        byte[] pdfBytes = File.ReadAllBytes(filePath);
+        String pdfName = Path.GetFileNameWithoutExtension(filePath);
+        ShopTicket pdf = new ShopTicket(pdfName, pdfBytes);
 
         if (File.Exists(filePath))
         {
@@ -24,6 +26,7 @@ class Program
             Console.WriteLine("File does not exist.");
         }
 
+        
 
         Console.WriteLine("Press any key to exit.");
         Console.ReadKey();

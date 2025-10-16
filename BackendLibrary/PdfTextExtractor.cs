@@ -20,6 +20,11 @@ namespace BackendLibrary
             pdf = PdfDocument.Open(File.OpenRead(pdfPath));
         }
 
+        public PdfTextExtractor(byte[] pdfBytes) 
+        {
+            pdf = PdfDocument.Open(pdfBytes);
+        }
+
         public string? ExtractText(string text)
         {
             IEnumerable<Page> pages = pdf.GetPages();
