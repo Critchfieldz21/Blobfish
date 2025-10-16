@@ -1,14 +1,111 @@
-h1{
-color: black;
-text-align: center;
+h1 {
+  text-align: center;
+  margin-top: 2rem;
+  color: #2d3748;
+  font-weight: 600;
+  font-size: 2rem;
 }
-.pdfBox{
-    border: 2px solid black;
-    height:20vh;
-    border-radius: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: background-color 0.3s, border-color 0.3s;
+
+
+.pdfBox {
+  width: 80%;
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 3rem 1.5rem;
+  border: 2px solid black;
+  border-radius: 12px;
+  background-color: white;
+  text-align: center;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+.pdfBox.drag-over {
+  background-color: #e8f0fe;
+  border-color: #007bff;
+  color: #0a58ca;
+}
+
+.pdfBox:hover {
+  background-color: #ffffff;
+  border-color: #007bff;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.1);
+}
+
+
+.pdfBox input[type="file"] {
+  margin-top: 1rem;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+}
+
+
+.pdfBox p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #444;
+}
+
+pre {
+  background-color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.9rem;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+
+section {
+  margin-top: 3rem;
+}
+
+.btn-group {
+  display: flex;
+  gap: 2rem;
+}
+
+.btn {
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: black;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: black;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+}
+
+
+@media (max-width: 600px) {
+  .pdfBox {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  pre {
+    font-size: 0.85rem;
+  }
+
+  .btn-group {
+    flex-direction: column;
+  }
 }
