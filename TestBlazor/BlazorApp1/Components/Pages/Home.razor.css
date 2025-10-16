@@ -1,0 +1,14 @@
+h1{
+color: black;
+text-align: center;
+}
+.pdfBox{
+    border: 2px solid black;
+    height:20vh;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+}
