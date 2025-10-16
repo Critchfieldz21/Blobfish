@@ -7,19 +7,21 @@
 <PageTitle>Home</PageTitle>
 <h1>Home</h1>
 
-<div class="d-flex justify-content-center align-items-center" style="height:20vh;">
+<div class="pdfBox" ">
 	<InputFile OnChange="HandleFileSelected" accept=".pdf" />
 	@if (pdfName != null)
 	{
     <p>Loaded PDF: @pdfName</p>
 	}
 </div>
+<section>
 <div class="d-flex justify-content-center align-items-center" style="height:60vh;">
 	<div class="btn-group" role="group" aria-label="Home actions">
-		<NavLink class="btn btn-primary" href="counter">Primary action</NavLink>
-		<button class="btn btn-secondary" @onclick="OnSecondary">Secondary action</button>
+		<NavLink class="btn btn-primary" href="counter">Process</NavLink>
+		<button class="btn btn-secondary" @onclick="OnSecondary">History</button>
 	</div>
 </div>
+</section>
 
 @code {
 	// Example handlers - replace with real logic as needed
