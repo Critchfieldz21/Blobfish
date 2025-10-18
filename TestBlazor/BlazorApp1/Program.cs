@@ -1,5 +1,8 @@
+using BackendLibrary;
 using BlazorApp1.Components;
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<ShopTicketService>();
+Console.WriteLine("✅ Console output test");
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -25,3 +28,4 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
+Console.WriteLine("✅ Console output test");

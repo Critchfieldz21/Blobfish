@@ -1,28 +1,34 @@
 ﻿@page "/"
+@using BackendLibrary
 @using BlazorApp1.Components.Layout
 @using Microsoft.AspNetCore.Components.Forms
+@rendermode InteractiveServer
 @inject NavigationManager Navigation
+@inject ShopTicketService sTService
+
+
 
 <PageTitle>Home</PageTitle>
 <h1>Home</h1>
 
 <div class="d-flex justify-content-center align-items-center" style="height:20vh;">
-	<InputFile OnChange="HandleFileSelected" accept=".pdf" />
-	@if (pdfName != null)
-	{
     <p>Loaded PDF: @pdfName</p>
-	}
 </div>
-<div class="d-flex justify-content-center align-items-center" style="height:60vh;">
+
+<div class="d-flex justify-content-center align-items-center" style="height:20vh;">
+<InputFile OnChange="@HandleFileSelected" accept=".pdf" />
+</div>
+
+<div class="d-flex justify-content-center align-items-center" style="height:20vh;">
 	<div class="btn-group" role="group" aria-label="Home actions">
-		<NavLink class="btn btn-primary" href="counter">Primary action</NavLink>
+		<button class="btn btn-secondary" @onclick="OnPrimary">Primary action</button>
 		<button class="btn btn-secondary" @onclick="OnSecondary">Secondary action</button>
 	</div>
 </div>
 
 @code {
 	// Example handlers - replace with real logic as needed
-	private string? pdfName;
+	private string? pdfName = "pdf ";
 	private void OnPrimary()
 	{
 		Console.WriteLine("Primary clicked");
@@ -34,22 +40,35 @@
 		Console.WriteLine("Secondary clicked");
 	}
 
-	private IBrowserFile? uploadedFile;
-
 	private async Task HandleFileSelected(InputFileChangeEventArgs e)
-	{
-		uploadedFile = e.File;
+    {
+		try
+		{
+			pdfName = "Loading...";
+			var file = e.File;
 
-		using var stream = uploadedFile.OpenReadStream(maxAllowedSize: 10_000_000); // 10MB
-		using var memoryStream = new MemoryStream();
-		await stream.CopyToAsync(memoryStream);
+			var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+			Directory.CreateDirectory(uploadsFolder);
 
-		byte[]? pdfBytes = memoryStream.ToArray();
+			var filePath = Path.Combine(uploadsFolder, file.Name);
 
-		// Pass to your service or helper class
-		//ShopTicket shopTicket = new ShopTicket();
-		//PDFDocument pdf = shopTicket.LoadPdf(pdfBytes);
-	}
-	}
+			await using (var stream = file.OpenReadStream(maxAllowedSize: 10_000_000))
+        	await using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+        	{
+            	await stream.CopyToAsync(fileStream);
+        	}
+
+			sTService.CurrentTicket = new ShopTicket(filePath);
+			pdfName = sTService.CurrentTicket.ToString();
+
+			Console.WriteLine($"PDF loaded from filepath successfully");
+		}
+		catch (Exception ex)
+		{
+			pdfName = $"Error: {ex.Message}";
+			Console.WriteLine($"Error uploading file: {ex}");
+		}
+		StateHasChanged();
+    }
 
 }
