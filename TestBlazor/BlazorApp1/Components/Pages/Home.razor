@@ -10,17 +10,19 @@
 
 <PageTitle>Home</PageTitle>
 <h1>Home</h1>
-
+<section>
+<div class="pdfcontainer">
 <div class="pdfBox">
 	<InputFile OnChange="HandleFileSelected" accept=".pdf" />
 	@if (pdfName != null)
 	{}
     <p>Loaded PDF: @pdfName</p>
 </div>
-
+</div>
+</section>
 
 <section>
-<div class="btn-container" style="height:60vh;">
+<div class="btn-container">
 	<div class="btn-group" role="group" aria-label="Home actions">
 		<button class="processbtn" @onclick="OnPrimary">Process</button>
 		<button class="historybtn" @onclick="OnSecondary">History</button>
