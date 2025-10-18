@@ -18,14 +18,12 @@
     <p>Loaded PDF: @pdfName</p>
 </div>
 
-<div class="d-flex justify-content-center align-items-center" style="height:20vh;">
-<InputFile OnChange="@HandleFileSelected" accept=".pdf" />
-</div>
+
 <section>
-<div class="d-flex justify-content-center align-items-center" style="height:60vh;">
+<div class="btn-container" style="height:60vh;">
 	<div class="btn-group" role="group" aria-label="Home actions">
-		<button class="btn btn-secondary" @onclick="OnPrimary">Primary action</button>
-		<button class="btn btn-secondary" @onclick="OnSecondary">Secondary action</button>
+		<button class="processbtn" @onclick="OnPrimary">Process</button>
+		<button class="historybtn" @onclick="OnSecondary">History</button>
 	</div>
 </div>
 </section>
