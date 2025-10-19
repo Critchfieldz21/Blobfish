@@ -17,6 +17,8 @@ class Program
         String pdfName = Path.GetFileNameWithoutExtension(filePath);
         ShopTicket pdf = new ShopTicket(pdfName, pdfBytes);
 
+        //ShopTicket pdf = new ShopTicket(filePath);
+
         if (File.Exists(filePath))
         {
             Console.WriteLine(pdf.ToString());

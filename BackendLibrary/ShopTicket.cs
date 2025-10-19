@@ -3,7 +3,6 @@ using PdfSharp.Pdf.Content;
 using PdfSharp.Pdf.IO;
 using System.IO;
 using System.IO.Enumeration;
-using UglyToad.PdfPig.Core;
 using UglyToad.PdfPig.Graphics;
 
 namespace BackendLibrary
@@ -38,7 +37,8 @@ namespace BackendLibrary
 
             // Use PdfPig to extract text from pdf
             PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfPath);
-            InitializeFromPdf(pdf, pdfTextExtractor, GetFileName(pdfPath));
+
+            InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithPdfPath(pdfPath));
         }
 
         public ShopTicket(String fileName, byte[] pdfBytes)
@@ -49,52 +49,26 @@ namespace BackendLibrary
 
             // Use PdfPig to extract text from pdf
             PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
-            InitializeFromPdf(pdf, pdfTextExtractor, fileName);
+
+            InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithFileName(fileName));
         }
 
         // Combine shared logic between constructors
-        private void InitializeFromPdf(PdfDocument pdf, PdfTextExtractor pdfTextExtractor, String fileName)
+        private void InitializeFromPdf(PdfDocument pdf, PdfTextExtractor pdfTextExtractor, PdfFileNameExtractor pdfFileNameExtractor)
         {
             // OwnerPassword property needs a password to set SecuritySettings
             pdf.SecuritySettings.OwnerPassword = "admin";
             pdf.SecuritySettings.PermitModifyDocument = false;
 
             NumberOfPages = pdf.PageCount;
-            FileName = fileName;
-            FileNamePieceMark = GetFileNamePieceMark();
+            FileName = pdfFileNameExtractor.FileName;
+            FileNamePieceMark = pdfFileNameExtractor.GetFileNamePieceMark();
             ProjectNumber = pdfTextExtractor.ExtractText("ProjectNumber");
             ProjectName = pdfTextExtractor.ExtractText("ProjectName");
             FileContentPieceMark = pdfTextExtractor.ExtractText("FileContentPieceMark");
             PiecesRequired = int.Parse(pdfTextExtractor.ExtractText("PiecesRequired"));
             Weight = decimal.Parse(pdfTextExtractor.ExtractText("Weight"));
             DesignNumber = pdfTextExtractor.ExtractText("DesignNumber");
-        }
-
-        public String GetFileName(String pdfPath)
-        {
-            String filePath = pdfPath;
-
-            String fileName = Path.GetFileNameWithoutExtension(filePath);
-
-            if (File.Exists(filePath))
-            {
-
-                return fileName;
-            }
-            else
-            {
-                return "File name not found!";
-            }
-
-        }
-
-        public String GetFileNamePieceMark()
-        {
-            String NameOfFile = FileName;
-            char[] sep = {'-', '_' };
-            
-            String[] NameSplit = NameOfFile.Split(sep);
-            return NameSplit[2];
         }
 
         public override string ToString()
