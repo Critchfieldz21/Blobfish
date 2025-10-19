@@ -38,21 +38,7 @@ namespace BackendLibrary
 
             // Use PdfPig to extract text from pdf
             PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfPath);
-            
-            // OwnerPassword property needs a password to set SecuritySettings
-            pdf.SecuritySettings.OwnerPassword = "admin";
-            pdf.SecuritySettings.PermitModifyDocument = false;
-
-            NumberOfPages = pdf.PageCount;
-            FileName = GetFileName(pdfPath);
-            FileNamePieceMark = GetFileNamePieceMark();
-            ProjectNumber = pdfTextExtractor.ExtractText("ProjectNumber");
-            FileContentPieceMark = pdfTextExtractor.ExtractText("FileContentPieceMark");
-            PiecesRequired = int.Parse(pdfTextExtractor.ExtractText("PiecesRequired"));
-            DesignNumber = pdfTextExtractor.ExtractText("DesignNumber");
-            Weight = decimal.Parse(pdfTextExtractor.ExtractText("Weight"));
-            ProjectName = pdfTextExtractor.ExtractText("ProjectName");
-            
+            InitializeFromPdf(pdf, pdfTextExtractor, GetFileName(pdfPath));
         }
 
         public ShopTicket(String fileName, byte[] pdfBytes)
@@ -63,7 +49,12 @@ namespace BackendLibrary
 
             // Use PdfPig to extract text from pdf
             PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
+            InitializeFromPdf(pdf, pdfTextExtractor, fileName);
+        }
 
+        // Combine shared logic between constructors
+        private void InitializeFromPdf(PdfDocument pdf, PdfTextExtractor pdfTextExtractor, String fileName)
+        {
             // OwnerPassword property needs a password to set SecuritySettings
             pdf.SecuritySettings.OwnerPassword = "admin";
             pdf.SecuritySettings.PermitModifyDocument = false;
@@ -72,11 +63,11 @@ namespace BackendLibrary
             FileName = fileName;
             FileNamePieceMark = GetFileNamePieceMark();
             ProjectNumber = pdfTextExtractor.ExtractText("ProjectNumber");
+            ProjectName = pdfTextExtractor.ExtractText("ProjectName");
             FileContentPieceMark = pdfTextExtractor.ExtractText("FileContentPieceMark");
             PiecesRequired = int.Parse(pdfTextExtractor.ExtractText("PiecesRequired"));
-            DesignNumber = pdfTextExtractor.ExtractText("DesignNumber");
             Weight = decimal.Parse(pdfTextExtractor.ExtractText("Weight"));
-            ProjectName = pdfTextExtractor.ExtractText("ProjectName");
+            DesignNumber = pdfTextExtractor.ExtractText("DesignNumber");
         }
 
         public String GetFileName(String pdfPath)
@@ -105,6 +96,7 @@ namespace BackendLibrary
             String[] NameSplit = NameOfFile.Split(sep);
             return NameSplit[2];
         }
+
         public override string ToString()
         {
             String str =
@@ -112,11 +104,11 @@ namespace BackendLibrary
                 "FileName: " + FileName + "\n" +
                 "FileNamePieceMark: " + FileNamePieceMark + "\n" +
                 "ProjectNumber: " + ProjectNumber + "\n" +
+                "ProjectName: " + ProjectName + "\n" +
                 "FileContentPieceMark: " + FileContentPieceMark + "\n" +
                 "PiecesRequired: " + PiecesRequired + "\n" +
-                "DesignNumber: " + DesignNumber + "\n" + 
                 "Weight: " + Weight + " lb\n" +
-                "ProjectName: " + ProjectName + "\n";
+                "DesignNumber: " + DesignNumber + "\n";
                 
 
             return str;

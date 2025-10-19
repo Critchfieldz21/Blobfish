@@ -141,30 +141,30 @@ namespace BackendLibrary
                     }
                     break;
 
-                    case "ProjectName":
-                        foreach (Page page in pages)
+                case "ProjectName":
+                    foreach (Page page in pages)
+                    {
+                        IEnumerable<Word> words = page.GetWords();
+                        List<Word> projectWords = (from Word word in words
+                                                where word.Text == "PROJECT:"
+                                                select word).ToList();
+                        foreach (Word word in projectWords)
                         {
-                            IEnumerable<Word> words = page.GetWords();
-                            List<Word> projectWords = (from Word word in words
-                                                    where word.Text == "PROJECT:"
-                                                    select word).ToList();
-                            foreach (Word word in projectWords)
+                            List<Word> projectNameWords = FindWordsNextTo(word, words, -2, 120, -10, -1);
+                            if (projectNameWords is null)
                             {
-                                List<Word> projectNameWords = FindWordsNextTo(word, words, -2, 120, -10, -1);
-                                if (projectNameWords is null)
-                                {
-                                    return null;
-                                }
-                                String projectName = "";
-                                foreach (Word w in projectNameWords)
-                                {
-                                    projectName += w.Text + " ";
-                                }
-                                return projectName; 
+                                return null;
                             }
-                            break;
+                            String projectName = "";
+                            foreach (Word w in projectNameWords)
+                            {
+                                projectName += w.Text + " ";
+                            }
+                            return projectName; 
                         }
                         break;
+                    }
+                    break;
 
             }
             return null;
