@@ -2,6 +2,7 @@
 @using BackendLibrary
 @using BlazorApp1.Components.Layout
 @using Microsoft.AspNetCore.Components.Forms
+@using System.Threading.Tasks
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
 @inject ShopTicketService sTService
@@ -11,7 +12,7 @@
 <section>
 <div class="pdfcontainer">
 <div class="pdfBox">
-	<InputFile OnChange="HandleFileSelected" accept=".pdf" />
+	<InputFile OnChange="e => selectedFile = e" accept=".pdf" />
 	@if (pdfName != null)
 	{}
     <p>Loaded PDF: @pdfName</p>
@@ -29,12 +30,14 @@
 </section>
 
 @code {
-	// Example handlers - replace with real logic as needed
-	private string? pdfName = "pdf ";
-	private void OnPrimary()
-	{
-		Console.WriteLine("Primary clicked");
-		Navigation.NavigateTo("/counter");
+    // Example handlers - replace with real logic as needed
+    private string? pdfName = "pdf ";
+    private InputFileChangeEventArgs? selectedFile;
+    private async Task OnPrimary()
+    {
+        Console.WriteLine("Primary clicked");
+        await HandleFileSelected(selectedFile);
+        Navigation.NavigateTo("/counter");
 	}
 
 	private void OnSecondary()
