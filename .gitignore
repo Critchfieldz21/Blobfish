@@ -482,3 +482,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Unit test pdf files
+BackendLibraryUnitTest/test_pdfs/*.pdf

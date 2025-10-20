@@ -158,7 +158,14 @@ namespace BackendLibrary
                             String projectName = "";
                             foreach (Word w in projectNameWords)
                             {
-                                projectName += w.Text + " ";
+                                if (projectName == "")
+                                {
+                                    projectName = w.Text;
+                                } 
+                                else
+                                {
+                                    projectName += " " + w.Text;
+                                }
                             }
                             return projectName; 
                         }
