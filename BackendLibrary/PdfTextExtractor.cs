@@ -112,7 +112,7 @@ namespace BackendLibrary
                             Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
                             if (string.Equals(foundWord.Text, "NO."))
                             {
-                                Word? piecesreqdWord = FindWordNextTo(word, words, -4, 4, -10, -4);
+                                Word? piecesreqdWord = FindWordNextTo(word, words, -4, 8, -12, -4);
                                 if (piecesreqdWord is null)
                                 {
                                     return null;
