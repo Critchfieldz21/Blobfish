@@ -1,9 +1,5 @@
 ﻿using PdfSharp.Pdf;
-using PdfSharp.Pdf.Content;
 using PdfSharp.Pdf.IO;
-using System.IO;
-using System.IO.Enumeration;
-using UglyToad.PdfPig.Graphics;
 
 namespace BackendLibrary
 {

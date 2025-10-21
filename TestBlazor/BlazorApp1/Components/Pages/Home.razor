@@ -60,7 +60,7 @@
 			sTService.CurrentTicket = new ShopTicket(file.Name, pdfBytes);
 			pdfName = sTService.CurrentTicket.ToString();
 
-			Console.WriteLine($"PDF loaded from filepath successfully");
+			Console.WriteLine($"PDF loaded from filepath successfully: {pdfName}");
 		}
 		catch (Exception ex)
 		{

@@ -5,9 +5,12 @@
 
 <PageTitle>PDF Info</PageTitle>
 
-<h1>PDF Info</h1>
+<h1>PDF Info: @setName()</h1>
 <p>@((MarkupString)sTService.CurrentTicket?.ToString().Replace("\n", "<br />"))</p>
 
 @code {
 
+    private String? setName(){
+        return sTService.CurrentTicket?.FileName;
+    }
 }
