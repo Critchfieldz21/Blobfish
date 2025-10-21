@@ -1,11 +1,44 @@
-.pdfinfo {
+.titleName {
+  text-align: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.pdfcontainer {
+  margin: auto;
+}
+
+.pdfVisBox {
+  top: 30%;
+  height: 40%;
+  bottom: 30%;
   width: 80%;
   max-width: 700px;
-  margin: 2rem auto;
+  float: left;
+  margin: 2.5rem auto;
   padding: 3rem 1.5rem;
   border: 2px solid black;
   border-radius: 12px;
   background-color: white;
   text-align: center;
   transition: all 0.25s ease;
+}
+.pdfinfo {
+  top: 30%;
+  height: 40%;
+  bottom: 30%;
+  width: 80%;
+  max-width: 700px;
+  float: left;
+  margin: 2rem auto;
+  margin-left: 10%;
+  padding: 3rem 1.5rem;
+  border: 2px solid black;
+  border-radius: 12px;
+  background-color: white;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+.clear {
+  clear: both;
 }

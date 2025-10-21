@@ -5,14 +5,25 @@
 
 <PageTitle>PDF Info</PageTitle>
 
-<h1>PDF Info: @setName()</h1>
-<div class="pdfinfo">
-<p>@((MarkupString)sTService.CurrentTicket?.ToString().Replace("\n", "<br />"))</p>
-</div>
-
+<section>
+    <div class="titleName">
+        <h1>PDF Info: @setName()</h1>
+    </div>
+</section>
+<section>
+    <div class="pdfcontainer">
+        <div class="pdfVisBox">
+        </div>
+        <div class="pdfinfo">
+            <p>@((MarkupString)sTService.CurrentTicket?.ToString().Replace("\n", "<br />"))</p>
+        </div>
+        <div class="clear"></div>
+    </div>
+</section>
 @code {
 
-    private String? setName(){
+    private String? setName()
+    {
         return sTService.CurrentTicket?.FileName;
     }
 }
