@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BackendLibrary
@@ -53,7 +54,19 @@ namespace BackendLibrary
             char[] sep = { '-', '_' };
 
             String[] NameSplit = NameOfFile.Split(sep);
-            return NameSplit[2];
+
+            // Capture everything up to the last number
+            string pattern = @"^(.*?\d+).*$"; 
+            Match match = Regex.Match(NameSplit[2], pattern);
+
+            if (match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+            else
+            {
+                return NameSplit[2];
+            }
         }
     }
 }
