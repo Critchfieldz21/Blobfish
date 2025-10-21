@@ -20,6 +20,11 @@ namespace BackendLibrary
             pdf = PdfDocument.Open(File.OpenRead(pdfPath));
         }
 
+        public PdfTextExtractor(byte[] pdfBytes) 
+        {
+            pdf = PdfDocument.Open(pdfBytes);
+        }
+
         public string? ExtractText(string text)
         {
             IEnumerable<Page> pages = pdf.GetPages();
@@ -135,20 +140,63 @@ namespace BackendLibrary
                         }
                     }
                     break;
-            }     
+
+                case "ProjectName":
+                    foreach (Page page in pages)
+                    {
+                        IEnumerable<Word> words = page.GetWords();
+                        List<Word> projectWords = (from Word word in words
+                                                where word.Text == "PROJECT:"
+                                                select word).ToList();
+                        foreach (Word word in projectWords)
+                        {
+                            List<Word> projectNameWords = FindWordsNextTo(word, words, -2, 120, -10, -1);
+                            if (projectNameWords is null)
+                            {
+                                return null;
+                            }
+                            String projectName = "";
+                            foreach (Word w in projectNameWords)
+                            {
+                                if (projectName == "")
+                                {
+                                    projectName = w.Text;
+                                } 
+                                else
+                                {
+                                    projectName += " " + w.Text;
+                                }
+                            }
+                            return projectName; 
+                        }
+                        break;
+                    }
+                    break;
+
+            }
             return null;
         }
         
         // Finds one word among IEnumerable<Word> words relative to an anchorWord given specified bounds
         public Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
         {
-            Word? foundWord = (from Word word in words
-                              where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
-                                    (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
-                                    (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
-                                    (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
-                              select word).FirstOrDefault();
-            return foundWord;
+            return (from Word word in words
+                where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
+                  (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
+                  (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
+                  (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
+                select word).FirstOrDefault();
+        }
+
+        // Finds all words among IEnumerable<Word> words relative to an anchorWord given specified bounds
+        public List<Word> FindWordsNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
+        {
+            return (from Word word in words
+                where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
+                  (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
+                  (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
+                  (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
+                select word).ToList();
         }
     }
 }
