@@ -69,7 +69,127 @@ namespace BackendLibraryUnitTest
                     1,                                              // expectedPiecesRequired
                     11000,                                          // expectedWeight
                     "WP2.00"                                        // expectedDesignNumber
-                }
+                },
+                //new object[] {
+                //    "../../../test_pdfs/24-NE1096-DT051_P0.pdf",     // filePath
+                //    2,                                              // expectedNumberOfPages
+                //    "24-NE1087-W093_P1",                            // expectedFileName
+                //    "W093",                                         // expectedFileNamePieceMark
+                //    "24-NE1087",                                    // expectedProjectNumber
+                //    "TNTR CLUBHOUSE",                               // expectedProjectName
+                //    "W093",                                         // expectedFileContentPieceMark
+                //    1,                                              // expectedPiecesRequired
+                //    11000,                                          // expectedWeight
+                //    "WP2.00"                                        // expectedDesignNumber
+                //},
+                //new object[] {
+                //    "../../../test_pdfs/25-NE1193 -W017_P2.pdf",     // filePath
+                //    2,                                              // expectedNumberOfPages
+                //    "24-NE1087-W093_P1",                            // expectedFileName
+                //    "W093",                                         // expectedFileNamePieceMark
+                //    "24-NE1087",                                    // expectedProjectNumber
+                //    "TNTR CLUBHOUSE",                               // expectedProjectName
+                //    "W093",                                         // expectedFileContentPieceMark
+                //    1,                                              // expectedPiecesRequired
+                //    11000,                                          // expectedWeight
+                //    "WP2.00"                                        // expectedDesignNumber
+                //},
+                //new object[] {
+                //    "../../../test_pdfs/25-NE1200_W098 Rev.1_P2.pdf",     // filePath
+                //    2,                                              // expectedNumberOfPages
+                //    "24-NE1087-W093_P1",                            // expectedFileName
+                //    "W093",                                         // expectedFileNamePieceMark
+                //    "24-NE1087",                                    // expectedProjectNumber
+                //    "TNTR CLUBHOUSE",                               // expectedProjectName
+                //    "W093",                                         // expectedFileContentPieceMark
+                //    1,                                              // expectedPiecesRequired
+                //    11000,                                          // expectedWeight
+                //    "WP2.00"                                        // expectedDesignNumber
+                //},
+                //new object[] {
+                //    "../../../test_pdfs/25-NE1203.02-W045_P2.pdf",     // filePath
+                //    2,                                              // expectedNumberOfPages
+                //    "24-NE1087-W093_P1",                            // expectedFileName
+                //    "W093",                                         // expectedFileNamePieceMark
+                //    "24-NE1087",                                    // expectedProjectNumber
+                //    "TNTR CLUBHOUSE",                               // expectedProjectName
+                //    "W093",                                         // expectedFileContentPieceMark
+                //    1,                                              // expectedPiecesRequired
+                //    11000,                                          // expectedWeight
+                //    "WP2.00"                                        // expectedDesignNumber
+                //},
+                //new object[] {
+                //    "../../../test_pdfs/25-NE1204-W080_P2.pdf",     // filePath
+                //    2,                                              // expectedNumberOfPages
+                //    "24-NE1087-W093_P1",                            // expectedFileName
+                //    "W093",                                         // expectedFileNamePieceMark
+                //    "24-NE1087",                                    // expectedProjectNumber
+                //    "TNTR CLUBHOUSE",                               // expectedProjectName
+                //    "W093",                                         // expectedFileContentPieceMark
+                //    1,                                              // expectedPiecesRequired
+                //    11000,                                          // expectedWeight
+                //    "WP2.00"                                        // expectedDesignNumber
+                //},
+                //new object[] {
+                //    "../../../test_pdfs/25-NE1204-W225_P2.pdf",     // filePath
+                //    2,                                              // expectedNumberOfPages
+                //    "24-NE1087-W093_P1",                            // expectedFileName
+                //    "W093",                                         // expectedFileNamePieceMark
+                //    "24-NE1087",                                    // expectedProjectNumber
+                //    "TNTR CLUBHOUSE",                               // expectedProjectName
+                //    "W093",                                         // expectedFileContentPieceMark
+                //    1,                                              // expectedPiecesRequired
+                //    11000,                                          // expectedWeight
+                //    "WP2.00"                                        // expectedDesignNumber
+                //},
+                //new object[] {
+                //    "../../../test_pdfs/25-NE1209-W016_P2.pdf",     // filePath
+                //    2,                                              // expectedNumberOfPages
+                //    "24-NE1087-W093_P1",                            // expectedFileName
+                //    "W093",                                         // expectedFileNamePieceMark
+                //    "24-NE1087",                                    // expectedProjectNumber
+                //    "TNTR CLUBHOUSE",                               // expectedProjectName
+                //    "W093",                                         // expectedFileContentPieceMark
+                //    1,                                              // expectedPiecesRequired
+                //    11000,                                          // expectedWeight
+                //    "WP2.00"                                        // expectedDesignNumber
+                //},
+                //new object[] {
+                //    "../../../test_pdfs/25-NE1209-W207_P2.pdf",     // filePath
+                //    2,                                              // expectedNumberOfPages
+                //    "24-NE1087-W093_P1",                            // expectedFileName
+                //    "W093",                                         // expectedFileNamePieceMark
+                //    "24-NE1087",                                    // expectedProjectNumber
+                //    "TNTR CLUBHOUSE",                               // expectedProjectName
+                //    "W093",                                         // expectedFileContentPieceMark
+                //    1,                                              // expectedPiecesRequired
+                //    11000,                                          // expectedWeight
+                //    "WP2.00"                                        // expectedDesignNumber
+                //},
+                //new object[] {
+                //    "../../../test_pdfs/25-NE1212-W109_P2.pdf",     // filePath
+                //    2,                                              // expectedNumberOfPages
+                //    "24-NE1087-W093_P1",                            // expectedFileName
+                //    "W093",                                         // expectedFileNamePieceMark
+                //    "24-NE1087",                                    // expectedProjectNumber
+                //    "TNTR CLUBHOUSE",                               // expectedProjectName
+                //    "W093",                                         // expectedFileContentPieceMark
+                //    1,                                              // expectedPiecesRequired
+                //    11000,                                          // expectedWeight
+                //    "WP2.00"                                        // expectedDesignNumber
+                //},
+                //new object[] {
+                //    "../../../test_pdfs/25-NE1212-W266_P2.pdf",     // filePath
+                //    2,                                              // expectedNumberOfPages
+                //    "24-NE1087-W093_P1",                            // expectedFileName
+                //    "W093",                                         // expectedFileNamePieceMark
+                //    "24-NE1087",                                    // expectedProjectNumber
+                //    "TNTR CLUBHOUSE",                               // expectedProjectName
+                //    "W093",                                         // expectedFileContentPieceMark
+                //    1,                                              // expectedPiecesRequired
+                //    11000,                                          // expectedWeight
+                //    "WP2.00"                                        // expectedDesignNumber
+                //}
             };
 
         [Theory]
