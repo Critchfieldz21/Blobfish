@@ -16,7 +16,19 @@ h1 {
   background-color: white;
   text-align: center;
   transition: all 0.25s ease;
-  cursor: pointer;
+
+}
+
+.progbar {
+  width: 100%;
+  max-width: 700px;
+  margin: 1rem auto;
+  border: 1px solid black;
+  border-radius: 12px;
+  background-color: white;
+  text-align: center;
+  height: 10%;
+  transition: all 0.25s ease;
 }
 
 .pdfBox {

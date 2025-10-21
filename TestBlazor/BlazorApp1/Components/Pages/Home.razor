@@ -10,6 +10,11 @@
 <PageTitle>Home</PageTitle>
 <h1>Home</h1>
 <section>
+<section>
+<div class = "progbar">
+<h1>Progress Bar</h1>
+</div>
+</section>
 <div class="pdfcontainer">
 <div class="pdfBox">
 	<InputFile OnChange="e => selectedFile = e" accept=".pdf" />
@@ -33,11 +38,19 @@
     // Example handlers - replace with real logic as needed
     private string? pdfName = "pdf ";
     private InputFileChangeEventArgs? selectedFile;
-    private async Task OnPrimary()
-    {
-        Console.WriteLine("Primary clicked");
-        await HandleFileSelected(selectedFile);
-        Navigation.NavigateTo("/counter");
+	private async Task OnPrimary()
+	{
+		Console.WriteLine("Primary clicked");
+		if (selectedFile != null)
+		{
+			await HandleFileSelected(selectedFile);
+			Navigation.NavigateTo("/counter");
+		}
+		else
+		{
+			pdfName = "No file selected";
+			StateHasChanged();
+		}
 	}
 
 	private void OnSecondary()
