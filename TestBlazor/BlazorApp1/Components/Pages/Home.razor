@@ -52,18 +52,12 @@
 			pdfName = "Loading...";
 			var file = e.File;
 
-			var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-			Directory.CreateDirectory(uploadsFolder);
+			using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
+    		using var memoryStream = new MemoryStream();
+    		await stream.CopyToAsync(memoryStream);
+    		byte[] pdfBytes = memoryStream.ToArray();
 
-			var filePath = Path.Combine(uploadsFolder, file.Name);
-
-			await using (var stream = file.OpenReadStream(maxAllowedSize: 10_000_000))
-        	await using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
-        	{
-            	await stream.CopyToAsync(fileStream);
-        	}
-
-			sTService.CurrentTicket = new ShopTicket(filePath);
+			sTService.CurrentTicket = new ShopTicket(file.Name, pdfBytes);
 			pdfName = sTService.CurrentTicket.ToString();
 
 			Console.WriteLine($"PDF loaded from filepath successfully");
