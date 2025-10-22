@@ -1,3 +1,32 @@
+:root{
+  --primary-color: #d01f2e;
+  --secondary-color: #011a2d;
+  --side-color: #fff;
+  --side2: #183973;
+  --tab-background-color: #1B68B3BF;
+
+}
+ .homeButt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  background-color: #183973;
+  color:#fff;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.12);
+}
+
+.homeButt:hover {
+  background-color: #1454a3;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.14);
+}
 .titleName {
   text-align: center;
   margin-top: 2rem;
@@ -42,3 +71,4 @@
 .clear {
   clear: both;
 }
+

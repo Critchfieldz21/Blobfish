@@ -2,8 +2,15 @@
 @using BackendLibrary
 @rendermode InteractiveServer
 @inject ShopTicketService sTService
+@inject NavigationManager Navigation
 
 <PageTitle>PDF Info</PageTitle>
+
+<section class="mt-3">
+    <div>
+        <button class="homeButt" @onclick="GoHome">Back to Home</button>
+    </div>
+</section>
 
 <section>
     <div class="titleName">
@@ -25,5 +32,10 @@
     private String? setName()
     {
         return sTService.CurrentTicket?.FileName;
+    }
+
+    private void GoHome()
+    {
+        Navigation.NavigateTo("/");
     }
 }
