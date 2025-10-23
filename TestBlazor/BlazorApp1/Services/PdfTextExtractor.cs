@@ -20,12 +20,12 @@ namespace BackendLibrary
             pdf = PdfDocument.Open(File.OpenRead(pdfPath));
         }
 
-        public PdfTextExtractor(byte[] pdfBytes) 
+        public PdfTextExtractor(byte[] pdfBytes)
         {
             pdf = PdfDocument.Open(pdfBytes);
         }
 
-        public string? ExtractText(string text)
+        public string ExtractText(string text)
         {
             IEnumerable<Page> pages = pdf.GetPages();
 
@@ -50,13 +50,13 @@ namespace BackendLibrary
                                 Word? piecemarkWord = FindWordNextTo(word, words, -2, 2, -10, 0);
                                 if (piecemarkWord is null)
                                 {
-                                    return null;
+                                    throw new NullReferenceException($"Failed to get {text}");
                                 }
                                 return piecemarkWord.Text;
                             }
                         }
                     }
-                    break;
+                    throw new NullReferenceException($"Failed to get {text}");
                 case "PiecesRequired":
                     foreach (Page page in pages)
                     {
@@ -72,14 +72,13 @@ namespace BackendLibrary
                                 Word? piecesreqdWord = FindWordNextTo(word, words, -2, 30, -10, -4);
                                 if (piecesreqdWord is null)
                                 {
-                                    return null;
+                                    throw new NullReferenceException($"Failed to get {text}");
                                 }
                                 return piecesreqdWord.Text;
                             }
                         }
                     }
-                    break;
-
+                    throw new NullReferenceException($"Failed to get {text}");
                 case "DesignNumber":
                     foreach (Page page in pages)
                     {
@@ -92,14 +91,12 @@ namespace BackendLibrary
                             Word? designnumberWord = FindWordNextTo(word, words, -2, 30, -40, -4);
                             if (designnumberWord is null)
                             {
-                                return null;
+                                throw new NullReferenceException($"Failed to get {text}");
                             }
                             return designnumberWord.Text;
                         }
                     }
-
-                    break;
-
+                    throw new NullReferenceException($"Failed to get {text}");
                 case "ProjectNumber":
                     foreach (Page page in pages)
                     {
@@ -112,16 +109,16 @@ namespace BackendLibrary
                             Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
                             if (string.Equals(foundWord.Text, "NO."))
                             {
-                                Word? piecesreqdWord = FindWordNextTo(word, words, -4, 4, -10, -4);
+                                Word? piecesreqdWord = FindWordNextTo(word, words, -4, 8, -12, -4);
                                 if (piecesreqdWord is null)
                                 {
-                                    return null;
+                                    throw new NullReferenceException($"Failed to get {text}");
                                 }
                                 return piecesreqdWord.Text;
                             }
                         }
                     }
-                    break;
+                    throw new NullReferenceException($"Failed to get {text}");
                 case "Weight":
                     foreach (Page page in pages)
                     {
@@ -134,26 +131,25 @@ namespace BackendLibrary
                             Word? weightWord = FindWordNextTo(word, words, -10, 30, -20, -1);
                             if (weightWord is null)
                             {
-                                return null;
+                                throw new NullReferenceException($"Failed to get {text}");
                             }
                             return weightWord.Text;
                         }
                     }
-                    break;
-
+                    throw new NullReferenceException($"Failed to get {text}");
                 case "ProjectName":
                     foreach (Page page in pages)
                     {
                         IEnumerable<Word> words = page.GetWords();
                         List<Word> projectWords = (from Word word in words
-                                                where word.Text == "PROJECT:"
-                                                select word).ToList();
+                                                   where word.Text == "PROJECT:"
+                                                   select word).ToList();
                         foreach (Word word in projectWords)
                         {
                             List<Word> projectNameWords = FindWordsNextTo(word, words, -2, 120, -10, -1);
-                            if (projectNameWords is null)
+                            if (projectNameWords.Count == 0)
                             {
-                                return null;
+                                throw new NullReferenceException($"Failed to get {text}");
                             }
                             String projectName = "";
                             foreach (Word w in projectNameWords)
@@ -161,42 +157,41 @@ namespace BackendLibrary
                                 if (projectName == "")
                                 {
                                     projectName = w.Text;
-                                } 
+                                }
                                 else
                                 {
                                     projectName += " " + w.Text;
                                 }
                             }
-                            return projectName; 
+                            return projectName;
                         }
-                        break;
                     }
-                    break;
-
+                    throw new NullReferenceException($"Failed to get {text}");
+                default:
+                    throw new ArgumentException($"Extraction for '{text}' is not implemented.");
             }
-            return null;
         }
-        
+
         // Finds one word among IEnumerable<Word> words relative to an anchorWord given specified bounds
         public Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
         {
             return (from Word word in words
-                where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
-                  (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
-                  (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
-                  (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
-                select word).FirstOrDefault();
+                    where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
+                      (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
+                    select word).FirstOrDefault();
         }
 
         // Finds all words among IEnumerable<Word> words relative to an anchorWord given specified bounds
         public List<Word> FindWordsNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
         {
             return (from Word word in words
-                where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
-                  (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
-                  (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
-                  (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
-                select word).ToList();
+                    where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
+                      (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
+                    select word).ToList();
         }
     }
 }
