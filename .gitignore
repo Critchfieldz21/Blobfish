@@ -484,4 +484,4 @@ $RECYCLE.BIN/
 *.swp
 
 # wwwroot temp uploaded files
-wwwroot/uploads/*
+wwwroot/uploads/*.pdf
