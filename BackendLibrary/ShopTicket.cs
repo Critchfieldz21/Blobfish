@@ -9,6 +9,7 @@ namespace BackendLibrary
 {
     public class ShopTicket
     {
+        public byte[] PdfBytes;
         public int NumberOfPages { get; set; }                              // Number of pages in the PDF file.
         //public string[] PageNames { get; set; }                    // Page names extracted from view labels.
         public string FileName { get; set; }                       // File name of the PDF file.
@@ -34,6 +35,8 @@ namespace BackendLibrary
         {
             try
             {
+                byte[] PdfBytes = File.ReadAllBytes(pdfPath);
+
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of the input file path
                 PdfDocument pdf = PdfReader.Open(pdfPath);
 
@@ -52,6 +55,8 @@ namespace BackendLibrary
         {
             try
             {
+                PdfBytes = pdfBytes;
+
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
                 MemoryStream stream = new MemoryStream(pdfBytes);
                 PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
