@@ -1,8 +1,11 @@
 ﻿@page "/processing"
 @using BackendLibrary
+@using BlazorBootstrap
 @rendermode InteractiveServer
 @inject ShopTicketService sTService
 @inject NavigationManager Navigation
+<link href="_content/Blazor.Bootstrap/blazor.bootstrap.css" rel="stylesheet" />
+<script src="_content/Blazor.Bootstrap/blazor.bootstrap.js"></script>
 
 <PageTitle>PDF Info</PageTitle>
 
@@ -17,25 +20,53 @@
         <h1>PDF Info: @setName()</h1>
     </div>
 </section>
+
 <section>
     <div class="pdfcontainer">
         <div class="pdfVisBox">
+            <p>@eventLog</p>
+
+            @if (!string.IsNullOrEmpty(base64Url))
+            {
+                <PdfViewer Class="pdfViewer" Url="@base64Url" OnDocumentLoaded="OnDocumentLoaded"
+                    OnPageChanged="OnPageChanged" />
+            }
+            else
+            {
+                <p><em>No PDF data available to display.</em></p>
+            }
         </div>
+
         <div class="pdfinfo">
             <p>@((MarkupString)sTService.CurrentTicket?.ToString().Replace("\n", "<br />"))</p>
         </div>
+
         <div class="clear"></div>
     </div>
 </section>
+
 @code {
+    private string? base64Url;
+    private string eventLog { get; set; } = $"Last event: ..., CurrentPage: 0, TotalPages: 0";
 
-    private String? setName()
+    protected override void OnInitialized()
     {
-        return sTService.CurrentTicket?.FileName;
+        var ticket = sTService.CurrentTicket;
+
+        if (ticket?.PdfBytes != null && ticket.PdfBytes.Length > 0)
+        {
+            string pdfBase64 = Convert.ToBase64String(ticket.PdfBytes);
+            base64Url = $"data:application/pdf;base64,{pdfBase64}";
+        }
     }
 
-    private void GoHome()
-    {
-        Navigation.NavigateTo("/");
-    }
+    private string? setName() => sTService.CurrentTicket?.FileName;
+
+    private void OnDocumentLoaded(PdfViewerEventArgs args)
+    => eventLog = $"Last event: OnDocumentLoaded, CurrentPage: {args.CurrentPage}, TotalPages: {args.TotalPages}";
+
+    private void OnPageChanged(PdfViewerEventArgs args)
+    => eventLog = $"Last event: OnPageChanged, CurrentPage: {args.CurrentPage}, TotalPages: {args.TotalPages}";
+
+    private void GoHome() => Navigation.NavigateTo("/");
 }
