@@ -1,11 +1,4 @@
-:root{
-  --primary-color: #d01f2e;
-  --secondary-color: #011a2d;
-  --side-color: #fff;
-  --side2: #183973;
-  --tab-background-color: #1B68B3BF;
 
-}
  .homeButt {
   display: inline-flex;
   align-items: center;
