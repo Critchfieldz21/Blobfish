@@ -25,7 +25,7 @@ namespace BackendLibrary
             pdf = PdfDocument.Open(pdfBytes);
         }
 
-        public string? ExtractText(string text)
+        public string ExtractText(string text)
         {
             IEnumerable<Page> pages = pdf.GetPages();
 
@@ -50,13 +50,13 @@ namespace BackendLibrary
                                 Word? piecemarkWord = FindWordNextTo(word, words, -2, 2, -10, 0);
                                 if (piecemarkWord is null)
                                 {
-                                    return null;
+                                    throw new NullReferenceException($"Failed to get {text}");
                                 }
                                 return piecemarkWord.Text;
                             }
                         }
                     }
-                    break;
+                    throw new NullReferenceException($"Failed to get {text}");
                 case "PiecesRequired":
                     foreach (Page page in pages)
                     {
@@ -72,14 +72,13 @@ namespace BackendLibrary
                                 Word? piecesreqdWord = FindWordNextTo(word, words, -2, 30, -10, -4);
                                 if (piecesreqdWord is null)
                                 {
-                                    return null;
+                                    throw new NullReferenceException($"Failed to get {text}");
                                 }
                                 return piecesreqdWord.Text;
                             }
                         }
                     }
-                    break;
-
+                    throw new NullReferenceException($"Failed to get {text}");
                 case "DesignNumber":
                     foreach (Page page in pages)
                     {
@@ -92,14 +91,12 @@ namespace BackendLibrary
                             Word? designnumberWord = FindWordNextTo(word, words, -2, 30, -40, -4);
                             if (designnumberWord is null)
                             {
-                                return null;
+                                throw new NullReferenceException($"Failed to get {text}");
                             }
                             return designnumberWord.Text;
                         }
                     }
-
-                    break;
-
+                    throw new NullReferenceException($"Failed to get {text}");
                 case "ProjectNumber":
                     foreach (Page page in pages)
                     {
@@ -115,13 +112,13 @@ namespace BackendLibrary
                                 Word? piecesreqdWord = FindWordNextTo(word, words, -4, 8, -12, -4);
                                 if (piecesreqdWord is null)
                                 {
-                                    return null;
+                                    throw new NullReferenceException($"Failed to get {text}");
                                 }
                                 return piecesreqdWord.Text;
                             }
                         }
                     }
-                    break;
+                    throw new NullReferenceException($"Failed to get {text}");
                 case "Weight":
                     foreach (Page page in pages)
                     {
@@ -134,13 +131,12 @@ namespace BackendLibrary
                             Word? weightWord = FindWordNextTo(word, words, -10, 30, -20, -1);
                             if (weightWord is null)
                             {
-                                return null;
+                                throw new NullReferenceException($"Failed to get {text}");
                             }
                             return weightWord.Text;
                         }
                     }
-                    break;
-
+                    throw new NullReferenceException($"Failed to get {text}");
                 case "ProjectName":
                     foreach (Page page in pages)
                     {
@@ -151,9 +147,9 @@ namespace BackendLibrary
                         foreach (Word word in projectWords)
                         {
                             List<Word> projectNameWords = FindWordsNextTo(word, words, -2, 120, -10, -1);
-                            if (projectNameWords is null)
+                            if (projectNameWords.Count == 0)
                             {
-                                return null;
+                                throw new NullReferenceException($"Failed to get {text}");
                             }
                             String projectName = "";
                             foreach (Word w in projectNameWords)
@@ -169,12 +165,11 @@ namespace BackendLibrary
                             }
                             return projectName; 
                         }
-                        break;
                     }
-                    break;
-
+                    throw new NullReferenceException($"Failed to get {text}");
+                default:
+                    throw new ArgumentException($"Extraction for '{text}' is not implemented.");
             }
-            return null;
         }
         
         // Finds one word among IEnumerable<Word> words relative to an anchorWord given specified bounds

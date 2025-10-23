@@ -32,25 +32,38 @@ namespace BackendLibrary
 
         public ShopTicket(String pdfPath)
         {
-            // Use PdfSharp PdfReader to initialize a PdfDocument object off of the input file path
-            PdfDocument pdf = PdfReader.Open(pdfPath);
+            try
+            {
+                // Use PdfSharp PdfReader to initialize a PdfDocument object off of the input file path
+                PdfDocument pdf = PdfReader.Open(pdfPath);
 
-            // Use PdfPig to extract text from pdf
-            PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfPath);
+                // Use PdfPig to extract text from pdf
+                PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfPath);
 
-            InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithPdfPath(pdfPath));
+                InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithPdfPath(pdfPath));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error initializing shop ticket: {ex.Message}", ex);
+            }
         }
 
         public ShopTicket(String fileName, byte[] pdfBytes)
         {
-            // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
-            MemoryStream stream = new MemoryStream(pdfBytes);
-            PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
+            try
+            {
+                // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
+                MemoryStream stream = new MemoryStream(pdfBytes);
+                PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
 
-            // Use PdfPig to extract text from pdf
-            PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
-
-            InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithFileName(fileName));
+                // Use PdfPig to extract text from pdf
+                PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
+                InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithFileName(fileName));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error initializing shop ticket: {ex.Message}", ex);
+            }
         }
 
         // Combine shared logic between constructors
@@ -60,15 +73,30 @@ namespace BackendLibrary
             pdf.SecuritySettings.OwnerPassword = "admin";
             pdf.SecuritySettings.PermitModifyDocument = false;
 
-            NumberOfPages = pdf.PageCount;
-            FileName = pdfFileNameExtractor.FileName;
-            FileNamePieceMark = pdfFileNameExtractor.GetFileNamePieceMark();
-            ProjectNumber = pdfTextExtractor.ExtractText("ProjectNumber");
-            ProjectName = pdfTextExtractor.ExtractText("ProjectName");
-            FileContentPieceMark = pdfTextExtractor.ExtractText("FileContentPieceMark");
-            PiecesRequired = int.Parse(pdfTextExtractor.ExtractText("PiecesRequired"));
-            Weight = decimal.Parse(pdfTextExtractor.ExtractText("Weight"));
-            DesignNumber = pdfTextExtractor.ExtractText("DesignNumber");
+            try
+            {
+                NumberOfPages = pdf.PageCount;
+                FileName = pdfFileNameExtractor.FileName;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error extracting basic PDF info", ex);
+            }
+
+            try
+            {
+                FileNamePieceMark = pdfFileNameExtractor.GetFileNamePieceMark();
+                ProjectNumber = pdfTextExtractor.ExtractText("ProjectNumber");
+                ProjectName = pdfTextExtractor.ExtractText("ProjectName");
+                FileContentPieceMark = pdfTextExtractor.ExtractText("FileContentPieceMark");
+                PiecesRequired = int.Parse(pdfTextExtractor.ExtractText("PiecesRequired"));
+                Weight = decimal.Parse(pdfTextExtractor.ExtractText("Weight"));
+                DesignNumber = pdfTextExtractor.ExtractText("DesignNumber");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{FileName} has an extraction error: {ex.Message}", ex);
+            }
         }
 
         public override string ToString()

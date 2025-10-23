@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BackendLibrary
 {
@@ -13,19 +14,28 @@ namespace BackendLibrary
 
         private PdfFileNameExtractor()
         {
-
+            // Private constructor to enforce use of static constructor methods
         }
 
         public static PdfFileNameExtractor InitializeWithPdfPath(String pdfPath)
         {
             PdfFileNameExtractor extractor = new PdfFileNameExtractor();
-            extractor.FileName = extractor.GetFileName(pdfPath);
+            String fileName = extractor.GetFileName(pdfPath);
+            if (fileName is null)
+            {
+                throw new NullReferenceException("FileName is null");
+            }
+            extractor.FileName = fileName;
             return extractor;
         }
 
         public static PdfFileNameExtractor InitializeWithFileName(String fileName)
         {
             PdfFileNameExtractor extractor = new PdfFileNameExtractor();
+            if (fileName is null)
+            {
+                throw new NullReferenceException("FileName is null");
+            }
             extractor.FileName = fileName;
             return extractor;
         }
@@ -38,12 +48,11 @@ namespace BackendLibrary
 
             if (File.Exists(filePath))
             {
-
                 return fileName;
             }
             else
             {
-                return "File name not found!";
+                throw new FileNotFoundException($"File not found at path: {filePath}");
             }
 
         }
