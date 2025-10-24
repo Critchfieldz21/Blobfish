@@ -7,7 +7,7 @@ h1 {
 }
 
 .pdfcontainer {
-   width: 80%;
+  width: 80%;
   max-width: 700px;
   margin: 2rem auto;
   padding: 3rem 1.5rem;
@@ -16,38 +16,36 @@ h1 {
   background-color: white;
   text-align: center;
   transition: all 0.25s ease;
-
 }
 
 .progbar {
-    margin-top: 20px;
-    text-align: center;
+  margin-top: 20px;
+  text-align: center;
 }
 
 .progress-container {
-    width: 80%;
-    height: 25px;
-    background-color: #e0e0e0;
-    border-radius: 12px;
-    margin: 10px auto;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  width: 80%;
+  height: 25px;
+  background-color: #e0e0e0;
+  border-radius: 12px;
+  margin: 10px auto;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #4caf50, #81c784);
-    width: 0%;
-    border-radius: 12px;
-    transition: width 0.3s ease-in-out;
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #81c784);
+  width: 0%;
+  border-radius: 12px;
+  transition: width 0.3s ease-in-out;
 }
 
 .progbar p {
-    margin-top: 5px;
-    font-weight: 500;
-    color: #333;
+  margin-top: 5px;
+  font-weight: 500;
+  color: #333;
 }
-
 
 .pdfBox {
   width: 80%;
@@ -73,14 +71,12 @@ h1 {
   box-shadow: 0 4px 10px rgba(0, 123, 255, 0.1);
 }
 
-
 .pdfBox input[type="file"] {
   margin-top: 1rem;
   font-size: 1rem;
   border: none;
   cursor: pointer;
 }
-
 
 .pdfBox p {
   margin: 0;
@@ -99,56 +95,63 @@ pre {
   text-align: left;
 }
 
-
 section {
   margin-top: 3rem;
 }
 
 .btn-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .btn-group {
-    display: flex;
-    gap: 20px;
+  display: flex;
+  gap: 20px;
 }
 
 .processbtn,
 .historybtn {
-    padding: 12px 28px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  padding: 12px 28px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-
 .processbtn {
-    background-color: #007bff;
-    color: white;
+  background-color: #007bff;
+  color: white;
 }
 
 .processbtn:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
 }
 
-
 .historybtn {
-    background-color: transparent;
-    color: #007bff;
-    border: 2px solid #007bff;
+  background-color: transparent;
+  color: #007bff;
+  border: 2px solid #007bff;
 }
 
 .historybtn:hover {
-    background-color: #007bff;
-    color: white;
+  background-color: #007bff;
+  color: white;
+}
+.cancelbtn {
+  background-color: #dc3545;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
 }
 
+.cancelbtn:hover {
+  background-color: #a71d2a;
+}
 
 @media (max-width: 600px) {
   .pdfBox {

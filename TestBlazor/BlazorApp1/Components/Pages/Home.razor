@@ -9,108 +9,133 @@
 @inject ShopTicketService sTService
 
 <PageTitle>Home</PageTitle>
-<h1>Home</h1>
-<section>
-    <section>
-        <div class="progbar">
-            <h1>Progress Bar</h1>
-            <div class="progress-container">
-                <div class="progress-bar" style="width:@progressValue%"></div>
-            </div>
-            <p>@progressStatus</p>
-        </div>
-    </section>
 
-    <div class="pdfcontainer">
-        <div class="pdfBox">
-            <InputFile OnChange="e => selectedFile = e" accept=".pdf" />
-            <p>Loaded PDF: @pdfName</p>
-        </div>
-    </div>
+<h1>Home</h1>
+
+<section>
+	<section>
+		<div class="progbar">
+			<h1>Progress Bar</h1>
+			<div class="progress-container">
+				<div class="progress-bar" style="width:@progressValue%"></div>
+			</div>
+			<p>@progressStatus</p>
+		</div>
+	</section>
+
+	<div class="pdfcontainer">
+		<div class="pdfBox">
+			<InputFile OnChange="e => selectedFile = e" accept=".pdf" />
+			<p>Loaded PDF: @pdfName</p>
+		</div>
+	</div>
 </section>
 
 <section>
-    <div class="btn-container">
-        <div class="btn-group" role="group" aria-label="Home actions">
-            <button class="processbtn" @onclick="OnPrimary" disabled="@isProcessing">Process</button>
-            <button class="historybtn" @onclick="OnSecondary">History</button>
-        </div>
-    </div>
+	<div class="btn-container">
+		<div class="btn-group" role="group" aria-label="Home actions">
+			<button class="@processButtonClass" @onclick="OnPrimary">@buttonLabel</button>
+			<button class="historybtn" @onclick="OnSecondary">History</button>
+		</div>
+	</div>
 </section>
 
 @code {
-    private string? pdfName = "No PDF Selected";
-    private InputFileChangeEventArgs? selectedFile;
-    private int progressValue = 0;
-    private string progressStatus = "Idle";
-    private bool isProcessing = false;
+	private string? pdfName = "No PDF Selected";
+	private InputFileChangeEventArgs? selectedFile;
+	private int progressValue = 0;
+	private string progressStatus = "Idle";
+	private bool isProcessing = false;
+	private bool cancelRequested = false;
+	private string buttonLabel = "Process";
+	private string processButtonClass => isProcessing ? "cancelbtn" : "processbtn";
 
-    private async Task OnPrimary()
-    {
-        Console.WriteLine("Primary clicked");
-        if (selectedFile != null)
-        {
-            isProcessing = true;
-            progressStatus = "Processing PDF...";
-            await SimulateProgressBarAsync();
+	private async Task OnPrimary()
+	{
+		if (!isProcessing)
+		{
+			if (selectedFile != null)
+			{
+				isProcessing = true;
+				cancelRequested = false;
+				buttonLabel = "Cancel";
+				progressStatus = "Processing PDF...";
+				StateHasChanged();
 
-            await HandleFileSelected(selectedFile);
-            Navigation.NavigateTo("/processing");
-        }
-        else
-        {
-            pdfName = "No file selected";
-            StateHasChanged();
-        }
-    }
+				await SimulateProgressBarAsync();
 
-    private void OnSecondary()
-    {
-        Console.WriteLine("Secondary clicked");
-    }
+				if (!cancelRequested)
+				{
+					await HandleFileSelected(selectedFile);
+					Navigation.NavigateTo("/processing");
+				}
+			}
+			else
+			{
+				pdfName = "No file selected";
+				StateHasChanged();
+			}
+		}
+		else
+		{
+			cancelRequested = true;
+			progressStatus = "Cancelling...";
+			buttonLabel = "Process";
+			StateHasChanged();
+		}
+	}
 
-    private async Task HandleFileSelected(InputFileChangeEventArgs e)
-    {
-        try
-        {
-            pdfName = "Loading...";
-            var file = e.File;
+	private void OnSecondary() => Console.WriteLine("History clicked");
 
-            using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
-            using var memoryStream = new MemoryStream();
-            await stream.CopyToAsync(memoryStream);
-            byte[] pdfBytes = memoryStream.ToArray();
+	private async Task HandleFileSelected(InputFileChangeEventArgs e)
+	{
+		try
+		{
+			pdfName = "Loading...";
+			var file = e.File;
 
-            sTService.CurrentTicket = new ShopTicket(file.Name, pdfBytes);
-            pdfName = sTService.CurrentTicket.FileName;
-            Console.WriteLine("PDF loaded successfully.");
-        }
-        catch (Exception ex)
-        {
-            pdfName = $"Error: {ex.Message}";
-            Console.WriteLine($"Error uploading file: {ex}");
-        }
-        StateHasChanged();
-    }
+			using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
+			using var memoryStream = new MemoryStream();
+			await stream.CopyToAsync(memoryStream);
+			byte[] pdfBytes = memoryStream.ToArray();
 
-    private async Task SimulateProgressBarAsync()
-    {
-        progressValue = 0;
-        StateHasChanged();
+			sTService.CurrentTicket = new ShopTicket(file.Name, pdfBytes);
+			pdfName = sTService.CurrentTicket.FileName;
+			Console.WriteLine("PDF loaded successfully.");
+		}
+		catch (Exception ex)
+		{
+			pdfName = $"Error: {ex.Message}";
+			Console.WriteLine($"Error uploading file: {ex}");
+		}
+		StateHasChanged();
+	}
 
-        while (progressValue < 100)
-        {
-            progressValue += 10;
-            if (progressValue > 100)
-                progressValue = 100;
+	private async Task SimulateProgressBarAsync()
+	{
+		progressValue = 0;
+		StateHasChanged();
 
-            progressStatus = $"Processing... {progressValue}%";
-            StateHasChanged();
+		while (progressValue < 100 && !cancelRequested)
+		{
+			progressValue += 5;
+			progressStatus = $"Processing... {progressValue}%";
+			StateHasChanged();
+			await Task.Delay(150);
+		}
 
-            await Task.Delay(100); 
-        }
+		if (cancelRequested)
+		{
+			progressStatus = "Process Cancelled.";
+			progressValue = 0;
+		}
+		else
+		{
+			progressStatus = "Done!";
+		}
 
-        progressStatus = "Done!";
-        StateHasChanged();
-    }
+		isProcessing = false;
+		buttonLabel = "Process";
+		StateHasChanged();
+	}
 }

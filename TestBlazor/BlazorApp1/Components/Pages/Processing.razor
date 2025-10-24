@@ -9,10 +9,8 @@
 
 <PageTitle>PDF Info</PageTitle>
 
-<section class="mt-3">
-    <div>
-        <button class="homeButt" @onclick="GoHome">Back to Home</button>
-    </div>
+<section class="topbar">
+    <button class="homeButt" @onclick="GoHome">Back to Home</button>
 </section>
 
 <section>
@@ -21,27 +19,23 @@
     </div>
 </section>
 
-<section>
-    <div class="pdfcontainer">
-        <div class="pdfVisBox">
-            <p>@eventLog</p>
+<section class="pdfcontainer">
+    <div class="pdfVisBox">
+        <p>@eventLog</p>
 
-            @if (!string.IsNullOrEmpty(base64Url))
-            {
-                <PdfViewer Class="pdfViewer" Url="@base64Url" OnDocumentLoaded="OnDocumentLoaded"
-                    OnPageChanged="OnPageChanged" />
-            }
-            else
-            {
-                <p><em>No PDF data available to display.</em></p>
-            }
-        </div>
+        @if (!string.IsNullOrEmpty(base64Url))
+        {
+            <PdfViewer Class="pdfViewer" Url="@base64Url" OnDocumentLoaded="OnDocumentLoaded"
+                OnPageChanged="OnPageChanged" />
+        }
+        else
+        {
+            <p><em>No PDF data available to display.</em></p>
+        }
+    </div>
 
-        <div class="pdfinfo">
-            <p>@((MarkupString)sTService.CurrentTicket?.ToString().Replace("\n", "<br />"))</p>
-        </div>
-
-        <div class="clear"></div>
+    <div class="pdfinfo">
+        <p>@((MarkupString)sTService.CurrentTicket?.ToString().Replace("\n", "<br />"))</p>
     </div>
 </section>
 
