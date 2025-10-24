@@ -11,78 +11,106 @@
 <PageTitle>Home</PageTitle>
 <h1>Home</h1>
 <section>
-<section>
-<div class = "progbar">
-<h1>Progress Bar</h1>
-</div>
-</section>
-<div class="pdfcontainer">
-<div class="pdfBox">
-	<InputFile OnChange="e => selectedFile = e" accept=".pdf" />
-	@if (pdfName != null)
-	{}
-    <p>Loaded PDF: @pdfName</p>
-</div>
-</div>
+    <section>
+        <div class="progbar">
+            <h1>Progress Bar</h1>
+            <div class="progress-container">
+                <div class="progress-bar" style="width:@progressValue%"></div>
+            </div>
+            <p>@progressStatus</p>
+        </div>
+    </section>
+
+    <div class="pdfcontainer">
+        <div class="pdfBox">
+            <InputFile OnChange="e => selectedFile = e" accept=".pdf" />
+            <p>Loaded PDF: @pdfName</p>
+        </div>
+    </div>
 </section>
 
 <section>
-<div class="btn-container">
-	<div class="btn-group" role="group" aria-label="Home actions">
-		<button class="processbtn" @onclick="OnPrimary">Process</button>
-		<button class="historybtn" @onclick="OnSecondary">History</button>
-	</div>
-</div>
+    <div class="btn-container">
+        <div class="btn-group" role="group" aria-label="Home actions">
+            <button class="processbtn" @onclick="OnPrimary" disabled="@isProcessing">Process</button>
+            <button class="historybtn" @onclick="OnSecondary">History</button>
+        </div>
+    </div>
 </section>
 
 @code {
-    // Example handlers - replace with real logic as needed
-    private string? pdfName = "pdf ";
+    private string? pdfName = "No PDF Selected";
     private InputFileChangeEventArgs? selectedFile;
-	private async Task OnPrimary()
-	{
-		Console.WriteLine("Primary clicked");
-		if (selectedFile != null)
-		{
-			await HandleFileSelected(selectedFile);
-			Navigation.NavigateTo("/processing");
-		}
-		else
-		{
-			pdfName = "No file selected";
-			StateHasChanged();
-		}
-	}
+    private int progressValue = 0;
+    private string progressStatus = "Idle";
+    private bool isProcessing = false;
 
-	private void OnSecondary()
-	{
-		Console.WriteLine("Secondary clicked");
-	}
-
-	private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    private async Task OnPrimary()
     {
-		try
-		{
-			pdfName = "Loading...";
-			var file = e.File;
+        Console.WriteLine("Primary clicked");
+        if (selectedFile != null)
+        {
+            isProcessing = true;
+            progressStatus = "Processing PDF...";
+            await SimulateProgressBarAsync();
 
-			using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
-    		using var memoryStream = new MemoryStream();
-    		await stream.CopyToAsync(memoryStream);
-    		byte[] pdfBytes = memoryStream.ToArray();
-
-			sTService.CurrentTicket = new ShopTicket(file.Name, pdfBytes);
-			pdfName = sTService.CurrentTicket.ToString();
-
-			Console.WriteLine($"PDF loaded from filepath successfully");
-		}
-		catch (Exception ex)
-		{
-			pdfName = $"Error: {ex.Message}";
-			Console.WriteLine($"Error uploading file: {ex}");
-		}
-		StateHasChanged();
+            await HandleFileSelected(selectedFile);
+            Navigation.NavigateTo("/processing");
+        }
+        else
+        {
+            pdfName = "No file selected";
+            StateHasChanged();
+        }
     }
 
-}
+    private void OnSecondary()
+    {
+        Console.WriteLine("Secondary clicked");
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            pdfName = "Loading...";
+            var file = e.File;
+
+            using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            byte[] pdfBytes = memoryStream.ToArray();
+
+            sTService.CurrentTicket = new ShopTicket(file.Name, pdfBytes);
+            pdfName = sTService.CurrentTicket.FileName;
+            Console.WriteLine("PDF loaded successfully.");
+        }
+        catch (Exception ex)
+        {
+            pdfName = $"Error: {ex.Message}";
+            Console.WriteLine($"Error uploading file: {ex}");
+        }
+        StateHasChanged();
+    }
+
+    private async Task SimulateProgressBarAsync()
+    {
+        progressValue = 0;
+        StateHasChanged();
+
+        while (progressValue < 100)
+        {
+            progressValue += 10;
+            if (progressValue > 100)
+                progressValue = 100;
+
+            progressStatus = $"Processing... {progressValue}%";
+            StateHasChanged();
+
+            await Task.Delay(100); 
+        }
+
+        progressStatus = "Done!";
+        StateHasChanged();
+    }
 }
