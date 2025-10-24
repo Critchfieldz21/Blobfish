@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
@@ -36,7 +37,7 @@ namespace BackendLibrary
                     {
                         IEnumerable<Word> words = page.GetWords();
                         List<Word> pieceWords = (from Word word in words
-                                                 where word.Text == "PIECE"
+                                                 where word.Text.Equals("PIECE", StringComparison.OrdinalIgnoreCase)
                                                  select word).ToList();
                         // foreach (Word word in words)
                         // {
@@ -45,7 +46,11 @@ namespace BackendLibrary
                         foreach (Word word in pieceWords)
                         {
                             Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
-                            if (string.Equals(foundWord.Text, "MARK"))
+                            if (foundWord is null)
+                            {
+                                continue;
+                            }
+                            if (string.Equals(foundWord.Text, "MARK", StringComparison.OrdinalIgnoreCase))
                             {
                                 Word? piecemarkWord = FindWordNextTo(word, words, -2, 2, -10, 0);
                                 if (piecemarkWord is null)
@@ -62,12 +67,16 @@ namespace BackendLibrary
                     {
                         IEnumerable<Word> words = page.GetWords();
                         List<Word> piecesWords = (from Word word in words
-                                                  where word.Text == "PIECES"
+                                                  where word.Text.Equals("PIECES", StringComparison.OrdinalIgnoreCase)
                                                   select word).ToList();
                         foreach (Word word in piecesWords)
                         {
                             Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
-                            if (string.Equals(foundWord.Text, "REQ'D:"))
+                            if (foundWord is null)
+                            {
+                                continue;
+                            }
+                            if (foundWord.Text.Contains("REQ", StringComparison.OrdinalIgnoreCase))
                             {
                                 Word? piecesreqdWord = FindWordNextTo(word, words, -2, 30, -10, -4);
                                 if (piecesreqdWord is null)
@@ -84,7 +93,7 @@ namespace BackendLibrary
                     {
                         IEnumerable<Word> words = page.GetWords();
                         List<Word> designWords = (from Word word in words
-                                                  where word.Text == "DESIGN:"
+                                                  where word.Text.Equals("DESIGN:", StringComparison.OrdinalIgnoreCase)
                                                   select word).ToList();
                         foreach (Word word in designWords)
                         {
@@ -101,13 +110,18 @@ namespace BackendLibrary
                     foreach (Page page in pages)
                     {
                         IEnumerable<Word> words = page.GetWords();
-                        List<Word> piecesWords = (from Word word in words
-                                                  where word.Text == "JOB"
+                        List<Word> jobWords = (from Word word in words
+                                                  where word.Text.Equals("JOB", StringComparison.OrdinalIgnoreCase)
                                                   select word).ToList();
-                        foreach (Word word in piecesWords)
+                        foreach (Word word in jobWords)
                         {
                             Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
-                            if (string.Equals(foundWord.Text, "NO."))
+                            List<String> searchTerms = new List<String> { "NO.", "NO:" , "NUMBER", "NUMBER:", "NUM", "NUM:" };
+                            if (foundWord is null)
+                            {
+                                continue;
+                            }
+                            if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                             {
                                 Word? piecesreqdWord = FindWordNextTo(word, words, -4, 8, -12, -4);
                                 if (piecesreqdWord is null)
@@ -124,7 +138,7 @@ namespace BackendLibrary
                     {
                         IEnumerable<Word> words = page.GetWords();
                         List<Word> weightWords = (from Word word in words
-                                                  where word.Text == "WEIGHT:"
+                                                  where word.Text.Contains("WEIGHT", StringComparison.OrdinalIgnoreCase)
                                                   select word).ToList();
                         foreach (Word word in weightWords)
                         {
@@ -142,8 +156,8 @@ namespace BackendLibrary
                     {
                         IEnumerable<Word> words = page.GetWords();
                         List<Word> projectWords = (from Word word in words
-                                                where word.Text == "PROJECT:"
-                                                select word).ToList();
+                                                   where word.Text.Contains("PROJECT", StringComparison.OrdinalIgnoreCase)
+                                                   select word).ToList();
                         foreach (Word word in projectWords)
                         {
                             List<Word> projectNameWords = FindWordsNextTo(word, words, -2, 120, -10, -1);
