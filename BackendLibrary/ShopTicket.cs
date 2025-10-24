@@ -17,7 +17,7 @@ namespace BackendLibrary
         public string ProjectNumber { get; set; }                  // Project Number from the title block labelled "JOB NO.".
         public string ProjectName { get; set; }                    // Project Name from the title block labelled "PROJECT:".
         public string FileContentPieceMark { get; set; }           // Piece Mark from the title block labelled "PIECE MARK".
-        //public string[]? ControlNumbers { get; set; }                       // Control numbers from the square above the title block labelled "CONTROL NO.:".
+        public string[]? ControlNumbers { get; set; }                       // Control numbers from the square above the title block labelled "CONTROL NO.:".
         public int PiecesRequired { get; set; }                    // Pieces required from the title block labelled "PIECES REQ'D:".
         public decimal Weight { get; set; }                        // Weight from the title block labelled "WEIGHT:".
         public string DesignNumber { get; set; }                   // Design number from the title block labelled "DESIGN:".
@@ -94,6 +94,7 @@ namespace BackendLibrary
                 ProjectNumber = pdfTextExtractor.ExtractText("ProjectNumber");
                 ProjectName = pdfTextExtractor.ExtractText("ProjectName");
                 FileContentPieceMark = pdfTextExtractor.ExtractText("FileContentPieceMark");
+                ControlNumbers = pdfTextExtractor.ExtractTextArray("ControlNumbers");
                 PiecesRequired = int.Parse(pdfTextExtractor.ExtractText("PiecesRequired"));
                 Weight = decimal.Parse(pdfTextExtractor.ExtractText("Weight"));
                 DesignNumber = pdfTextExtractor.ExtractText("DesignNumber");
@@ -113,6 +114,7 @@ namespace BackendLibrary
                 "ProjectNumber: " + ProjectNumber + "\n" +
                 "ProjectName: " + ProjectName + "\n" +
                 "FileContentPieceMark: " + FileContentPieceMark + "\n" +
+                "ControlNumbers: " + (ControlNumbers != null ? string.Join(", ", ControlNumbers) : "null") + "\n" +
                 "PiecesRequired: " + PiecesRequired + "\n" +
                 "Weight: " + Weight + " lb\n" +
                 "DesignNumber: " + DesignNumber + "\n";

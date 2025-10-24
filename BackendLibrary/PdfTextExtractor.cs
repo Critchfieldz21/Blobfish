@@ -15,21 +15,22 @@ namespace BackendLibrary
     internal class PdfTextExtractor
     {
         private PdfDocument pdf;
+        private IEnumerable<Page> pages;
 
         public PdfTextExtractor(String pdfPath)
         {
             pdf = PdfDocument.Open(File.OpenRead(pdfPath));
+            pages = pdf.GetPages();
         }
 
         public PdfTextExtractor(byte[] pdfBytes) 
         {
             pdf = PdfDocument.Open(pdfBytes);
+            pages = pdf.GetPages();
         }
 
         public string ExtractText(string text)
         {
-            IEnumerable<Page> pages = pdf.GetPages();
-
             switch (text)
             {
                 case "FileContentPieceMark":
@@ -39,10 +40,10 @@ namespace BackendLibrary
                         List<Word> pieceWords = (from Word word in words
                                                  where word.Text.Equals("PIECE", StringComparison.OrdinalIgnoreCase)
                                                  select word).ToList();
-                        // foreach (Word word in words)
-                        // {
-                        //     Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
-                        // }
+                        foreach (Word word in words)
+                        {
+                            Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
+                        }
                         foreach (Word word in pieceWords)
                         {
                             Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
@@ -186,6 +187,64 @@ namespace BackendLibrary
             }
         }
         
+        public string[]? ExtractTextArray(string text)
+        {
+            switch (text)
+            {
+                case "PageNames":
+                    throw new ArgumentException($"Extraction for '{text}' is not implemented.");
+                case "ControlNumbers":
+                    List<String> controlnumList = new List<String>();
+                    foreach (Page page in pages)
+                    {
+                        IEnumerable<Word> words = page.GetWords();
+                        List<String> searchTerms = new List<String> { "CONTROL", "CTRL" };
+                        List<Word> controlWords = (from Word word in words
+                                                   where searchTerms.Any(searchTerm => searchTerm.Equals(word.Text, StringComparison.OrdinalIgnoreCase))
+                                                   select word).ToList();
+                        foreach (Word word in controlWords)
+                        {
+                            Word? foundWord = FindWordNextTo(word, words, 5, 35, -1, 1);
+                            if (foundWord is null)
+                            {
+                                continue;
+                            }
+                            searchTerms = new List<String> { "NUMBER", "NUMBER:" };
+                            if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                List<Word> controlnumWords = FindWordsNextTo(word, words, -4, 50, -12, -2);
+                                if (controlnumWords.Count == 0)
+                                {
+                                    throw new NullReferenceException($"Failed to get {text}");
+                                }
+                                return [.. controlnumWords.Select(word => word.Text)];
+                            }
+                            searchTerms = new List<String> { "NO.", "NO:", "NO.:" };
+                            if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                List<Word> controlnumWords;
+                                if (word.BoundingBox.Left > 800 && word.BoundingBox.Left < 860)
+                                {
+                                    controlnumWords = FindWordsNextTo(word, words, -4, 30, -15, -2);
+                                }
+                                else
+                                {
+                                    controlnumWords = FindWordsNextTo(word, words, -4, 150, -40, -2);
+                                }      
+                                if (controlnumWords.Count == 0)
+                                {
+                                    throw new NullReferenceException($"Failed to get {text}");
+                                }
+                                return [.. controlnumWords.Select(word => word.Text)];
+                            }
+                        } 
+                    }
+                    return null;
+                default:
+                    throw new ArgumentException($"Extraction for '{text}' is not implemented.");
+            }    
+        }
+
         // Finds one word among IEnumerable<Word> words relative to an anchorWord given specified bounds
         public Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
         {
