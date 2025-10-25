@@ -189,107 +189,104 @@ namespace BackendLibraryUnitTest
                     1,                                              // expectedPiecesRequired
                     12361,                                          // expectedWeight
                     "SP3"                                           // expectedDesignNumber
-                
-},
-new object[] {
+                },
+                new object[] {
                     "../../../test_pdfs/20-NE0881-W004_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "20-NE0881-W004_P2",                            // expectedFileName
                     "W004",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
-                    "HRP HUDSON BUILDING 1",              // expectedProjectName
+                    "HRP HUDSON BUILDING 1",                        // expectedProjectName
                     "W004",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     14900,                                          // expectedWeight
-    "IWP2.00"
-},
-new object[] {
+                    "IWP2.00"                                       // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/20-NE0881-W054_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "20-NE0881-W054_P2",                            // expectedFileName
                     "W054",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
-                    "HRP HUDSON BUILDING 1",              // expectedProjectName
-                    "W004",                                         // expectedFileContentPieceMark
+                    "HRP HUDSON BUILDING 1",                        // expectedProjectName
+                    "W054",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     42000,                                          // expectedWeight
-    "IWP1.00"
-},
-new object[] {
+                    "IWP1.00"                                       // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/20-NE0881-W067_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "20-NE0881-W067_P2",                            // expectedFileName
                     "W067",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
-                    "HRP HUDSON BUILDING 1",              // expectedProjectName
+                    "HRP HUDSON BUILDING 1",                        // expectedProjectName
                     "W067",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     43900,                                          // expectedWeight
-    "IWP1.00"
-},
-new object[] {
+                    "IWP1.00"                                       // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/20-NE0881-W081_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "20-NE0881-W081_P2",                            // expectedFileName
                     "W081",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
-                    "HRP HUDSON BUILDING 1",              // expectedProjectName
+                    "HRP HUDSON BUILDING 1",                        // expectedProjectName
                     "W081",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     14900,                                          // expectedWeight
-    "IWP2.00"
-},
-new object[] {
+                    "IWP2.00"                                       // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/20-NE0881-W150_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "20-NE0881-W150_P2",                            // expectedFileName
                     "W150",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
-                    "HRP HUDSON BUILDING 1",              // expectedProjectName
-                    "W109",                                         // expectedFileContentPieceMark
+                    "HRP HUDSON BUILDING 1",                        // expectedProjectName
+                    "W150",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     41700,                                          // expectedWeight
-    "IWP1.00"
-},
-new object[] {
+                    "IWP1.00"                                       // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/20-NE0881-W165_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "20-NE0881-W165_P2",                            // expectedFileName
                     "W165",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
-                    "HRP HUDSON BUILDING 1",              // expectedProjectName
+                    "HRP HUDSON BUILDING 1",                        // expectedProjectName
                     "W165",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     50700,                                          // expectedWeight
-    "IWP1.00"
-},
-new object[] {
+                    "IWP1.00"                                       // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1204-W034_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1204-W034_P2",                            // expectedFileName
                     "W034",                                         // expectedFileNamePieceMark
                     "25-NE1204",                                    // expectedProjectNumber
-                    "LINK-HYATT",              // expectedProjectName
+                    "LINK - HYATT",                                 // expectedProjectName
                     "W034",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     54200,                                          // expectedWeight
-    "IWPI.00"
-},
-new object[] {
+                    "IWP1.00"                                       // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1209-W210_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1209-W210_P2",                            // expectedFileName
                     "W210",                                         // expectedFileNamePieceMark
                     "25-NE1209",                                    // expectedProjectNumber
-                    "PROJECT AERIE",              // expectedProjectName
+                    "PROJECT AERIE",                                // expectedProjectName
                     "W210",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     11700,                                          // expectedWeight
-    "IWP1.00"
-},
-
-
-new object[] {
+                    "IWP1.00"                                       // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1212-W260_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1212-W260_P2",                            // expectedFileName
@@ -298,46 +295,46 @@ new object[] {
                     "NEWBURGH SOUTH LOGISTICS CENTER",              // expectedProjectName
                     "W260",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
-                    7807,                                          // expectedWeight
-    "SP1"
-},
-  new object[] {
+                    7807,                                           // expectedWeight
+                    "SP1"                                           // expectedDesignNumber
+                },
+                  new object[] {
                     "../../../test_pdfs/25-NE1224-W144_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1224-W144_P2",                            // expectedFileName
                     "W144",                                         // expectedFileNamePieceMark
                     "25-NE1224",                                    // expectedProjectNumber
-                    "MAPLETREE WAREHOUSE",              // expectedProjectName
+                    "MAPLETREE WAREHOUSE",                          // expectedProjectName
                     "W144",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     29577,                                          // expectedWeight
-    "SP5"
-},
-new object[] {
+                    "SP5"                                           // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1212-W262_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1212-W262_P2",                            // expectedFileName
-                    "W1262",                                         // expectedFileNamePieceMark
+                    "W262",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
                     "NEWBURGH SOUTH LOGISTICS CENTER",              // expectedProjectName
                     "W262",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     15263,                                          // expectedWeight
-    "SP5"
-},
-new object[] {
+                    "SP5"                                           // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1209-W179_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1209-W179_P2",                            // expectedFileName
                     "W179",                                         // expectedFileNamePieceMark
                     "25-NE1209",                                    // expectedProjectNumber
-                    "PROJECT AERIE",              // expectedProjectName
+                    "PROJECT AERIE",                                // expectedProjectName
                     "W179",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     40500,                                          // expectedWeight
-    "IWP1.00"
-},
-new object[] {
+                    "IWP3.00"                                       // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1212-W259_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1212-W259_P2",                            // expectedFileName
@@ -347,8 +344,9 @@ new object[] {
                     "W259",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     31173,                                          // expectedWeight
-    "SP4"
-},new object[] {
+                    "SP4"                                           // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1212-W271_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1212-W271_P2",                            // expectedFileName
@@ -358,9 +356,9 @@ new object[] {
                     "W271",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     12985,                                          // expectedWeight
-    "SP3"
-},
-new object[] {
+                    "SP3"                                           // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1212-W234_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1212-W234_P2",                            // expectedFileName
@@ -370,9 +368,9 @@ new object[] {
                     "W234",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     39613,                                          // expectedWeight
-    "SP2"
-},
-new object[] {
+                    "SP2"                                           // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1212-W218_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1212-W218_P2",                            // expectedFileName
@@ -382,9 +380,9 @@ new object[] {
                     "W218",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     39154,                                          // expectedWeight
-    "SP2"
-},
-new object[] {
+                    "SP2"                                           // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1212-W205_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1212-W205_P2",                            // expectedFileName
@@ -394,10 +392,9 @@ new object[] {
                     "W205",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     14416,                                          // expectedWeight
-    "SP5"
-
-},
-new object[] {
+                    "SP5"                                           // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1212-W153_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1212-W153_P2",                            // expectedFileName
@@ -407,21 +404,9 @@ new object[] {
                     "W153",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     24068,                                          // expectedWeight
-    "SP4"
-},
-new object[] {
-                    "../../../test_pdfs/25-NE1212-W109_P2.pdf",     // filePath
-                    3,                                              // expectedNumberOfPages
-                    "25-NE1212-W109_P2",                            // expectedFileName
-                    "W109",                                         // expectedFileNamePieceMark
-                    "25-NE1212",                                    // expectedProjectNumber
-                    "NEWBURGH SOUTH LOGISTICS CENTER",              // expectedProjectName
-                    "W109",                                         // expectedFileContentPieceMark
-                    1,                                              // expectedPiecesRequired
-                    53396,                                          // expectedWeight
-    "SP1"
-},
-new object[] {
+                    "SP4"                                           // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1212-W148_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1212-W148_P2",                            // expectedFileName
@@ -430,10 +415,10 @@ new object[] {
                     "NEWBURGH SOUTH LOGISTICS CENTER",              // expectedProjectName
                     "W148",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
-                    9050,                                          // expectedWeight
-    "SP5"
-},
-new object[] {
+                    9050,                                           // expectedWeight
+                    "SP5"                                           // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/25-NE1212-W085_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "25-NE1212-W085_P2",                            // expectedFileName
@@ -443,59 +428,57 @@ new object[] {
                     "W085",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     57084,                                          // expectedWeight
-    "SP1"
-},
-new object[] {
+                    "SP1"                                           // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/24-NE1096-B001_P0.pdf",     // filePath
                     2,                                              // expectedNumberOfPages
                     "24-NE1096-B001_P0",                            // expectedFileName
                     "B001",                                         // expectedFileNamePieceMark
                     "24-NE1096",                                    // expectedProjectNumber
-                    "WOODBRIDGE METROPARK GARAGE",              // expectedProjectName
+                    "WOODBRIDGE METROPARK GARAGE",                  // expectedProjectName
                     "B001",                                         // expectedFileContentPieceMark
                     6,                                              // expectedPiecesRequired
                     50100,                                          // expectedWeight
-    "IT1.00"
-},
-new object[] {
-                    "../../../test_pdfs/24-NE1096-DT007_P0.pdf",     // filePath
+                    "IT1.00"                                        // expectedDesignNumber
+                },
+                new object[] {
+                    "../../../test_pdfs/24-NE1096-DT007_P0.pdf",    // filePath
                     2,                                              // expectedNumberOfPages
-                    "24-NE1096-DT007_P0",                            // expectedFileName
-                    "DT007",                                         // expectedFileNamePieceMark
+                    "24-NE1096-DT007_P0",                           // expectedFileName
+                    "DT007",                                        // expectedFileNamePieceMark
                     "24-NE1096",                                    // expectedProjectNumber
-                    "WOODBRIDGE METROPARK GARAGE",              // expectedProjectName
-                    "DT007",                                         // expectedFileContentPieceMark
+                    "WOODBRIDGE METROPARK GARAGE",                  // expectedProjectName
+                    "DT007",                                        // expectedFileContentPieceMark
                     6,                                              // expectedPiecesRequired
                     62100,                                          // expectedWeight
-    "DT2.00"
-},
-new object[] {
-                    "../../../test_pdfs/24-NE1096-DT003_P0.pdf",     // filePath
+                    "DT2.00"                                        // expectedDesignNumber
+                },
+                new object[] {
+                    "../../../test_pdfs/24-NE1096-DT003_P0.pdf",    // filePath
                     2,                                              // expectedNumberOfPages
-                    "24-NE1096-DT003_P0",                            // expectedFileName
-                    "DT003",                                         // expectedFileNamePieceMark
+                    "24-NE1096-DT003_P0",                           // expectedFileName
+                    "DT003",                                        // expectedFileNamePieceMark
                     "24-NE1096",                                    // expectedProjectNumber
-                    "WOODBRIDGE METROPARK GARAGE",              // expectedProjectName
-                    "DT003",                                         // expectedFileContentPieceMark
+                    "WOODBRIDGE METROPARK GARAGE",                  // expectedProjectName
+                    "DT003",                                        // expectedFileContentPieceMark
                     5,                                              // expectedPiecesRequired
                     62500,                                          // expectedWeight
-    "DT2.00"
-
-},
-new object[] {
+                    "DT2.00"                                        // expectedDesignNumber
+                },
+                new object[] {
                     "../../../test_pdfs/24-NE1087-W133_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
                     "24-NE1087-W133_P2",                            // expectedFileName
                     "W133",                                         // expectedFileNamePieceMark
                     "24-NE1087",                                    // expectedProjectNumber
-                    "NEWBURGH SOUTH LOGISTICS CENTER",              // expectedProjectName
+                    "TNTR CLUBHOUSE",                               // expectedProjectName
                     "W133",                                         // expectedFileContentPieceMark
                     1,                                              // expectedPiecesRequired
                     28800,                                          // expectedWeight
-    "IWP2.00"
-
-}
-          };
+                    "IWP2.00"                                       // expectedDesignNumber
+                }
+            };
 
         [Theory]
         [MemberData(nameof(TestData))]
