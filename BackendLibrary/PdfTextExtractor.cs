@@ -28,6 +28,16 @@ namespace BackendLibrary
         {
             pdf = PdfDocument.Open(pdfBytes);
             pages = pdf.GetPages();
+
+            // Uncomment to debug word extraction
+            //foreach (Page page in pages)
+            //{
+            //    IEnumerable<Word> words = page.GetWords();
+            //    foreach (Word word in words)
+            //    {
+            //        Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
+            //    }
+            //}
         }
 
         public string ExtractProjectNumber()
@@ -101,10 +111,6 @@ namespace BackendLibrary
                 List<Word> pieceWords = (from Word word in words
                                          where word.Text.Equals("PIECE", StringComparison.OrdinalIgnoreCase)
                                          select word).ToList();
-                //foreach (Word word in words)
-                //{
-                //    Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
-                //}
                 foreach (Word word in pieceWords)
                 {
                     Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
