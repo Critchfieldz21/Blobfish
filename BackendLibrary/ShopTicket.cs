@@ -91,13 +91,13 @@ namespace BackendLibrary
             try
             {
                 FileNamePieceMark = pdfFileNameExtractor.GetFileNamePieceMark();
-                ProjectNumber = pdfTextExtractor.ExtractText("ProjectNumber");
-                ProjectName = pdfTextExtractor.ExtractText("ProjectName");
-                FileContentPieceMark = pdfTextExtractor.ExtractText("FileContentPieceMark");
-                ControlNumbers = pdfTextExtractor.ExtractTextArray("ControlNumbers");
-                PiecesRequired = int.Parse(pdfTextExtractor.ExtractText("PiecesRequired"));
-                Weight = decimal.Parse(pdfTextExtractor.ExtractText("Weight"));
-                DesignNumber = pdfTextExtractor.ExtractText("DesignNumber");
+                ProjectNumber = pdfTextExtractor.ExtractProjectNumber();
+                ProjectName = pdfTextExtractor.ExtractProjectName();
+                FileContentPieceMark = pdfTextExtractor.ExtractFileContentPieceMark();
+                ControlNumbers = pdfTextExtractor.ExtractControlNumbers();
+                PiecesRequired = pdfTextExtractor.ExtractPiecesRequired();
+                Weight = pdfTextExtractor.ExtractWeight();
+                DesignNumber = pdfTextExtractor.ExtractDesignNumber();
             }
             catch (Exception ex)
             {

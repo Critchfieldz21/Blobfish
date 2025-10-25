@@ -11,7 +11,7 @@ class Program
         //String filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/20-NE0881-W001_P2.pdf";
         //String filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/24-NE1096-DT023_P0.pdf";
         //string filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/25-NE1203.01-W015_P2.pdf";
-        String filePath = "C:/Users/lance/Source/Repos/Blobfish/BackendLibraryUnitTest/test_pdfs/25-NE1203.02-W045_P2.pdf";
+        String filePath = "C:/Users/lance/Source/Repos/Blobfish/BackendLibraryUnitTest/test_pdfs/24-NE1096-DT051_P0.pdf";
         //String filePath = "";
 
         byte[] pdfBytes = File.ReadAllBytes(filePath);
