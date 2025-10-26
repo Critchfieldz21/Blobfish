@@ -29,7 +29,7 @@ namespace BackendLibrary
             pdf = PdfDocument.Open(pdfBytes);
             pages = pdf.GetPages();
 
-            // Uncomment to debug word extraction
+            //// Uncomment to debug word extraction
             //foreach (Page page in pages)
             //{
             //    IEnumerable<Word> words = page.GetWords();
@@ -80,7 +80,7 @@ namespace BackendLibrary
                                            select word).ToList();
                 foreach (Word word in projectWords)
                 {
-                    List<Word> projectNameWords = FindWordsNextTo(word, words, -2, 120, -10, -1);
+                    List<Word> projectNameWords = FindWordsNextTo(word, words, -2, 120, -10, 0);
                     if (projectNameWords.Count == 0)
                     {
                         throw new NullReferenceException($"Failed to get ProjectName");
@@ -120,7 +120,7 @@ namespace BackendLibrary
                     }
                     if (string.Equals(foundWord.Text, "MARK", StringComparison.OrdinalIgnoreCase))
                     {
-                        Word? piecemarkWord = FindWordNextTo(word, words, -2, 2, -10, 0);
+                        Word? piecemarkWord = FindWordNextTo(word, words, -2, 15, -10, -2);
                         if (piecemarkWord is null)
                         {
                             throw new NullReferenceException($"Failed to get FileContentPieceMark");

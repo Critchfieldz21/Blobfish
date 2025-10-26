@@ -477,6 +477,18 @@ namespace BackendLibraryUnitTest
                     1,                                              // expectedPiecesRequired
                     28800,                                          // expectedWeight
                     "IWP2.00"                                       // expectedDesignNumber
+                },
+                new object[] {
+                    "../../../test_pdfs/25-NE1222 W017_P2.pdf",     // filePath
+                    3,                                              // expectedNumberOfPages
+                    "25-NE1222 W017_P2",                            // expectedFileName
+                    "W017",                                         // expectedFileNamePieceMark
+                    "25-NE1222",                                    // expectedProjectNumber
+                    "Flint Hill",                                   // expectedProjectName
+                    "W017",                                         // expectedFileContentPieceMark
+                    1,                                              // expectedPiecesRequired
+                    45300,                                          // expectedWeight
+                    "IWP3.00"                                       // expectedDesignNumber
                 }
             };
 
