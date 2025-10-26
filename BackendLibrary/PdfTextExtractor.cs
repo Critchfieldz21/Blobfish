@@ -134,7 +134,10 @@ namespace BackendLibrary
 
         public string[]? ExtractControlNumbers()
         {
-            List<String> controlnumList = new List<String>();
+            List<Word> controlnumWords = new List<Word>();
+            List<String> controlnumstrList = new List<String>();
+            List<String> resultList = new List<String>();
+
             foreach (Page page in pages)
             {
                 IEnumerable<Word> words = page.GetWords();
@@ -152,17 +155,15 @@ namespace BackendLibrary
                     searchTerms = new List<String> { "NUMBER", "NUMBER:" };
                     if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                     {
-                        List<Word> controlnumWords = FindWordsNextTo(word, words, -4, 50, -12, -2);
+                        controlnumWords = FindWordsNextTo(word, words, -4, 50, -12, -2);
                         if (controlnumWords.Count == 0)
                         {
                             return null;
                         }
-                        return [.. controlnumWords.Select(word => word.Text)];
                     }
                     searchTerms = new List<String> { "NO.", "NO:", "NO.:" };
                     if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                     {
-                        List<Word> controlnumWords;
                         if (word.BoundingBox.Left > 800 && word.BoundingBox.Left < 860)
                         {
                             controlnumWords = FindWordsNextTo(word, words, -4, 30, -15, -2);
@@ -174,8 +175,14 @@ namespace BackendLibrary
                         if (controlnumWords.Count == 0)
                         {
                             return null;
-                        }
-                        return [.. controlnumWords.Select(word => word.Text)];
+                        }  
+                    }
+                    if (controlnumWords is not null)
+                    {
+                        controlnumstrList.AddRange(controlnumWords.Select(word => word.Text));
+                        controlnumstrList.ForEach(str => resultList.AddRange(str.Split(',', StringSplitOptions.RemoveEmptyEntries)));
+
+                        return resultList.Distinct().ToArray();
                     }
                 }
             }
