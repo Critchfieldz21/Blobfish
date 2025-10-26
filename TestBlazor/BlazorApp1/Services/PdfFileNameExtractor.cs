@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace BackendLibrary
 {
@@ -60,9 +54,9 @@ namespace BackendLibrary
         public String GetFileNamePieceMark()
         {
             String NameOfFile = FileName;
-            char[] sep = { '-', '_' };
+            char[] sep = { '-', '_', ' ' };
 
-            String[] NameSplit = NameOfFile.Split(sep);
+            String[] NameSplit = NameOfFile.Split(sep, StringSplitOptions.RemoveEmptyEntries);
 
             // Capture everything up to the last number
             string pattern = @"^(.*?\d+).*$";
