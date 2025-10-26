@@ -1,7 +1,4 @@
 ﻿using BackendLibrary;
-using PdfSharp.Pdf;
-using PdfSharp.Pdf.IO;
-using System.IO;
 
 class Program
 {

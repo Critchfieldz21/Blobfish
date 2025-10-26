@@ -1,15 +1,5 @@
-﻿using PdfSharp.Snippets.Font;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using UglyToad.PdfPig;
+﻿using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace BackendLibrary
 {
