@@ -153,6 +153,19 @@ section {
   background-color: #a71d2a;
 }
 
+.dropdown-menu {
+    position: absolute;
+    top: 100%; /* Places dropdown directly below the button */
+    left: 50%;
+    display: none;
+    z-index: 1000;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+
 @media (max-width: 600px) {
   .pdfBox {
     width: 95%;

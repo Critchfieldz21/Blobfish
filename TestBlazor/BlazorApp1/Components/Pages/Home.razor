@@ -36,6 +36,10 @@
 		<div class="btn-group" role="group" aria-label="Home actions">
 			<button class="@processButtonClass" @onclick="OnPrimary">@buttonLabel</button>
 			<button class="historybtn" @onclick="OnSecondary">History</button>
+			<ul class = "dropdown-menu @(isDropdownOpen ? "show" : "")">
+				<li><a class ="dropdown-item" href = "#">Option 1</a></li>
+				<li><a class ="dropdown-item" href = "#">Option 2</a></li>
+			</ul>
 		</div>
 	</div>
 </section>
@@ -49,6 +53,8 @@
 	private bool cancelRequested = false;
 	private string buttonLabel = "Process";
 	private string processButtonClass => isProcessing ? "cancelbtn" : "processbtn";
+
+	private bool isDropdownOpen = false;
 
 	private async Task OnPrimary()
 	{
@@ -69,6 +75,7 @@
 					await HandleFileSelected(selectedFile);
 					Navigation.NavigateTo("/processing");
 				}
+				//Might want to reset isProcessing to false here if needed
 			}
 			else
 			{
@@ -85,7 +92,9 @@
 		}
 	}
 
-	private void OnSecondary() => Console.WriteLine("History clicked");
+	private void OnSecondary() => isDropdownOpen = !isDropdownOpen;
+
+	
 
 	private async Task HandleFileSelected(InputFileChangeEventArgs e)
 	{
