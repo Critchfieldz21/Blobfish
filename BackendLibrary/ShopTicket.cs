@@ -136,7 +136,7 @@ namespace BackendLibrary
                          " | " + ProjectName + " | " + FileContentPieceMark + " | " + PiecesRequired.ToString() +
                          " | " + Weight.ToString() + " lb | " + DesignNumber;
 
-            String filepath = "/Users/zacharycritchfield/Desktop/DB/ShopTicketInfo.txt";
+            String filepath = "/Users/zacharycritchfield/Documents/GitHub/Blobfish/SQL3cs/ShopTicketInfo.txt";
 
             List<String> lines = new List<String>();
             if (File.Exists(filepath))
