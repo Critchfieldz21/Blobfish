@@ -17,8 +17,6 @@ namespace BackendLibrary
         public int PiecesRequired { get; set; }                    // Pieces required from the title block labelled "PIECES REQ'D:".
         public decimal Weight { get; set; }                        // Weight from the title block labelled "WEIGHT:".
         public string DesignNumber { get; set; }                   // Design number from the title block labelled "DESIGN:".
-        public List<string> PageNames { get; set; } = new();       // Page names extracted from view labels.
-
         //public int RectanglePage { get; set; }                              // 0-based index of the page containing form and section view rectangles.
         //public double FormViewRectangleX { get; set; }             // Distance from left edge of PDF to left edge of the form view rectangle (inches).
         //public double FormViewRectangleY { get; set; }             // Distance from top edge of PDF to top edge of the form view rectangle (inches).
@@ -100,13 +98,13 @@ namespace BackendLibrary
                 Weight = pdfTextExtractor.ExtractWeight();
                 DesignNumber = pdfTextExtractor.ExtractDesignNumber();
 
-                //Extract Page Names using PdfPageNameExtractor
-                if (!string.IsNullOrEmpty(pdfPath) && File.Exists(pdfPath))
-                {
-                    var pageNameExtractor = new PdfPageNameExtractor(72); // top 1 inch band
-                    TimeSpan elapsed;
-                    PageNames = pageNameExtractor.ExtractAll(pdfPath, out elapsed).ToList();
-                }
+                ////Extract Page Names using PdfPageNameExtractor
+                //if (!string.IsNullOrEmpty(pdfPath) && File.Exists(pdfPath))
+                //{
+                //    var pageNameExtractor = new PdfPageNameExtractor(72); // top 1 inch band
+                //    TimeSpan elapsed;
+                //    PageNames = pageNameExtractor.ExtractAll(pdfPath, out elapsed).ToList();
+                //}
             }
             catch (Exception ex)
             {
@@ -126,8 +124,8 @@ namespace BackendLibrary
                 "ControlNumbers: " + (ControlNumbers != null ? string.Join(", ", ControlNumbers) : "null") + "\n" +
                 "PiecesRequired: " + PiecesRequired + "\n" +
                 "Weight: " + Weight + " lb\n" +
-                "DesignNumber: " + DesignNumber + "\n" +
-                "PageNames: " + (PageNames.Count > 0 ? string.Join(" | ", PageNames) : "null") + "\n";
+                "DesignNumber: " + DesignNumber + "\n";
+                //"PageNames: " + (PageNames.Count > 0 ? string.Join(" | ", PageNames) : "null") + "\n";
 
             return str;
         }
