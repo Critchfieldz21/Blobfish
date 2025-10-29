@@ -53,7 +53,20 @@
 	private bool cancelRequested = false;
 	private string buttonLabel = "Process";
 	private string processButtonClass => isProcessing ? "cancelbtn" : "processbtn";
+private async Task OnPrimary()
+{
+    if (!isProcessing)
+    {
+        Console.WriteLine("Process button clicked");
+        if (selectedFile != null)
+        {
+            isProcessing = true;
+            cancelRequested = false;
+            buttonLabel = "Cancel";
+            progressStatus = "Starting PDF processing...";
+            StateHasChanged();
 
+<<<<<<< Updated upstream
 	private bool isDropdownOpen = false;
 
 	private async Task OnPrimary()
@@ -91,34 +104,93 @@
 			StateHasChanged();
 		}
 	}
+=======
+            await HandleFileSelected(selectedFile);
+			Console.WriteLine("Process button clicked");
+            if (!cancelRequested)
+            {
+                Navigation.NavigateTo("/processing");
+            }
+        }
+        else
+        {
+            pdfName = "No file selected";
+            StateHasChanged();
+        }
+    }
+    else
+    {
+        cancelRequested = true;
+        progressStatus = "Cancelling...";
+        buttonLabel = "Process";
+        StateHasChanged();
+    }
+}
+>>>>>>> Stashed changes
 
 	private void OnSecondary() => isDropdownOpen = !isDropdownOpen;
 
 	
 
 	private async Task HandleFileSelected(InputFileChangeEventArgs e)
-	{
-		try
-		{
-			pdfName = "Loading...";
-			var file = e.File;
+{
+    try
+    {
+        pdfName = "Loading...";
+        var file = e.File;
+        var totalBytes = file.Size;
+        var buffer = new byte[8192];
+        long totalRead = 0;
 
-			using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
-			using var memoryStream = new MemoryStream();
-			await stream.CopyToAsync(memoryStream);
-			byte[] pdfBytes = memoryStream.ToArray();
+        using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
+        using var memoryStream = new MemoryStream();
 
-			sTService.CurrentTicket = new ShopTicket(file.Name, pdfBytes);
-			pdfName = sTService.CurrentTicket.FileName;
-			Console.WriteLine("PDF loaded successfully.");
-		}
-		catch (Exception ex)
-		{
-			pdfName = $"Error: {ex.Message}";
-			Console.WriteLine($"Error uploading file: {ex}");
-		}
-		StateHasChanged();
-	}
+        int bytesRead;
+        while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+        {
+            if (cancelRequested)
+            {
+                progressStatus = "Process cancelled.";
+                progressValue = 0;
+                isProcessing = false;
+                buttonLabel = "Process";
+                StateHasChanged();
+                return;
+            }
+
+            await memoryStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+            totalRead += bytesRead;
+
+            
+            progressValue = (int)((totalRead * 100) / totalBytes);
+            progressStatus = $"Reading PDF... {progressValue}%";
+            StateHasChanged();
+
+            await Task.Delay(10);
+        }
+
+        byte[] pdfBytes = memoryStream.ToArray();
+
+        sTService.CurrentTicket = new ShopTicket(file.Name, pdfBytes);
+        pdfName = sTService.CurrentTicket.FileName;
+        progressStatus = "Processing complete.";
+        progressValue = 100;
+
+        Console.WriteLine("PDF loaded successfully.");
+    }
+    catch (Exception ex)
+    {
+        pdfName = $"Error: {ex.Message}";
+        progressStatus = "Error during processing.";
+        progressValue = 0;
+        Console.WriteLine($"Error uploading file: {ex}");
+    }
+
+    isProcessing = false;
+    buttonLabel = "Process";
+    StateHasChanged();
+}
+
 
 	private async Task SimulateProgressBarAsync()
 	{
