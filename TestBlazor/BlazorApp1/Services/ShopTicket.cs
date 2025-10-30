@@ -150,6 +150,7 @@ namespace BackendLibrary
                 "PiecesRequired: " + PiecesRequired + "\n" +
                 "Weight: " + Weight + " lb\n" +
                 "RectanglePage: " + RectanglePage + "\n" +
+                "DesignNumber: " + DesignNumber + "\n" +
                 "FormViewRectangleX: " + FormViewRectangleX + "\n" +
                 "FormViewRectangleY: " + FormViewRectangleY + "\n" +
                 "FormViewRectangleWidth: " + FormViewRectangleWidth + "\n" +
