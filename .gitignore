@@ -483,5 +483,6 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
-# wwwroot temp uploaded files
+# temp uploaded files
 TestBlazor/BlazorApp1/wwwroot/uploads/*.pdf
+TestBlazor/BlazorApp1/temp/*.jpg

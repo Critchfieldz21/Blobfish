@@ -128,8 +128,8 @@
             }
 
             byte[] pdfBytes = memoryStream.ToArray();
-
-            sTService.CurrentTicket = new ShopTicket(file.Name, pdfBytes);
+            Console.WriteLine(Directory.GetCurrentDirectory());
+            sTService.CurrentTicket = new ShopTicket(file.Name, pdfBytes, "Services/best.onnx");
             pdfName = sTService.CurrentTicket.FileName;
             progressStatus = "Processing complete.";
             progressValue = 100;
