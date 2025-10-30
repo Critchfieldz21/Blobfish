@@ -17,11 +17,11 @@ namespace BackendLibrary
         public int PiecesRequired { get; set; }                    // Pieces required from the title block labelled "PIECES REQ'D:".
         public decimal Weight { get; set; }                        // Weight from the title block labelled "WEIGHT:".
         public string DesignNumber { get; set; }                   // Design number from the title block labelled "DESIGN:".
-        //public int RectanglePage { get; set; }                              // 0-based index of the page containing form and section view rectangles.
-        //public double FormViewRectangleX { get; set; }             // Distance from left edge of PDF to left edge of the form view rectangle (inches).
-        //public double FormViewRectangleY { get; set; }             // Distance from top edge of PDF to top edge of the form view rectangle (inches).
-        //public double FormViewRectangleWidth { get; set; }         // Width of the form view rectangle (inches).
-        //public double FormViewRectangleHeight { get; set; }        // Height of the form view rectangle (inches).
+        public int RectanglePage { get; set; }                              // 0-based index of the page containing form and section view rectangles.
+        public double FormViewRectangleX { get; set; }             // Distance from left edge of PDF to left edge of the form view rectangle (inches).
+        public double FormViewRectangleY { get; set; }             // Distance from top edge of PDF to top edge of the form view rectangle (inches).
+        public double FormViewRectangleWidth { get; set; }         // Width of the form view rectangle (inches).
+        public double FormViewRectangleHeight { get; set; }        // Height of the form view rectangle (inches).
         //public double SectionViewRectangleX { get; set; }          // Distance from left edge of PDF to left edge of the section view rectangle (inches).
         //public double SectionViewRectangleY { get; set; }          // Distance from top edge of PDF to top edge of the section view rectangle (inches).
         //public double SectionViewRectangleWidth { get; set; }      // Width of the section view rectangle (inches).
@@ -63,6 +63,31 @@ namespace BackendLibrary
 
                 //null for pdfPath since we don't have a real file path
                 InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithFileName(fileName), null);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error initializing shop ticket: {ex.Message}", ex);
+            }
+        }
+
+        public ShopTicket(String fileName, byte[] pdfBytes, string modelPath)
+        {
+            try
+            {
+                PdfBytes = pdfBytes;
+
+                // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
+                MemoryStream stream = new MemoryStream(pdfBytes);
+                PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
+
+                // Use PdfPig to extract text from pdf
+                PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
+
+                //null for pdfPath since we don't have a real file path
+                InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithFileName(fileName), null);
+
+                (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(modelPath, fileName, stream);
+
             }
             catch (Exception ex)
             {
