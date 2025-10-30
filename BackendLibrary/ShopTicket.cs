@@ -149,7 +149,12 @@ namespace BackendLibrary
                 "ControlNumbers: " + (ControlNumbers != null ? string.Join(", ", ControlNumbers) : "null") + "\n" +
                 "PiecesRequired: " + PiecesRequired + "\n" +
                 "Weight: " + Weight + " lb\n" +
-                "DesignNumber: " + DesignNumber + "\n";
+                "RectanglePage: " + RectanglePage + "\n" +
+                "DesignNumber: " + DesignNumber + "\n" +
+                "FormViewRectangleX: " + FormViewRectangleX + "\n" +
+                "FormViewRectangleY: " + FormViewRectangleY + "\n" +
+                "FormViewRectangleWidth: " + FormViewRectangleWidth + "\n" +
+                "FormViewRectangleHeight: " + FormViewRectangleHeight + "\n";
                 //"PageNames: " + (PageNames.Count > 0 ? string.Join(" | ", PageNames) : "null") + "\n";
 
             return str;

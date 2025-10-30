@@ -485,3 +485,6 @@ $RECYCLE.BIN/
 
 # Unit test pdf files
 BackendLibraryUnitTest/test_pdfs/*.pdf
+
+# Temp files
+BackendConsoleTest/temp/*.jpg
