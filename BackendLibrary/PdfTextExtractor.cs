@@ -45,7 +45,7 @@ namespace BackendLibrary
             {
                 IEnumerable<Annotation> annotations = page.GetAnnotations();
 
-                // PDFs can either have AutoCAD annotations or no annotations
+                // PDFs can either have AutoCAD annotations to signify view labels or no annotations
                 // Move on to word search if there are no annotations
                 if (annotations.Count() == 0)
                 {
