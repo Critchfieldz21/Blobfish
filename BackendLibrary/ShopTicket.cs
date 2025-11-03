@@ -7,7 +7,7 @@ namespace BackendLibrary
     {
         public byte[] PdfBytes;
         public int NumberOfPages { get; set; }                              // Number of pages in the PDF file.
-        //public string[] PageNames { get; set; }                    // Page names extracted from view labels.
+        public string[] PageNames { get; set; }                    // Page names extracted from view labels.
         public string FileName { get; set; }                       // File name of the PDF file.
         public string? FileNamePieceMark { get; set; }                      // Piece Mark extracted from the file name.
         public string ProjectNumber { get; set; }                  // Project Number from the title block labelled "JOB NO.".
@@ -111,6 +111,7 @@ namespace BackendLibrary
 
             try
             {
+                PageNames = pdfTextExtractor.ExtractPageNames();
                 FileNamePieceMark = pdfFileNameExtractor.GetFileNamePieceMark();
                 ProjectNumber = pdfTextExtractor.ExtractProjectNumber();
                 ProjectName = pdfTextExtractor.ExtractProjectName();
@@ -130,7 +131,7 @@ namespace BackendLibrary
         {
             String str =
                 "NumberOfPages: " + NumberOfPages + "\n" +
-                //"PageNames: " + (PageNames.Count > 0 ? string.Join(" | ", PageNames) : "null") + "\n" +
+                "PageNames: " + string.Join(", ", PageNames) + "\n" +
                 "FileName: " + FileName + "\n" +
                 "FileNamePieceMark: " + FileNamePieceMark + "\n" +
                 "ProjectNumber: " + ProjectNumber + "\n" +
