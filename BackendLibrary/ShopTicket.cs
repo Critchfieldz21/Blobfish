@@ -39,8 +39,7 @@ namespace BackendLibrary
                 // Use PdfPig to extract text from pdf
                 PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfPath);
 
-                //Pass pdfPath for page name extraction
-                InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithPdfPath(pdfPath), pdfPath);
+                InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithPdfPath(pdfPath));
             }
             catch (Exception ex)
             {
@@ -61,8 +60,7 @@ namespace BackendLibrary
                 // Use PdfPig to extract text from pdf
                 PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
 
-                //null for pdfPath since we don't have a real file path
-                InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithFileName(fileName), null);
+                InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithFileName(fileName));
             }
             catch (Exception ex)
             {
@@ -83,8 +81,7 @@ namespace BackendLibrary
                 // Use PdfPig to extract text from pdf
                 PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
 
-                //null for pdfPath since we don't have a real file path
-                InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithFileName(fileName), null);
+                InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithFileName(fileName));
 
                 (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(modelPath, fileName, stream);
 
@@ -96,7 +93,7 @@ namespace BackendLibrary
         }
 
         // Combine shared logic between constructors
-        private void InitializeFromPdf(PdfDocument pdf, PdfTextExtractor pdfTextExtractor, PdfFileNameExtractor pdfFileNameExtractor, string? pdfPath)
+        private void InitializeFromPdf(PdfDocument pdf, PdfTextExtractor pdfTextExtractor, PdfFileNameExtractor pdfFileNameExtractor)
         {
             // OwnerPassword property needs a password to set SecuritySettings
             pdf.SecuritySettings.OwnerPassword = "admin";
@@ -122,14 +119,6 @@ namespace BackendLibrary
                 PiecesRequired = pdfTextExtractor.ExtractPiecesRequired();
                 Weight = pdfTextExtractor.ExtractWeight();
                 DesignNumber = pdfTextExtractor.ExtractDesignNumber();
-
-                ////Extract Page Names using PdfPageNameExtractor
-                //if (!string.IsNullOrEmpty(pdfPath) && File.Exists(pdfPath))
-                //{
-                //    var pageNameExtractor = new PdfPageNameExtractor(72); // top 1 inch band
-                //    TimeSpan elapsed;
-                //    PageNames = pageNameExtractor.ExtractAll(pdfPath, out elapsed).ToList();
-                //}
             }
             catch (Exception ex)
             {
@@ -141,6 +130,7 @@ namespace BackendLibrary
         {
             String str =
                 "NumberOfPages: " + NumberOfPages + "\n" +
+                //"PageNames: " + (PageNames.Count > 0 ? string.Join(" | ", PageNames) : "null") + "\n" +
                 "FileName: " + FileName + "\n" +
                 "FileNamePieceMark: " + FileNamePieceMark + "\n" +
                 "ProjectNumber: " + ProjectNumber + "\n" +
@@ -155,7 +145,7 @@ namespace BackendLibrary
                 "FormViewRectangleY: " + FormViewRectangleY + "\n" +
                 "FormViewRectangleWidth: " + FormViewRectangleWidth + "\n" +
                 "FormViewRectangleHeight: " + FormViewRectangleHeight + "\n";
-                //"PageNames: " + (PageNames.Count > 0 ? string.Join(" | ", PageNames) : "null") + "\n";
+                
 
             return str;
         }
