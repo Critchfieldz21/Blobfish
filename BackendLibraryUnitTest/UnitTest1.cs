@@ -11,6 +11,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/20-NE0881-W053_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "20-NE0881-W053_P2",                            // expectedFileName
                     "W053",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
@@ -24,6 +25,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/20-NE0881-W099_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "20-NE0881-W099_P2",                            // expectedFileName
                     "W099",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
@@ -37,6 +39,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/20-NE0881-W184_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "20-NE0881-W184_P2",                            // expectedFileName
                     "W184",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
@@ -50,6 +53,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/24-NE1087-W003_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "24-NE1087-W003_P2",                            // expectedFileName
                     "W003",                                         // expectedFileNamePieceMark
                     "24-NE1087",                                    // expectedProjectNumber
@@ -63,6 +67,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/24-NE1087-W093_P1.pdf",     // filePath
                     2,                                              // expectedNumberOfPages
+                    new string[] {"FormView","RevealDrawing"},      // expectedPageNames
                     "24-NE1087-W093_P1",                            // expectedFileName
                     "W093",                                         // expectedFileNamePieceMark
                     "24-NE1087",                                    // expectedProjectNumber
@@ -76,6 +81,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/24-NE1096-DT051_P0.pdf",    // filePath
                     2,                                              // expectedNumberOfPages
+                    new string[] {"FormView","UnknownPage"},        // expectedPageNames
                     "24-NE1096-DT051_P0",                           // expectedFileName
                     "DT051",                                        // expectedFileNamePieceMark
                     "24-NE1096",                                    // expectedProjectNumber
@@ -89,6 +95,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1193 -W017_P2.pdf",    // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1193 -W017_P2",                           // expectedFileName
                     "W017",                                         // expectedFileNamePieceMark
                     "25-NE1193",                                    // expectedProjectNumber
@@ -102,6 +109,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1200_W098 Rev.1_P2.pdf",// filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1200_W098 Rev.1_P2",                      // expectedFileName
                     "W098",                                         // expectedFileNamePieceMark
                     "25-NE1200",                                    // expectedProjectNumber
@@ -115,6 +123,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1203.02-W045_P2.pdf",  // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1203.02-W045_P2",                         // expectedFileName
                     "W045",                                         // expectedFileNamePieceMark
                     "25-NE1203.02",                                 // expectedProjectNumber
@@ -128,6 +137,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1204-W080_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1204-W080_P2",                            // expectedFileName
                     "W080",                                         // expectedFileNamePieceMark
                     "25-NE1204",                                    // expectedProjectNumber
@@ -141,6 +151,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1204-W225_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1204-W225_P2",                            // expectedFileName
                     "W225",                                         // expectedFileNamePieceMark
                     "25-NE1204",                                    // expectedProjectNumber
@@ -154,6 +165,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1209-W016_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1209-W016_P2",                            // expectedFileName
                     "W016",                                         // expectedFileNamePieceMark
                     "25-NE1209",                                    // expectedProjectNumber
@@ -167,6 +179,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1209-W207_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1209-W207_P2",                            // expectedFileName
                     "W207",                                         // expectedFileNamePieceMark
                     "25-NE1209",                                    // expectedProjectNumber
@@ -180,6 +193,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1212-W109_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1212-W109_P2",                            // expectedFileName
                     "W109",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
@@ -193,6 +207,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1212-W266_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1212-W266_P2",                            // expectedFileName
                     "W266",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
@@ -206,6 +221,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/20-NE0881-W004_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "20-NE0881-W004_P2",                            // expectedFileName
                     "W004",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
@@ -219,6 +235,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/20-NE0881-W054_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "20-NE0881-W054_P2",                            // expectedFileName
                     "W054",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
@@ -232,6 +249,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/20-NE0881-W067_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "20-NE0881-W067_P2",                            // expectedFileName
                     "W067",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
@@ -245,6 +263,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/20-NE0881-W081_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "20-NE0881-W081_P2",                            // expectedFileName
                     "W081",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
@@ -258,6 +277,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/20-NE0881-W150_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "20-NE0881-W150_P2",                            // expectedFileName
                     "W150",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
@@ -271,6 +291,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/20-NE0881-W165_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "20-NE0881-W165_P2",                            // expectedFileName
                     "W165",                                         // expectedFileNamePieceMark
                     "20-NE0881",                                    // expectedProjectNumber
@@ -284,6 +305,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1204-W034_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1204-W034_P2",                            // expectedFileName
                     "W034",                                         // expectedFileNamePieceMark
                     "25-NE1204",                                    // expectedProjectNumber
@@ -297,6 +319,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1209-W210_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1209-W210_P2",                            // expectedFileName
                     "W210",                                         // expectedFileNamePieceMark
                     "25-NE1209",                                    // expectedProjectNumber
@@ -310,6 +333,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1212-W260_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1212-W260_P2",                            // expectedFileName
                     "W260",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
@@ -323,6 +347,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1224-W144_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView","FoamDrawing","RevealDrawing"},// expectedPageNames
                     "25-NE1224-W144_P2",                            // expectedFileName
                     "W144",                                         // expectedFileNamePieceMark
                     "25-NE1224",                                    // expectedProjectNumber
@@ -336,6 +361,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1212-W262_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1212-W262_P2",                            // expectedFileName
                     "W262",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
@@ -349,6 +375,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1209-W179_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1209-W179_P2",                            // expectedFileName
                     "W179",                                         // expectedFileNamePieceMark
                     "25-NE1209",                                    // expectedProjectNumber
@@ -362,6 +389,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1212-W259_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1212-W259_P2",                            // expectedFileName
                     "W259",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
@@ -375,6 +403,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1212-W271_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1212-W271_P2",                            // expectedFileName
                     "W271",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
@@ -388,6 +417,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1212-W234_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1212-W234_P2",                            // expectedFileName
                     "W234",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
@@ -401,6 +431,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1212-W218_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1212-W218_P2",                            // expectedFileName
                     "W218",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
@@ -414,6 +445,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1212-W205_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1212-W205_P2",                            // expectedFileName
                     "W205",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
@@ -427,6 +459,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1212-W153_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1212-W153_P2",                            // expectedFileName
                     "W153",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
@@ -440,6 +473,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1212-W148_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1212-W148_P2",                            // expectedFileName
                     "W148",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
@@ -453,6 +487,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1212-W085_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView", "FoamDrawing", "RevealDrawing"},// expectedPageNames
                     "25-NE1212-W085_P2",                            // expectedFileName
                     "W085",                                         // expectedFileNamePieceMark
                     "25-NE1212",                                    // expectedProjectNumber
@@ -466,6 +501,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/24-NE1096-B001_P0.pdf",     // filePath
                     2,                                              // expectedNumberOfPages
+                    new string[] {"FormView","UnknownPage"},        // expectedPageNames
                     "24-NE1096-B001_P0",                            // expectedFileName
                     "B001",                                         // expectedFileNamePieceMark
                     "24-NE1096",                                    // expectedProjectNumber
@@ -479,6 +515,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/24-NE1096-DT007_P0.pdf",    // filePath
                     2,                                              // expectedNumberOfPages
+                    new string[] {"FormView","UnknownPage"},        // expectedPageNames
                     "24-NE1096-DT007_P0",                           // expectedFileName
                     "DT007",                                        // expectedFileNamePieceMark
                     "24-NE1096",                                    // expectedProjectNumber
@@ -492,6 +529,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/24-NE1096-DT003_P0.pdf",    // filePath
                     2,                                              // expectedNumberOfPages
+                    new string[] {"FormView","UnknownPage"},        // expectedPageNames
                     "24-NE1096-DT003_P0",                           // expectedFileName
                     "DT003",                                        // expectedFileNamePieceMark
                     "24-NE1096",                                    // expectedProjectNumber
@@ -505,6 +543,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/24-NE1087-W133_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView","FoamDrawing","RevealDrawing"},// expectedPageNames
                     "24-NE1087-W133_P2",                            // expectedFileName
                     "W133",                                         // expectedFileNamePieceMark
                     "24-NE1087",                                    // expectedProjectNumber
@@ -518,6 +557,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/25-NE1222 W017_P2.pdf",     // filePath
                     3,                                              // expectedNumberOfPages
+                    new string[] {"FormView","FoamDrawing","RevealDrawing"},// expectedPageNames
                     "25-NE1222 W017_P2",                            // expectedFileName
                     "W017",                                         // expectedFileNamePieceMark
                     "25-NE1222",                                    // expectedProjectNumber
@@ -534,7 +574,8 @@ namespace BackendLibraryUnitTest
         [MemberData(nameof(TestData))]
         public void CheckPdf(
             String filePath, 
-            int expectedNumberOfPages, 
+            int expectedNumberOfPages,
+            String[] expectedPageNames,
             String expectedFileName, 
             String expectedFileNamePieceMark, 
             String expectedProjectNumber, 
@@ -551,6 +592,7 @@ namespace BackendLibraryUnitTest
 
             Assert.Multiple(
                 () => Assert.Equal(expectedNumberOfPages, pdf.NumberOfPages),
+                () => Assert.Equal(expectedPageNames, pdf.PageNames),
                 () => Assert.Equal(expectedFileName, pdf.FileName),
                 () => Assert.Equal(expectedFileNamePieceMark, pdf.FileNamePieceMark),
                 () => Assert.Equal(expectedProjectNumber, pdf.ProjectNumber),
