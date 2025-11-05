@@ -11,6 +11,8 @@
 
 <section class="topbar">
     <button class="homeButt" @onclick="GoHome">Back to Home</button>
+    <button class="navbtn" @onclick="GoLeft">←</button>
+    <button class="navbtn" @onclick="GoRight">→</button>
 </section>
 
 <section>
@@ -25,7 +27,7 @@
 
         @if (!string.IsNullOrEmpty(base64Url))
         {
-            <PdfViewer Class="pdfViewer" Url="@base64Url" OnDocumentLoaded="OnDocumentLoaded"
+            <PdfViewer @key="base64Url" Class="pdfViewer" Url="@base64Url" OnDocumentLoaded="OnDocumentLoaded"
                 OnPageChanged="OnPageChanged" />
         }
         else
@@ -35,26 +37,51 @@
     </div>
 
     <div class="pdfinfo">
-        <p>@((MarkupString)sTService.CurrentTicket?.ToString().Replace("\n", "<br />"))</p>
+        <p>@((MarkupString)GetPDFInfo())</p>
     </div>
 </section>
 
 @code {
     private string? base64Url;
     private string eventLog { get; set; } = $"Last event: ..., CurrentPage: 0, TotalPages: 0";
+    //starts at 1 for user friendliness. Can Change to zero based if needed.
+    private int currTicketIndex = 0;
 
     protected override void OnInitialized()
     {
-        var ticket = sTService.CurrentTicket;
+        //plus one because sTService method subtracts one for zero based indexing
+        var ticket = sTService.GetTicket(currTicketIndex + 1);
 
         if (ticket?.PdfBytes != null && ticket.PdfBytes.Length > 0)
         {
             string pdfBase64 = Convert.ToBase64String(ticket.PdfBytes);
             base64Url = $"data:application/pdf;base64,{pdfBase64}";
         }
+        StateHasChanged();
     }
 
-    private string? setName() => sTService.CurrentTicket?.FileName;
+    private void GoRight(){
+        if (currTicketIndex < sTService.Size - 1)
+        {
+            currTicketIndex++;
+            OnInitialized();
+        }
+    }
+
+    private void GoLeft(){
+        if (currTicketIndex > 0)
+        {
+            currTicketIndex--;
+            OnInitialized();
+        }
+    }
+
+    private String GetPDFInfo(){
+        return sTService.GetTicket(currTicketIndex + 1).ToString().Replace("\n", "<br />");
+    }
+
+    //plus one because sTService method subtracts one for zero based indexing
+    private string? setName() => sTService.GetTicket(currTicketIndex + 1).FileName;
 
     private void OnDocumentLoaded(PdfViewerEventArgs args)
     => eventLog = $"Last event: OnDocumentLoaded, CurrentPage: {args.CurrentPage}, TotalPages: {args.TotalPages}";

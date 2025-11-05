@@ -1,7 +1,8 @@
 using BackendLibrary;
 using BlazorApp1.Components;
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddScoped<ShopTicketService>();
+builder.Services.AddSingleton<ShopTicketService>();
+Console.WriteLine("✅ Console output test");
 Console.WriteLine("✅ Console output test");
 
 // Add services to the container.

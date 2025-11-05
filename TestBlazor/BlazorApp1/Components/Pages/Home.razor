@@ -25,7 +25,7 @@
 
 	<div class="pdfcontainer">
 		<div class="pdfBox">
-			<InputFile OnChange="e => selectedFile = e" accept=".pdf" />
+			<InputFile OnChange="e => selectedFiles = e" multiple accept=".pdf" />
 			<p>Loaded PDF: @pdfName</p>
 		</div>
 	</div>
@@ -46,7 +46,7 @@
 
 @code {
     private string? pdfName = "No PDF Selected";
-    private InputFileChangeEventArgs? selectedFile;
+    private InputFileChangeEventArgs? selectedFiles;
     private int progressValue = 0;
     private string progressStatus = "Select a PDF to process";
     private bool isProcessing = false;
@@ -57,9 +57,14 @@
 
     private async Task OnPrimary()
     {
+        if(sTService.Size > 0)
+        {
+            sTService.ClearTickets();
+        }
+
         if (!isProcessing)
         {
-            if (selectedFile != null)
+            if (selectedFiles != null)
             {
                 isProcessing = true;
                 cancelRequested = false;
@@ -67,7 +72,7 @@
                 progressStatus = "Starting PDF processing...";
                 StateHasChanged();
 
-                await HandleFileSelected(selectedFile);
+                await HandleFileSelected(selectedFiles);
 
                 if (!cancelRequested)
                 {
@@ -93,59 +98,60 @@
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
-        try
-        {
-            pdfName = "Loading...";
-            var file = e.File;
-            var totalBytes = file.Size;
-            var buffer = new byte[8192];
-            long totalRead = 0;
+        foreach (var file in e.GetMultipleFiles()){  
+            try{
+                pdfName = "Loading...";
+                var totalBytes = file.Size;
+                var buffer = new byte[8192];
+                long totalRead = 0;
 
-            using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
-            using var memoryStream = new MemoryStream();
+                using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
+                using var memoryStream = new MemoryStream();
 
-            int bytesRead;
-            while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
-            {
-                if (cancelRequested)
+                int bytesRead;
+                while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                 {
-                    progressStatus = "Process cancelled.";
-                    progressValue = 0;
-                    isProcessing = false;
-                    buttonLabel = "Process";
+                    if (cancelRequested)
+                    {
+                        progressStatus = "Process cancelled.";
+                        progressValue = 0;
+                        isProcessing = false;
+                        buttonLabel = "Process";
+                        sTService.ClearTickets();
+                        StateHasChanged();
+                        return;
+                    }
+
+                    await memoryStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                    totalRead += bytesRead;
+
+                    progressValue = (int)((totalRead * 100) / totalBytes);
+                    progressStatus = $"Reading PDF... {progressValue}%";
                     StateHasChanged();
-                    return;
+
+                    await Task.Delay(0); 
                 }
 
-                await memoryStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-                totalRead += bytesRead;
+                byte[] pdfBytes = memoryStream.ToArray();
+                Console.WriteLine(Directory.GetCurrentDirectory());
+                sTService.AddTicket(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"));
+                pdfName = sTService.GetTicket(sTService.Size).FileName;
+                progressStatus = "Processing complete.";
+                progressValue = 100;
 
-                progressValue = (int)((totalRead * 100) / totalBytes);
-                progressStatus = $"Reading PDF... {progressValue}%";
-                StateHasChanged();
-
-                await Task.Delay(0); 
+                Console.WriteLine("PDF loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                pdfName = $"Error: {ex.Message}";
+                progressStatus = "Error during processing.";
+                progressValue = 0;
+                Console.WriteLine($"Error uploading file: {ex}");
             }
 
-            byte[] pdfBytes = memoryStream.ToArray();
-            Console.WriteLine(Directory.GetCurrentDirectory());
-            sTService.CurrentTicket = new ShopTicket(file.Name, pdfBytes, "Services/best.onnx");
-            pdfName = sTService.CurrentTicket.FileName;
-            progressStatus = "Processing complete.";
-            progressValue = 100;
-
-            Console.WriteLine("PDF loaded successfully.");
+            isProcessing = false;
+            buttonLabel = "Process";
+            StateHasChanged();
         }
-        catch (Exception ex)
-        {
-            pdfName = $"Error: {ex.Message}";
-            progressStatus = "Error during processing.";
-            progressValue = 0;
-            Console.WriteLine($"Error uploading file: {ex}");
-        }
-
-        isProcessing = false;
-        buttonLabel = "Process";
-        StateHasChanged();
     }
 }
