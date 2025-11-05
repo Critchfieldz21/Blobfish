@@ -1,6 +1,7 @@
 ﻿using UglyToad.PdfPig;
 using UglyToad.PdfPig.Annotations;
 using UglyToad.PdfPig.Content;
+using UglyToad.PdfPig.Geometry;
 
 namespace BackendLibrary
 {
@@ -259,6 +260,8 @@ namespace BackendLibrary
                     {
                         continue;
                     }
+
+                    // Search method for when the word after "CONTROL" or "CTRL" is "NUMBER" or "NUMBER:"
                     searchTerms = new List<String> { "NUMBER", "NUMBER:" };
                     if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -268,6 +271,8 @@ namespace BackendLibrary
                             return null;
                         }
                     }
+
+                    // Search method for when the word after "CONTROL" or "CTRL" is "NO.", "NO:", or "NO.:"
                     searchTerms = new List<String> { "NO.", "NO:", "NO.:" };
                     if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -284,12 +289,31 @@ namespace BackendLibrary
                             return null;
                         }  
                     }
+
                     if (controlnumWords is not null)
                     {
-                        controlnumstrList.AddRange(controlnumWords.Select(word => word.Text));
+                        // Add each controlnumWord to controlnumstrList if it is not overlapping with any other word
+                        for (int i = 0; i < controlnumWords.Count; i++)
+                        {
+                            bool isOverlapping = false;
+                            for (int j = i + 1; j < controlnumWords.Count; j++)
+                            {
+                                // Check overlapping bounding boxes to avoid duplicates
+                                if (controlnumWords[i].BoundingBox.IntersectsWith(controlnumWords[j].BoundingBox))
+                                {
+                                    isOverlapping = true;
+                                    break;
+                                }
+                            }
+                            if (!isOverlapping)
+                            {
+                                controlnumstrList.Add(controlnumWords[i].Text);
+                            }
+                        }
+
                         controlnumstrList.ForEach(str => resultList.AddRange(str.Split(',', StringSplitOptions.RemoveEmptyEntries)));
 
-                        return resultList.Distinct().ToArray();
+                        return resultList.ToArray();
                     }
                 }
             }
