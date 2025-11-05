@@ -1,5 +1,7 @@
 ﻿using UglyToad.PdfPig;
+using UglyToad.PdfPig.Annotations;
 using UglyToad.PdfPig.Content;
+using UglyToad.PdfPig.Geometry;
 
 namespace BackendLibrary
 {
@@ -23,13 +25,129 @@ namespace BackendLibrary
             //foreach (Page page in pages)
             //{
             //    IEnumerable<Word> words = page.GetWords();
+            //    IEnumerable<Annotation> annotations = page.GetAnnotations();
+
             //    foreach (Word word in words)
             //    {
             //        Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
             //    }
+            //    foreach (Annotation annotation in annotations)
+            //    {
+            //        Console.WriteLine($"Annotation: {annotation.Content}");
+            //    }
             //}
         }
 
+        public string[] ExtractPageNames()
+        {
+            List<String> resultList = new List<String>();
+            List<String> annotationStrings = new List<String>();
+            foreach (Page page in pages)
+            {
+                IEnumerable<Annotation> annotations = page.GetAnnotations();
+
+                // PDFs can either have AutoCAD annotations to signify view labels or no annotations
+                // Move on to word search if there are no annotations
+                if (annotations.Count() == 0)
+                {
+                    resultList.Add(ExtractPageNameNoAnnotations(page));
+                    continue;
+                }
+
+                annotationStrings.Clear();
+                foreach (Annotation annotation in annotations)
+                {
+                    // Annotation must be underlined to be considered
+                    if (annotation.Content is null || !(annotation.Content.Contains("%%U", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        continue;
+                    }
+
+                    String content = annotation.Content.Replace("%%U", "").Trim().ToUpper();
+                    annotationStrings.Add(content);
+                }
+
+                if (annotationStrings.Contains("FORM VIEW"))
+                {
+                    resultList.Add("FormView");
+                }
+                else if (annotationStrings.Contains("FOAM DRAWING"))
+                {
+                    resultList.Add("FoamDrawing");
+                }
+                else if (annotationStrings.Contains("REVEAL DRAWING"))
+                {
+                    resultList.Add("RevealDrawing");
+                }
+                else // Move on to word search if annotations are invalid
+                {
+                    resultList.Add(ExtractPageNameNoAnnotations(page));
+                }
+            }
+            return resultList.ToArray();
+        }
+
+        private string ExtractPageNameNoAnnotations(Page page)
+        {
+            IEnumerable<Word> words = page.GetWords();
+            List<Word> formWords = (from Word word in words
+                                    where word.Text.Equals("FORM", StringComparison.OrdinalIgnoreCase)
+                                    select word).ToList();
+            List<Word> drawingWords = (from Word word in words
+                                       where word.Text.Equals("DRAWING", StringComparison.OrdinalIgnoreCase)
+                                       select word).ToList();
+            foreach (Word word in formWords)
+            {
+                Word? foundWord = FindWordNextTo(word, words, 20, 50, -1, 1);
+                if (foundWord is null)
+                {
+                    if (word.BoundingBox.Left > 900)
+                    {
+                        continue;
+                    }
+                    List<Word> foundWords = FindWordsNextTo(word, words, -80, -20, -1, 1);
+                    foreach (Word foundWord2 in foundWords)
+                    {
+                        if (string.Equals(foundWord2.Text, "TOP", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return "FormView";
+                        }
+                    }
+                    continue;
+                }
+                if (string.Equals(foundWord.Text, "VIEW", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "FormView";
+                }
+            }
+            foreach (Word word in drawingWords)
+            {
+                Word? foundWord = FindWordNextTo(word, words, -80, -20, -1, 1);
+                if (foundWord is null)
+                {
+                    continue;
+                }
+                if (string.Equals(foundWord.Text, "FOAM", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "FoamDrawing";
+                }
+                else if (string.Equals(foundWord.Text, "REVEAL", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "RevealDrawing";
+                }
+            }
+
+            foreach (Word word in words)
+            {
+                if (word.Text.Contains("REVEAL", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "RevealDrawing";
+                }
+            }
+
+            return "UnknownPage";
+            //throw new NullReferenceException($"Failed to get PageNames - Page {page.Number} has no valid view label");
+        }
         public string ExtractProjectNumber()
         {
             foreach (Page page in pages)
@@ -142,6 +260,8 @@ namespace BackendLibrary
                     {
                         continue;
                     }
+
+                    // Search method for when the word after "CONTROL" or "CTRL" is "NUMBER" or "NUMBER:"
                     searchTerms = new List<String> { "NUMBER", "NUMBER:" };
                     if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -151,6 +271,8 @@ namespace BackendLibrary
                             return null;
                         }
                     }
+
+                    // Search method for when the word after "CONTROL" or "CTRL" is "NO.", "NO:", or "NO.:"
                     searchTerms = new List<String> { "NO.", "NO:", "NO.:" };
                     if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -167,12 +289,31 @@ namespace BackendLibrary
                             return null;
                         }
                     }
+
                     if (controlnumWords is not null)
                     {
-                        controlnumstrList.AddRange(controlnumWords.Select(word => word.Text));
+                        // Add each controlnumWord to controlnumstrList if it is not overlapping with any other word
+                        for (int i = 0; i < controlnumWords.Count; i++)
+                        {
+                            bool isOverlapping = false;
+                            for (int j = i + 1; j < controlnumWords.Count; j++)
+                            {
+                                // Check overlapping bounding boxes to avoid duplicates
+                                if (controlnumWords[i].BoundingBox.IntersectsWith(controlnumWords[j].BoundingBox))
+                                {
+                                    isOverlapping = true;
+                                    break;
+                                }
+                            }
+                            if (!isOverlapping)
+                            {
+                                controlnumstrList.Add(controlnumWords[i].Text);
+                            }
+                        }
+
                         controlnumstrList.ForEach(str => resultList.AddRange(str.Split(',', StringSplitOptions.RemoveEmptyEntries)));
 
-                        return resultList.Distinct().ToArray();
+                        return resultList.ToArray();
                     }
                 }
             }
