@@ -17,7 +17,7 @@ namespace BackendLibrary
             String fileName = extractor.GetFileName(pdfPath);
             if (fileName is null)
             {
-                throw new NullReferenceException("FileName is null");
+                throw new Exception("FileName is null");
             }
             extractor.FileName = fileName;
             return extractor;
@@ -28,7 +28,7 @@ namespace BackendLibrary
             PdfFileNameExtractor extractor = new PdfFileNameExtractor();
             if (fileName is null)
             {
-                throw new NullReferenceException("FileName is null");
+                throw new Exception("FileName is null");
             }
             extractor.FileName = fileName;
             return extractor;
@@ -53,22 +53,29 @@ namespace BackendLibrary
 
         public String GetFileNamePieceMark()
         {
-            String NameOfFile = FileName;
-            char[] sep = { '-', '_', ' ' };
-
-            String[] NameSplit = NameOfFile.Split(sep, StringSplitOptions.RemoveEmptyEntries);
-
-            // Capture everything up to the last number
-            string pattern = @"^(.*?\d+).*$"; 
-            Match match = Regex.Match(NameSplit[2], pattern);
-
-            if (match.Success)
+            try
             {
-                return match.Groups[1].Value;
+                String NameOfFile = FileName;
+                char[] sep = { '-', '_', ' ' };
+
+                String[] NameSplit = NameOfFile.Split(sep, StringSplitOptions.RemoveEmptyEntries);
+
+                // Capture everything up to the last number
+                string pattern = @"^(.*?\d+).*$";
+                Match match = Regex.Match(NameSplit[2], pattern);
+
+                if (match.Success)
+                {
+                    return match.Groups[1].Value;
+                }
+                else
+                {
+                    return NameSplit[2];
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return NameSplit[2];
+                throw new Exception("Failed to get FileNamePieceMark", ex);
             }
         }
     }

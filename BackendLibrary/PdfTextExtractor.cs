@@ -16,7 +16,7 @@ namespace BackendLibrary
             pages = pdf.GetPages();
         }
 
-        public PdfTextExtractor(byte[] pdfBytes) 
+        public PdfTextExtractor(byte[] pdfBytes)
         {
             pdf = PdfDocument.Open(pdfBytes);
             pages = pdf.GetPages();
@@ -53,7 +53,7 @@ namespace BackendLibrary
                     resultList.Add(ExtractPageNameNoAnnotations(page));
                     continue;
                 }
-                
+
                 annotationStrings.Clear();
                 foreach (Annotation annotation in annotations)
                 {
@@ -66,15 +66,15 @@ namespace BackendLibrary
                     String content = annotation.Content.Replace("%%U", "").Trim().ToUpper();
                     annotationStrings.Add(content);
                 }
-                
+
                 if (annotationStrings.Contains("FORM VIEW"))
                 {
                     resultList.Add("FormView");
-                } 
+                }
                 else if (annotationStrings.Contains("FOAM DRAWING"))
                 {
                     resultList.Add("FoamDrawing");
-                } 
+                }
                 else if (annotationStrings.Contains("REVEAL DRAWING"))
                 {
                     resultList.Add("RevealDrawing");
@@ -91,11 +91,11 @@ namespace BackendLibrary
         {
             IEnumerable<Word> words = page.GetWords();
             List<Word> formWords = (from Word word in words
-                                   where word.Text.Equals("FORM", StringComparison.OrdinalIgnoreCase)
-                                   select word).ToList();
-            List<Word> drawingWords = (from Word word in words
-                                    where word.Text.Equals("DRAWING", StringComparison.OrdinalIgnoreCase)
+                                    where word.Text.Equals("FORM", StringComparison.OrdinalIgnoreCase)
                                     select word).ToList();
+            List<Word> drawingWords = (from Word word in words
+                                       where word.Text.Equals("DRAWING", StringComparison.OrdinalIgnoreCase)
+                                       select word).ToList();
             foreach (Word word in formWords)
             {
                 Word? foundWord = FindWordNextTo(word, words, 20, 50, -1, 1);
@@ -146,7 +146,7 @@ namespace BackendLibrary
             }
 
             return "UnknownPage";
-            //throw new NullReferenceException($"Failed to get PageNames - Page {page.Number} has no valid view label");
+            //throw new Exception($"Failed to get PageNames - Page {page.Number} has no valid view label");
         }
         public string ExtractProjectNumber()
         {
@@ -169,13 +169,13 @@ namespace BackendLibrary
                         Word? piecesreqdWord = FindWordNextTo(word, words, -4, 8, -12, -4);
                         if (piecesreqdWord is null)
                         {
-                            throw new NullReferenceException($"Failed to get ProjectNumber");
+                            throw new Exception($"Failed to get ProjectNumber");
                         }
                         return piecesreqdWord.Text;
                     }
                 }
             }
-            throw new NullReferenceException($"Failed to get ProjectNumber");
+            throw new Exception($"Failed to get ProjectNumber");
         }
 
         public string ExtractProjectName()
@@ -191,7 +191,7 @@ namespace BackendLibrary
                     List<Word> projectNameWords = FindWordsNextTo(word, words, -2, 120, -10, 0);
                     if (projectNameWords.Count == 0)
                     {
-                        throw new NullReferenceException($"Failed to get ProjectName");
+                        throw new Exception($"Failed to get ProjectName");
                     }
                     String projectName = "";
                     foreach (Word w in projectNameWords)
@@ -208,7 +208,7 @@ namespace BackendLibrary
                     return projectName;
                 }
             }
-            throw new NullReferenceException($"Failed to get ProjectName");
+            throw new Exception($"Failed to get ProjectName");
         }
 
         public string ExtractFileContentPieceMark()
@@ -231,13 +231,13 @@ namespace BackendLibrary
                         Word? piecemarkWord = FindWordNextTo(word, words, -2, 15, -10, -2);
                         if (piecemarkWord is null)
                         {
-                            throw new NullReferenceException($"Failed to get FileContentPieceMark");
+                            throw new Exception($"Failed to get FileContentPieceMark");
                         }
                         return piecemarkWord.Text;
                     }
                 }
             }
-            throw new NullReferenceException($"Failed to get FileContentPieceMark");
+            throw new Exception($"Failed to get FileContentPieceMark");
         }
 
         public string[]? ExtractControlNumbers()
@@ -287,7 +287,7 @@ namespace BackendLibrary
                         if (controlnumWords.Count == 0)
                         {
                             return null;
-                        }  
+                        }
                     }
 
                     if (controlnumWords is not null)
@@ -340,13 +340,13 @@ namespace BackendLibrary
                         Word? piecesreqdWord = FindWordNextTo(word, words, -2, 30, -10, -4);
                         if (piecesreqdWord is null)
                         {
-                            throw new NullReferenceException($"Failed to get PiecesRequired");
+                            throw new Exception($"Failed to get PiecesRequired");
                         }
                         return int.Parse(piecesreqdWord.Text);
                     }
                 }
             }
-            throw new NullReferenceException($"Failed to get PiecesRequired");
+            throw new Exception($"Failed to get PiecesRequired");
         }
 
         public decimal ExtractWeight()
@@ -362,12 +362,12 @@ namespace BackendLibrary
                     Word? weightWord = FindWordNextTo(word, words, -10, 30, -20, -1);
                     if (weightWord is null)
                     {
-                        throw new NullReferenceException($"Failed to get Weight");
+                        throw new Exception($"Failed to get Weight");
                     }
                     return decimal.Parse(weightWord.Text);
                 }
             }
-            throw new NullReferenceException($"Failed to get Weight");
+            throw new Exception($"Failed to get Weight");
         }
 
         public string ExtractDesignNumber()
@@ -383,34 +383,34 @@ namespace BackendLibrary
                     Word? designnumberWord = FindWordNextTo(word, words, -2, 30, -40, -4);
                     if (designnumberWord is null)
                     {
-                        throw new NullReferenceException($"Failed to get DesignNumber");
+                        throw new Exception($"Failed to get DesignNumber");
                     }
                     return designnumberWord.Text;
                 }
             }
-            throw new NullReferenceException($"Failed to get DesignNumber");
+            throw new Exception($"Failed to get DesignNumber");
         }
 
         // Finds one word among IEnumerable<Word> words relative to an anchorWord given specified bounds
         public Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
         {
             return (from Word word in words
-                where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
-                  (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
-                  (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
-                  (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
-                select word).FirstOrDefault();
+                    where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
+                      (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
+                    select word).FirstOrDefault();
         }
 
         // Finds all words among IEnumerable<Word> words relative to an anchorWord given specified bounds
         public List<Word> FindWordsNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
         {
             return (from Word word in words
-                where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
-                  (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
-                  (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
-                  (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
-                select word).ToList();
+                    where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
+                      (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
+                    select word).ToList();
         }
     }
 }

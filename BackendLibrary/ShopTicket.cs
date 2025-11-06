@@ -22,7 +22,7 @@ namespace BackendLibrary
         public double FormViewRectangleX { get; set; }              // Distance from left edge of PDF to left edge of the form view rectangle (inches).
         public double FormViewRectangleY { get; set; }              // Distance from top edge of PDF to top edge of the form view rectangle (inches).
         public double FormViewRectangleWidth { get; set; }          // Width of the form view rectangle (inches).
-        public double FormViewRectangleHeight { get; set; }        // Height of the form view rectangle (inches).
+        public double FormViewRectangleHeight { get; set; }         // Height of the form view rectangle (inches).
         //public double SectionViewRectangleX { get; set; }          // Distance from left edge of PDF to left edge of the section view rectangle (inches).
         //public double SectionViewRectangleY { get; set; }          // Distance from top edge of PDF to top edge of the section view rectangle (inches).
         //public double SectionViewRectangleWidth { get; set; }      // Width of the section view rectangle (inches).
@@ -65,7 +65,7 @@ namespace BackendLibrary
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error initializing shop ticket: {ex.Message}", ex);
+                throw new Exception($"Error with {fileName}: {ex.Message}", ex);
             }
         }
 
@@ -89,7 +89,7 @@ namespace BackendLibrary
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error initializing shop ticket: {ex.Message}", ex);
+                throw new Exception($"Error with {fileName}: {ex.Message}", ex);
             }
         }
 
@@ -148,7 +148,7 @@ namespace BackendLibrary
                 "FormViewRectangleY: " + FormViewRectangleY + "\n" +
                 "FormViewRectangleWidth: " + FormViewRectangleWidth + "\n" +
                 "FormViewRectangleHeight: " + FormViewRectangleHeight + "\n";
-                
+
 
             return str;
         }
