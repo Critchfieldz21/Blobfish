@@ -65,7 +65,7 @@ namespace BackendLibrary
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error initializing shop ticket: {ex.Message}", ex);
+                throw new Exception($"Error with {fileName}: {ex.Message}", ex);
             }
         }
 
@@ -89,7 +89,7 @@ namespace BackendLibrary
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error initializing shop ticket: {ex.Message}", ex);
+                throw new Exception($"Error with {fileName}: {ex.Message}", ex);
             }
         }
 

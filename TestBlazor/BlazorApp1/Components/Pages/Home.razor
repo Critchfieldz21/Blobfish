@@ -44,6 +44,15 @@
 	</div>
 </section>
 
+<Modal @ref="modalError" Title="Processing Error">
+    <BodyTemplate>
+        @modalErrorMessage
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Close</Button>
+    </FooterTemplate>
+</Modal>
+
 @code {
     private string? pdfName = "No PDF Selected";
     private InputFileChangeEventArgs? selectedFiles;
@@ -54,6 +63,8 @@
     private string buttonLabel = "Process";
     private string processButtonClass => isProcessing ? "cancelbtn" : "processbtn";
     private bool isDropdownOpen = false;
+    private Modal modalError;
+	private string modalErrorMessage = "An error occurred during PDF processing.";
 
     private async Task OnPrimary()
     {
@@ -97,9 +108,10 @@
     private void OnSecondary() => isDropdownOpen = !isDropdownOpen;
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
-    {
-        foreach (var file in e.GetMultipleFiles()){  
-            try{
+    {     
+        try
+        {
+            foreach (var file in e.GetMultipleFiles()){
                 pdfName = "Loading...";
                 var totalBytes = file.Size;
                 var buffer = new byte[8192];
@@ -129,7 +141,7 @@
                     progressStatus = $"Reading PDF... {progressValue}%";
                     StateHasChanged();
 
-                    await Task.Delay(0); 
+                    await Task.Delay(0);
                 }
 
                 byte[] pdfBytes = memoryStream.ToArray();
@@ -141,17 +153,25 @@
 
                 Console.WriteLine("PDF loaded successfully.");
             }
-            catch (Exception ex)
-            {
-                pdfName = $"Error: {ex.Message}";
-                progressStatus = "Error during processing.";
-                progressValue = 0;
-                Console.WriteLine($"Error uploading file: {ex}");
-            }
-
-            isProcessing = false;
-            buttonLabel = "Process";
-            StateHasChanged();
         }
+        catch (Exception ex)
+        {
+            cancelRequested = true;
+			modalErrorMessage = ex.Message;
+            await modalError?.ShowAsync();
+            pdfName = "Error";
+            progressStatus = "Error during processing.";
+            progressValue = 0;
+            Console.WriteLine($"Error uploading file: {ex}");
+        }
+
+        isProcessing = false;
+        buttonLabel = "Process";
+        StateHasChanged();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await modalError?.HideAsync();
     }
 }
