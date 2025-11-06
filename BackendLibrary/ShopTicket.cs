@@ -124,7 +124,7 @@ namespace BackendLibrary
             }
             catch (Exception ex)
             {
-                throw new Exception($"{FileName} has an extraction error: {ex.Message}", ex);
+                throw new ExtractionException($"{FileName} has an extraction error: {ex.Message}", ex);
             }
         }
 
