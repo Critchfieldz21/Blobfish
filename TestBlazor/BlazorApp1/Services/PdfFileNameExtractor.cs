@@ -75,7 +75,7 @@ namespace BackendLibrary
             }
             catch (Exception ex)
             {
-                throw new Exception ("Failed to get FileNamePieceMark", ex);
+                throw new ExtractionException("Failed to get FileNamePieceMark", ex);
             }
         }
     }

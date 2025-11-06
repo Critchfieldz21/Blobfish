@@ -46,7 +46,7 @@
 
 <Modal @ref="modalError" Title="Processing Error">
     <BodyTemplate>
-        @modalErrorMessage
+        @((MarkupString)modalErrorMessage)
     </BodyTemplate>
     <FooterTemplate>
         <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Close</Button>
@@ -64,7 +64,7 @@
     private string processButtonClass => isProcessing ? "cancelbtn" : "processbtn";
     private bool isDropdownOpen = false;
     private Modal modalError;
-	private string modalErrorMessage = "An error occurred during PDF processing.";
+    private string modalErrorMessage = "An error occurred during PDF processing.";
 
     private async Task OnPrimary()
     {
@@ -157,8 +157,13 @@
         catch (Exception ex)
         {
             cancelRequested = true;
-			modalErrorMessage = ex.Message;
+            modalErrorMessage = ex.Message;
+            if (ex.InnerException is ExtractionException)
+            {
+                modalErrorMessage += "<br /><br />Suggestion: Double-check if this file is a valid shop ticket PDF";
+            }
             await modalError?.ShowAsync();
+
             pdfName = "Error";
             progressStatus = "Error during processing.";
             progressValue = 0;
