@@ -13,35 +13,33 @@
 <h1>Home</h1>
 
 <section>
-	<section>
-		<div class="progbar">
-			<h1>Progress Bar</h1>
-			<div class="progress-container">
-				<div class="progress-bar" style="width:@progressValue%"></div>
-			</div>
-			<p>@progressStatus</p>
-		</div>
-	</section>
+    <div class="pdfcontainer">
+        <div class="pdfBox">
+            <InputFile OnChange="e => selectedFiles = e" multiple accept=".pdf" />
+            <p>Loaded PDF: @pdfName</p>
+        </div>
 
-	<div class="pdfcontainer">
-		<div class="pdfBox">
-			<InputFile OnChange="e => selectedFiles = e" multiple accept=".pdf" />
-			<p>Loaded PDF: @pdfName</p>
-		</div>
-	</div>
+        <div class="loading-container">
+            @if (isProcessing)
+            {
+                <img src="../Northeast.png" class="spinner" alt="Loading..." />
+                <p>Processing PDF...</p>
+            }
+        </div>
+    </div>
 </section>
 
 <section>
-	<div class="btn-container">
-		<div class="btn-group" role="group" aria-label="Home actions">
-			<button class="@processButtonClass" @onclick="OnPrimary">@buttonLabel</button>
-			<button class="historybtn" @onclick="OnSecondary">History</button>
-			<ul class = "dropdown-menu @(isDropdownOpen ? "show" : "")">
-				<li><a class ="dropdown-item" href = "#">Option 1</a></li>
-				<li><a class ="dropdown-item" href = "#">Option 2</a></li>
-			</ul>
-		</div>
-	</div>
+    <div class="btn-container">
+        <div class="btn-group" role="group" aria-label="Home actions">
+            <button class="@processButtonClass" @onclick="OnPrimary">@buttonLabel</button>
+            <button class="historybtn" @onclick="OnSecondary">History</button>
+            <ul class="dropdown-menu @(isDropdownOpen ? "show" : "")">
+                <li><a class="dropdown-item" href="#">Option 1</a></li>
+                <li><a class="dropdown-item" href="#">Option 2</a></li>
+            </ul>
+        </div>
+    </div>
 </section>
 
 <Modal @ref="modalError" Title="Processing Error">
@@ -56,8 +54,6 @@
 @code {
     private string? pdfName = "No PDF Selected";
     private InputFileChangeEventArgs? selectedFiles;
-    private int progressValue = 0;
-    private string progressStatus = "Select a PDF to process";
     private bool isProcessing = false;
     private bool cancelRequested = false;
     private string buttonLabel = "Process";
@@ -68,7 +64,7 @@
 
     private async Task OnPrimary()
     {
-        if(sTService.Size > 0)
+        if (sTService.Size > 0)
         {
             sTService.ClearTickets();
         }
@@ -80,7 +76,6 @@
                 isProcessing = true;
                 cancelRequested = false;
                 buttonLabel = "Cancel";
-                progressStatus = "Starting PDF processing...";
                 StateHasChanged();
 
                 await HandleFileSelected(selectedFiles);
@@ -99,7 +94,7 @@
         else
         {
             cancelRequested = true;
-            progressStatus = "Cancelling...";
+            isProcessing = false;
             buttonLabel = "Process";
             StateHasChanged();
         }
@@ -108,50 +103,41 @@
     private void OnSecondary() => isDropdownOpen = !isDropdownOpen;
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
-    {     
+    {
         try
         {
-            foreach (var file in e.GetMultipleFiles()){
+            foreach (var file in e.GetMultipleFiles())
+            {
                 pdfName = "Loading...";
-                var totalBytes = file.Size;
-                var buffer = new byte[8192];
-                long totalRead = 0;
 
                 using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
                 using var memoryStream = new MemoryStream();
+                var buffer = new byte[8192];
+                long totalRead = 0;
 
                 int bytesRead;
                 while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                 {
                     if (cancelRequested)
                     {
-                        progressStatus = "Process cancelled.";
-                        progressValue = 0;
                         isProcessing = false;
                         buttonLabel = "Process";
                         sTService.ClearTickets();
+                        pdfName = "Process cancelled.";
                         StateHasChanged();
                         return;
                     }
 
                     await memoryStream.WriteAsync(buffer.AsMemory(0, bytesRead));
                     totalRead += bytesRead;
-
-                    progressValue = (int)((totalRead * 100) / totalBytes);
-                    progressStatus = $"Reading PDF... {progressValue}%";
-                    StateHasChanged();
-
-                    await Task.Delay(0);
                 }
 
                 byte[] pdfBytes = memoryStream.ToArray();
-                Console.WriteLine(Directory.GetCurrentDirectory());
                 sTService.AddTicket(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"));
                 pdfName = sTService.GetTicket(sTService.Size).FileName;
-                progressStatus = "Processing complete.";
-                progressValue = 100;
-
-                Console.WriteLine("PDF loaded successfully.");
+                isProcessing = false;
+                buttonLabel = "Process";
+                StateHasChanged();
             }
         }
         catch (Exception ex)
@@ -165,14 +151,10 @@
             await modalError?.ShowAsync();
 
             pdfName = "Error";
-            progressStatus = "Error during processing.";
-            progressValue = 0;
-            Console.WriteLine($"Error uploading file: {ex}");
+            isProcessing = false;
+            buttonLabel = "Process";
+            StateHasChanged();
         }
-
-        isProcessing = false;
-        buttonLabel = "Process";
-        StateHasChanged();
     }
 
     private async Task OnHideModalClick()

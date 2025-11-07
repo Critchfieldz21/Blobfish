@@ -18,39 +18,6 @@ h1 {
   transition: all 0.25s ease;
 }
 
-.progbar {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.progbar h1{
-  color:#dc3545;
-}
-
-.progress-container {
-  width: 80%;
-  height: 25px;
-  background-color: #e0e0e0;
-  border-radius: 12px;
-  margin: 10px auto;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #007bff, #0a58ca);
-  width: 0%;
-  border-radius: 12px;
-  transition: width 0.3s ease-in-out;
-}
-
-.progbar p {
-  margin-top: 5px;
-  font-weight: 500;
-  color: #333;
-}
-
 .pdfBox {
   width: 80%;
   max-width: 700px;
@@ -63,6 +30,7 @@ h1 {
   transition: all 0.25s ease;
   cursor: pointer;
 }
+
 .pdfBox.drag-over {
   background-color: #e8f0fe;
   border-color: #007bff;
@@ -88,15 +56,21 @@ h1 {
   color: #444;
 }
 
-pre {
-  background-color: #f3f4f6;
-  padding: 1rem;
-  border-radius: 8px;
-  overflow-x: auto;
-  font-size: 0.9rem;
-  color: #1f2937;
-  border: 1px solid #e5e7eb;
-  text-align: left;
+.loading-container {
+  margin-top: 1rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  display: block;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 section {
@@ -144,6 +118,7 @@ section {
   background-color: #007bff;
   color: white;
 }
+
 .cancelbtn {
   background-color: #dc3545;
   color: white;
@@ -173,10 +148,6 @@ section {
   .pdfBox {
     width: 95%;
     padding: 1.5rem;
-  }
-
-  pre {
-    font-size: 0.85rem;
   }
 
   .btn-group {
