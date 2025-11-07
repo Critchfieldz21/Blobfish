@@ -22,10 +22,10 @@ class Program
         if (File.Exists(filePath))
         {
             Console.WriteLine(pdf.ToString());
-            //db.CreateCustomerTable();
-            //db.AddData(pdfName , pdfBytes);  
-            //db.ExportToCsv("/Users/zacharycritchfield/Documents/GitHub/Blobfish/BackendConsoleTest/customers_data.csv");
-            //db.OpenExcelFile("/Users/zacharycritchfield/Documents/GitHub/Blobfish/BackendConsoleTest/customers_data.csv");
+            db.CreateCustomerTable();
+            db.AddData(pdfName , pdfBytes);  
+            // db.ExportToCsv("/Users/zacharycritchfield/Documents/GitHub/Blobfish/BackendConsoleTest/customers_data.csv");
+            // db.OpenExcelFile("/Users/zacharycritchfield/Documents/GitHub/Blobfish/BackendConsoleTest/customers_data.csv");
         }
 
         else

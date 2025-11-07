@@ -28,7 +28,8 @@ namespace SQL3cs
             public string Weight { get; set; }
             public string PiecesRequired { get; set; }
         }
-        public void CreateCustomerTable()
+       
+        public void CreateRectangleTable()
         {
             using (var connection = new SqliteConnection(connectionString))
             {
@@ -36,20 +37,67 @@ namespace SQL3cs
                 var command = connection.CreateCommand();
                 command.CommandText =
                 @"
-                CREATE TABLE IF NOT EXISTS customer (
-                    NumberOfPages TEXT,
-                    DesignNumber TEXT,
-                    FileName TEXT,
-                    FileNamePieceMark TEXT,
-                    ProjectNumber TEXT,
-                    ProjectName TEXT,
-                    FileContentPieceMark TEXT,
-                    Weight TEXT,
-                    PiecesRequired TEXT,
-                    ByteArray TEXT               
+                CREATE TABLE IF NOT EXISTS Rectangle (
+                    RecID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    FormViewRectangleX INTEGER,
+                    FormViewRectangleY INTEGER,
+                    FormViewRectangleWidth INTEGER,
+                    FormViewRectangleHeight INTEGER        
                      );
             ";
                 command.ExecuteNonQuery();
+            }
+        }
+        public void CreateProjectTable()
+        {
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText =
+                @"
+                CREATE TABLE IF NOT EXISTS Project (
+                   ProjectID INTEGER PRIMARY KEY AUTOINCREMENT,
+                   ProjectName TEXT,
+                   DateCreated TEXT CURRENT_TIMESTAMP,
+                   ShopTicketID INTEGER,      
+                   Foreign KEY (ShopTicketID) REFERENCES ShopTicket(ShopTicketID)
+
+                     );
+            ";
+                command.ExecuteNonQuery();
+            }
+        }
+        public void CreateShoptTicketTable()
+        {
+            using (var connection = new SqliteConnection(connectionString))
+            {
+               
+
+                    connection.Open();
+                    var command = connection.CreateCommand();
+                    command.CommandText =
+                    @"
+                    CREATE TABLE IF NOT EXISTS ShopTicket (
+                        ShopTicketID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ProjectName TEXT,
+                        ProjectNumber TEXT,
+                        DesignNumber TEXT,
+                        PageName TEXT,
+                        PiecesRequired INTEGER,
+                        Weight INTEGER,
+                        FileContentPieceMark TEXT,
+                        FileName TEXT,
+                        FileNamePieceMark TEXT,
+                        NumberOfPages INTEGER,
+                        RecID INTEGER,
+                        FOREIGN KEY (RecID) REFERENCES Rectangle(RecID)
+                    
+                        );
+                ";
+                    command.ExecuteNonQuery();
+                
+              
             }
         }
 
@@ -75,41 +123,65 @@ namespace SQL3cs
             }
         }
 
-        public void AddData(String filePath,  byte[] pdfBytes)
-       {
+        public void AddDataToShopTicket(String filePath, byte[] pdfBytes)
+        {
 
             ShopTicket pdf = new ShopTicket(filePath, pdfBytes);
             byte[] bytes = pdfBytes;
             using (var connection = new SqliteConnection(connectionString))
             {
-                
+
                 connection.Open();
                 var command = connection.CreateCommand();
                 command.CommandText =
                 @"
-                INSERT INTO customer (
-                    NumberOfPages, DesignNumber, FileName, FileNamePieceMark,
-                    ProjectNumber, ProjectName, FileContentPieceMark, Weight, PiecesRequired, ByteArray
-                ) VALUES ($nop, $pn, $fn, $fnpm, $pnum, $pname, $fcpm, $cn, $pr, $ba);
+                INSERT INTO ShopTicket (
+                    ProjectName, ProjectNumber, DesignNumber, PageName,
+                    PiecesRequired, Weight, FileContentPieceMark, FileName, FileNamePieceMark, NumberOfPages
+                ) VALUES ($pn, $prnu, $dn, $pana, $pire, $we, $fcpm, $fn, $fnpm, $nop);
                 ";
 
                 // Assign hard-coded values directly to the parameters
-                command.Parameters.AddWithValue("$nop", pdf.NumberOfPages.ToString());
-                command.Parameters.AddWithValue("$pn",  pdf.DesignNumber);
+                command.Parameters.AddWithValue("$pn", pdf.ProjectName);
+                command.Parameters.AddWithValue("$prnu", pdf.ProjectNumber);
+                command.Parameters.AddWithValue("$dn", pdf.DesignNumber);
+                command.Parameters.AddWithValue("$pana", pdf.PageName);
+                command.Parameters.AddWithValue("$pire", pdf.PiecesRequired);
+                command.Parameters.AddWithValue("$pname", pdf.Weight);
+                command.Parameters.AddWithValue("$we", pdf.FileContentPieceMark);
                 command.Parameters.AddWithValue("$fn", pdf.FileName);
                 command.Parameters.AddWithValue("$fnpm", pdf.FileNamePieceMark);
-                command.Parameters.AddWithValue("$pnum", pdf.ProjectNumber);
-                command.Parameters.AddWithValue("$pname", pdf.ProjectName);
-                command.Parameters.AddWithValue("$fcpm", pdf.FileContentPieceMark); 
-                command.Parameters.AddWithValue("$cn", pdf.Weight.ToString());
-                command.Parameters.AddWithValue("$pr", pdf.PiecesRequired.ToString());
-                command.Parameters.AddWithValue("$ba", bytes.ToString());
+                command.Parameters.AddWithValue("$nop", pdf.NumberOfPages);
 
                 command.ExecuteNonQuery();
             }
         }
 
-        // displays all rows in the database in a formatted table on the terminal
+         public void AddDataToProject(String filePath)
+        {
+
+            ShopTicket pdf = new ShopTicket(filePath);
+            using (var connection = new SqliteConnection(connectionString))
+            {
+
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText =
+                @"
+                INSERT INTO Project (
+                    ProjectName, ShopTicketID
+                ) VALUES ($proID, $pn, $dc, $stID);
+                ";
+
+                // Assign hard-coded values directly to the parameters
+               
+                command.Parameters.AddWithValue("$pn", pdf.ProjectName);
+                command.Parameters.AddWithValue("$stID", pdf.FileNamePieceMark);
+
+                command.ExecuteNonQuery();
+            }
+        }
+
         public void ShowAll()
         {
             using (var connection = new SqliteConnection(connectionString))
@@ -145,41 +217,6 @@ namespace SQL3cs
                         );
                     }
                 }
-            }
-        }
-
-
-
-        // reads a text file and outputs a csv file
-        public void GetInfo()
-        {
-            string filePath = "/Users/zacharycritchfield/Desktop/DB/ShopTicketInfo.txt";
-            string csvFilePath = "customers_data.csv";
-
-            if (!File.Exists(filePath))
-            {
-                Console.WriteLine($"Error: File not found at {filePath}");
-                return;
-            }
-
-            try
-            {
-                using (var reader = new StreamReader(filePath))
-                using (var writer = new StreamWriter(csvFilePath))
-                {
-                    string? line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        string csvLine = line.Replace('|', ',');
-                        writer.WriteLine(csvLine);
-                    }
-                }
-
-                Console.WriteLine($"Successfully converted '{filePath}' to '{csvFilePath}'");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while converting the file: {ex.Message}");
             }
         }
 
