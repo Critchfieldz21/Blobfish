@@ -85,37 +85,15 @@
                 cancelRequested = false;
                 completedCount = 0;
                 buttonLabel = "Cancel";
-                
-                try
-                {
-                    totalFiles = selectedFiles.GetMultipleFiles(50).Count;
 
-                    loadingMessage = totalFiles > 1
-                        ? $"Processing batch of {totalFiles} PDFs..."
-                        : "Processing PDF...";
+                totalFiles = selectedFiles.GetMultipleFiles(50).Count;
+                loadingMessage = totalFiles > 1
+                    ? $"Processing batch of {totalFiles} PDFs..."
+                    : "Processing PDF...";
 
-                    StateHasChanged();
-                    await HandleFileSelected(selectedFiles);
-                } 
-                catch (Exception ex)
-                {
-                    cancelRequested = true;
-                    modalErrorMessage = ex.Message;
-                    if (ex.InnerException is ExtractionException)
-                    {
-                        modalErrorMessage += "<br /><br />Suggestion: Double-check if this file is a valid shop ticket PDF";
-                    }
-                    await modalError?.ShowAsync();
+                StateHasChanged();
+                await HandleFileSelected(selectedFiles);
 
-                    pdfName = "Error";
-                    isProcessing = false;
-                    buttonLabel = "Process";
-                    loadingMessage = "";
-                    completedCount = 0;
-                    totalFiles = 0;
-                    StateHasChanged();
-                }
-                
                 if (!cancelRequested)
                 {
                     Navigation.NavigateTo("/processing");
@@ -140,51 +118,72 @@
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
-        var files = e.GetMultipleFiles(50);
-        if (files.Count == 0) return;
-
-        foreach (var file in files)
+        try
         {
-            using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
-            using var memoryStream = new MemoryStream();
-            var buffer = new byte[8192];
+            var files = e.GetMultipleFiles(50);
+            if (files.Count == 0) return;
 
-            int bytesRead;
-            while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            foreach (var file in files)
             {
-                if (cancelRequested)
+                using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
+                using var memoryStream = new MemoryStream();
+                var buffer = new byte[8192];
+
+                int bytesRead;
+                while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                 {
-                    isProcessing = false;
-                    buttonLabel = "Process";
-                    sTService.ClearTickets();
-                    pdfName = "Process cancelled.";
-                    completedCount = 0;
-                    totalFiles = 0;
-                    StateHasChanged();
-                    return;
+                    if (cancelRequested)
+                    {
+                        isProcessing = false;
+                        buttonLabel = "Process";
+                        sTService.ClearTickets();
+                        pdfName = "Process cancelled.";
+                        completedCount = 0;
+                        totalFiles = 0;
+                        StateHasChanged();
+                        return;
+                    }
+
+                    await memoryStream.WriteAsync(buffer.AsMemory(0, bytesRead));
                 }
 
-                await memoryStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                byte[] pdfBytes = memoryStream.ToArray();
+                sTService.AddTicket(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"));
+
+                completedCount++;
+                pdfName = file.Name; // shows the last processed file
+                StateHasChanged();
             }
 
-            byte[] pdfBytes = memoryStream.ToArray();
-            sTService.AddTicket(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"));
-
-            completedCount++;
-            pdfName = file.Name; // shows the last processed file
+            // Finished batch or single PDF
+            isProcessing = false;
+            buttonLabel = "Process";
+            pdfName = totalFiles > 1
+                ? "Batch processing complete."
+                : $"Processed: {files[0].Name}";
+            loadingMessage = "";
+            completedCount = 0;
+            totalFiles = 0;
             StateHasChanged();
         }
+        catch (Exception ex)
+        {
+            cancelRequested = true;
+            modalErrorMessage = ex.Message;
+            if (ex.InnerException is ExtractionException)
+            {
+                modalErrorMessage += "<br /><br />Suggestion: Double-check if this file is a valid shop ticket PDF";
+            }
+            await modalError?.ShowAsync();
 
-        // Finished batch or single PDF
-        isProcessing = false;
-        buttonLabel = "Process";
-        pdfName = totalFiles > 1
-            ? "Batch processing complete."
-            : $"Processed: {files[0].Name}";
-        loadingMessage = "";
-        completedCount = 0;
-        totalFiles = 0;
-        StateHasChanged();
+            pdfName = "Error";
+            isProcessing = false;
+            buttonLabel = "Process";
+            loadingMessage = "";
+            completedCount = 0;
+            totalFiles = 0;
+            StateHasChanged();
+        }
     }
 
     private async Task OnHideModalClick()
