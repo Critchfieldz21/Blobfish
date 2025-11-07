@@ -24,6 +24,11 @@
             {
                 <img src="../Northeast.png" class="spinner" alt="Loading..." />
                 <p>@loadingMessage</p>
+
+                @if (totalFiles > 0)
+                {
+                    <p>Completed @completedCount / @totalFiles</p>
+                }
             }
         </div>
     </div>
@@ -54,6 +59,8 @@
 @code {
     private string? pdfName = "No PDF Selected";
     private string loadingMessage = "";
+    private int totalFiles = 0;
+    private int completedCount = 0;
     private InputFileChangeEventArgs? selectedFiles;
     private bool isProcessing = false;
     private bool cancelRequested = false;
@@ -76,11 +83,12 @@
             {
                 isProcessing = true;
                 cancelRequested = false;
+                completedCount = 0;
                 buttonLabel = "Cancel";
 
-                var fileCount = selectedFiles.GetMultipleFiles().Count;
-                loadingMessage = fileCount > 1
-                    ? $"Processing batch of {fileCount} PDFs..."
+                totalFiles = selectedFiles.GetMultipleFiles().Count;
+                loadingMessage = totalFiles > 1
+                    ? $"Processing batch of {totalFiles} PDFs..."
                     : "Processing PDF...";
 
                 StateHasChanged();
@@ -120,7 +128,6 @@
                 using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
                 using var memoryStream = new MemoryStream();
                 var buffer = new byte[8192];
-                long totalRead = 0;
 
                 int bytesRead;
                 while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
@@ -131,29 +138,32 @@
                         buttonLabel = "Process";
                         sTService.ClearTickets();
                         pdfName = "Process cancelled.";
+                        completedCount = 0;
+                        totalFiles = 0;
                         StateHasChanged();
                         return;
                     }
 
                     await memoryStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-                    totalRead += bytesRead;
                 }
 
                 byte[] pdfBytes = memoryStream.ToArray();
                 sTService.AddTicket(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"));
 
-                // Show the last loaded PDF name (optional)
-                pdfName = file.Name;
+                completedCount++;
+                pdfName = file.Name; // shows the last processed file
                 StateHasChanged();
             }
 
             // Finished batch or single PDF
             isProcessing = false;
             buttonLabel = "Process";
-            pdfName = files.Count > 1
+            pdfName = totalFiles > 1
                 ? "Batch processing complete."
                 : $"Processed: {files[0].Name}";
             loadingMessage = "";
+            completedCount = 0;
+            totalFiles = 0;
             StateHasChanged();
         }
         catch (Exception ex)
@@ -170,6 +180,8 @@
             isProcessing = false;
             buttonLabel = "Process";
             loadingMessage = "";
+            completedCount = 0;
+            totalFiles = 0;
             StateHasChanged();
         }
     }
