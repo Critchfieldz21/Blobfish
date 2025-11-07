@@ -21,10 +21,9 @@
     </div>
 </section>
 
-<section class="pdfcontainer">
+<section class="pdf-processing-container">
+    <!-- PDF Viewer -->
     <div class="pdfVisBox">
-        <p>@eventLog</p>
-
         @if (!string.IsNullOrEmpty(base64Url))
         {
             <PdfViewer @key="base64Url" Class="pdfViewer" Url="@base64Url" OnDocumentLoaded="OnDocumentLoaded"
@@ -36,6 +35,7 @@
         }
     </div>
 
+    <!-- PDF Info -->
     <div class="pdfinfo">
         <p>@((MarkupString)GetPDFInfo())</p>
     </div>
@@ -43,15 +43,11 @@
 
 @code {
     private string? base64Url;
-    private string eventLog { get; set; } = $"Last event: ..., CurrentPage: 0, TotalPages: 0";
-    //starts at 1 for user friendliness. Can Change to zero based if needed.
     private int currTicketIndex = 0;
 
     protected override void OnInitialized()
     {
-        //plus one because sTService method subtracts one for zero based indexing
         var ticket = sTService.GetTicket(currTicketIndex + 1);
-
         if (ticket?.PdfBytes != null && ticket.PdfBytes.Length > 0)
         {
             string pdfBase64 = Convert.ToBase64String(ticket.PdfBytes);
@@ -60,7 +56,8 @@
         StateHasChanged();
     }
 
-    private void GoRight(){
+    private void GoRight()
+    {
         if (currTicketIndex < sTService.Size - 1)
         {
             currTicketIndex++;
@@ -68,7 +65,8 @@
         }
     }
 
-    private void GoLeft(){
+    private void GoLeft()
+    {
         if (currTicketIndex > 0)
         {
             currTicketIndex--;
@@ -76,18 +74,13 @@
         }
     }
 
-    private String GetPDFInfo(){
-        return sTService.GetTicket(currTicketIndex + 1).ToString().Replace("\n", "<br />");
-    }
+    private string GetPDFInfo() => sTService.GetTicket(currTicketIndex + 1).ToString().Replace("\n", "<br />");
 
-    //plus one because sTService method subtracts one for zero based indexing
     private string? setName() => sTService.GetTicket(currTicketIndex + 1).FileName;
 
-    private void OnDocumentLoaded(PdfViewerEventArgs args)
-    => eventLog = $"Last event: OnDocumentLoaded, CurrentPage: {args.CurrentPage}, TotalPages: {args.TotalPages}";
+    private void OnDocumentLoaded(PdfViewerEventArgs args) { }
 
-    private void OnPageChanged(PdfViewerEventArgs args)
-    => eventLog = $"Last event: OnPageChanged, CurrentPage: {args.CurrentPage}, TotalPages: {args.TotalPages}";
+    private void OnPageChanged(PdfViewerEventArgs args) { }
 
     private void GoHome() => Navigation.NavigateTo("/");
 }
