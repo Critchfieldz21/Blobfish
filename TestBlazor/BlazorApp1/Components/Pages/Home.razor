@@ -23,7 +23,7 @@
             @if (isProcessing)
             {
                 <img src="../Northeast.png" class="spinner" alt="Loading..." />
-                <p>Processing PDF...</p>
+                <p>@loadingMessage</p>
             }
         </div>
     </div>
@@ -53,6 +53,7 @@
 
 @code {
     private string? pdfName = "No PDF Selected";
+    private string loadingMessage = "";
     private InputFileChangeEventArgs? selectedFiles;
     private bool isProcessing = false;
     private bool cancelRequested = false;
@@ -76,8 +77,13 @@
                 isProcessing = true;
                 cancelRequested = false;
                 buttonLabel = "Cancel";
-                StateHasChanged();
 
+                var fileCount = selectedFiles.GetMultipleFiles().Count;
+                loadingMessage = fileCount > 1
+                    ? $"Processing batch of {fileCount} PDFs..."
+                    : "Processing PDF...";
+
+                StateHasChanged();
                 await HandleFileSelected(selectedFiles);
 
                 if (!cancelRequested)
@@ -106,10 +112,11 @@
     {
         try
         {
-            foreach (var file in e.GetMultipleFiles())
-            {
-                pdfName = "Loading...";
+            var files = e.GetMultipleFiles();
+            if (files.Count == 0) return;
 
+            foreach (var file in files)
+            {
                 using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
                 using var memoryStream = new MemoryStream();
                 var buffer = new byte[8192];
@@ -134,11 +141,20 @@
 
                 byte[] pdfBytes = memoryStream.ToArray();
                 sTService.AddTicket(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"));
-                pdfName = sTService.GetTicket(sTService.Size).FileName;
-                isProcessing = false;
-                buttonLabel = "Process";
+
+                // Show the last loaded PDF name (optional)
+                pdfName = file.Name;
                 StateHasChanged();
             }
+
+            // Finished batch or single PDF
+            isProcessing = false;
+            buttonLabel = "Process";
+            pdfName = files.Count > 1
+                ? "Batch processing complete."
+                : $"Processed: {files[0].Name}";
+            loadingMessage = "";
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -153,6 +169,7 @@
             pdfName = "Error";
             isProcessing = false;
             buttonLabel = "Process";
+            loadingMessage = "";
             StateHasChanged();
         }
     }
