@@ -10,20 +10,28 @@ class Program
         //String filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/24-NE1096-DT023_P0.pdf";
         //string filePath = "/Users/zacharycritchfield/Desktop/ShopTickets/ShopTicketData/pdfs/25-NE1203.01-W015_P2.pdf";
         //String filePath = "C:/Users/lance/Documents/ShopTicketData/pdfs/24-NE1173-W038_P2.pdf";
-        String filePath = "";
+         String filePath = "";
 
         byte[] pdfBytes = File.ReadAllBytes(filePath);
         String pdfName = Path.GetFileNameWithoutExtension(filePath);
         ShopTicket pdf = new ShopTicket(pdfName, pdfBytes, "../../../../BackendLibrary/best.onnx");
-        //CustomerData db = new CustomerData();
+        CustomerData db = new CustomerData();
 
-        //ShopTicket pdf = new ShopTicket(filePath);
+        // ShopTicket pdf = new ShopTicket(filePath);
 
         if (File.Exists(filePath))
         {
             Console.WriteLine(pdf.ToString());
-            db.CreateCustomerTable();
-            db.AddData(pdfName , pdfBytes);  
+
+            // db.CreateProjectTable();
+            // db.AddDataToProject(filePath);
+
+            // db.CreateRectangleTable();
+            // db.AddDataToShopTicket(filePath);
+
+            // db.CreateShopTicketTable();
+            // db.AddDataToRectangle(filePath);
+
             // db.ExportToCsv("/Users/zacharycritchfield/Documents/GitHub/Blobfish/BackendConsoleTest/customers_data.csv");
             // db.OpenExcelFile("/Users/zacharycritchfield/Documents/GitHub/Blobfish/BackendConsoleTest/customers_data.csv");
         }

@@ -68,7 +68,7 @@ namespace SQL3cs
                 command.ExecuteNonQuery();
             }
         }
-        public void CreateShoptTicketTable()
+        public void CreateShopTicketTable()
         {
             using (var connection = new SqliteConnection(connectionString))
             {
@@ -101,8 +101,6 @@ namespace SQL3cs
             }
         }
 
-        //removes a row based in the row id 
-
         public void RemoveRow(int rowId)
         {
             try
@@ -123,11 +121,10 @@ namespace SQL3cs
             }
         }
 
-        public void AddDataToShopTicket(String filePath, byte[] pdfBytes)
+        public void AddDataToShopTicket(String filePath)
         {
 
-            ShopTicket pdf = new ShopTicket(filePath, pdfBytes);
-            byte[] bytes = pdfBytes;
+            ShopTicket pdf = new ShopTicket(filePath);
             using (var connection = new SqliteConnection(connectionString))
             {
 
@@ -135,7 +132,7 @@ namespace SQL3cs
                 var command = connection.CreateCommand();
                 command.CommandText =
                 @"
-                INSERT INTO ShopTicket (
+                INSERT INTO ShopTicketTable (
                     ProjectName, ProjectNumber, DesignNumber, PageName,
                     PiecesRequired, Weight, FileContentPieceMark, FileName, FileNamePieceMark, NumberOfPages
                 ) VALUES ($pn, $prnu, $dn, $pana, $pire, $we, $fcpm, $fn, $fnpm, $nop);
@@ -145,7 +142,7 @@ namespace SQL3cs
                 command.Parameters.AddWithValue("$pn", pdf.ProjectName);
                 command.Parameters.AddWithValue("$prnu", pdf.ProjectNumber);
                 command.Parameters.AddWithValue("$dn", pdf.DesignNumber);
-                command.Parameters.AddWithValue("$pana", pdf.PageName);
+                command.Parameters.AddWithValue("$pana", pdf.PageNames);
                 command.Parameters.AddWithValue("$pire", pdf.PiecesRequired);
                 command.Parameters.AddWithValue("$pname", pdf.Weight);
                 command.Parameters.AddWithValue("$we", pdf.FileContentPieceMark);
@@ -158,6 +155,7 @@ namespace SQL3cs
         }
 
          public void AddDataToProject(String filePath)
+
         {
 
             ShopTicket pdf = new ShopTicket(filePath);
@@ -170,10 +168,9 @@ namespace SQL3cs
                 @"
                 INSERT INTO Project (
                     ProjectName, ShopTicketID
-                ) VALUES ($proID, $pn, $dc, $stID);
+                ) VALUES ($pn, $stID);
                 ";
 
-                // Assign hard-coded values directly to the parameters
                
                 command.Parameters.AddWithValue("$pn", pdf.ProjectName);
                 command.Parameters.AddWithValue("$stID", pdf.FileNamePieceMark);
@@ -182,6 +179,33 @@ namespace SQL3cs
             }
         }
 
+        public void AddDataToRectangle(String filePath)
+         
+        {
+
+            ShopTicket pdf = new ShopTicket(filePath);
+            using (var connection = new SqliteConnection(connectionString))
+            {
+
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText =
+                @"
+                INSERT INTO Rectangle (
+                    FormViewRectangleX, FormViewRectangleY,
+                    FormViewRectangleWidth, FormViewRectangleHeight       
+                ) VALUES ($fvrx, $fvry, $fvrw, $fvrh);
+                ";
+
+               
+                command.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
+                command.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
+                command.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
+                command.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
+
+                command.ExecuteNonQuery();
+            }
+        }
         public void ShowAll()
         {
             using (var connection = new SqliteConnection(connectionString))
@@ -262,7 +286,7 @@ namespace SQL3cs
                 {
                     connection.Open();
                     var command = connection.CreateCommand();
-                    command.CommandText = "SELECT * FROM customer";
+                    command.CommandText = "SELECT * FROM ShopTicketTable";
 
                     using (var reader = command.ExecuteReader())
                     using (var writer = new StreamWriter(csvFilePath))
