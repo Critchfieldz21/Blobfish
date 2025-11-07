@@ -86,7 +86,7 @@
                 completedCount = 0;
                 buttonLabel = "Cancel";
 
-                totalFiles = selectedFiles.GetMultipleFiles().Count;
+                totalFiles = selectedFiles.GetMultipleFiles(50).Count;
                 loadingMessage = totalFiles > 1
                     ? $"Processing batch of {totalFiles} PDFs..."
                     : "Processing PDF...";
@@ -120,7 +120,7 @@
     {
         try
         {
-            var files = e.GetMultipleFiles();
+            var files = e.GetMultipleFiles(50);
             if (files.Count == 0) return;
 
             foreach (var file in files)
