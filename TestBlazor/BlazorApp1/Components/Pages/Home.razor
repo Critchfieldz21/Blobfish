@@ -67,7 +67,7 @@
     private string buttonLabel = "Process";
     private string processButtonClass => isProcessing ? "cancelbtn" : "processbtn";
     private bool isDropdownOpen = false;
-    private Modal modalError;
+    private Modal? modalError;
     private string modalErrorMessage = "An error occurred during PDF processing.";
 
     private async Task OnPrimary()
@@ -105,7 +105,7 @@
                     {
                         modalErrorMessage += "<br /><br />Suggestion: Double-check if this file is a valid shop ticket PDF";
                     }
-                    await modalError?.ShowAsync();
+                    await (modalError?.ShowAsync() ?? Task.CompletedTask);
 
                     pdfName = "Error";
                     isProcessing = false;
@@ -189,6 +189,6 @@
 
     private async Task OnHideModalClick()
     {
-        await modalError?.HideAsync();
+        await (modalError?.HideAsync() ?? Task.CompletedTask);
     }
 }
