@@ -37,10 +37,12 @@ namespace BackendLibrary
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of the input file path
                 PdfDocument pdf = PdfReader.Open(pdfPath);
 
+                PdfFileNameExtractor pdfFileNameExtractor = PdfFileNameExtractor.InitializeWithPdfPath(pdfPath);
+
                 // Use PdfPig to extract text from pdf
                 PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfPath);
 
-                InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithPdfPath(pdfPath));
+                InitializeFromPdf(pdf, pdfTextExtractor, pdfFileNameExtractor);
             }
             catch (Exception ex)
             {
@@ -58,10 +60,12 @@ namespace BackendLibrary
                 MemoryStream stream = new MemoryStream(pdfBytes);
                 PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
 
+                PdfFileNameExtractor pdfFileNameExtractor = PdfFileNameExtractor.InitializeWithFileName(fileName);
+
                 // Use PdfPig to extract text from pdf
                 PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
 
-                InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithFileName(fileName));
+                InitializeFromPdf(pdf, pdfTextExtractor, pdfFileNameExtractor);
             }
             catch (Exception ex)
             {
@@ -78,11 +82,13 @@ namespace BackendLibrary
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
                 MemoryStream stream = new MemoryStream(pdfBytes);
                 PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
+                
+                PdfFileNameExtractor pdfFileNameExtractor = PdfFileNameExtractor.InitializeWithFileName(fileName);
 
                 // Use PdfPig to extract text from pdf
                 PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
 
-                InitializeFromPdf(pdf, pdfTextExtractor, PdfFileNameExtractor.InitializeWithFileName(fileName));
+                InitializeFromPdf(pdf, pdfTextExtractor, pdfFileNameExtractor);
 
                 (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(modelPath, fileName, stream);
                 dateTimeExtracted = DateTime.Now;
