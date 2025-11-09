@@ -38,6 +38,26 @@ namespace BackendLibrary
             //}
         }
 
+        public (string[] pageNames,
+            string ProjectNumber,
+            string ProjectName,
+            string FileContentPieceMark,
+            string[]? ControlNumbers, int PiecesRequired,
+            decimal Weight,
+            string DesignNumber) 
+            GetExtractedText()
+        {
+            string[] pageNames = ExtractPageNames();
+            string projectNumber = ExtractProjectNumber();
+            string projectName = ExtractProjectName();
+            string fileContentPieceMark = ExtractFileContentPieceMark();
+            string[]? controlNumbers = ExtractControlNumbers();
+            int piecesRequired = ExtractPiecesRequired();
+            decimal weight = ExtractWeight();
+            string designNumber = ExtractDesignNumber();
+            return (pageNames, projectNumber, projectName, fileContentPieceMark, controlNumbers, piecesRequired, weight, designNumber);
+        }
+
         public string[] ExtractPageNames()
         {
             List<String> resultList = new List<String>();
