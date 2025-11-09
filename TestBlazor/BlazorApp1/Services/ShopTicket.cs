@@ -118,8 +118,8 @@ namespace BackendLibrary
 
             try
             {
-                PageNames = pdfTextExtractor.ExtractPageNames();
                 FileNamePieceMark = pdfFileNameExtractor.GetFileNamePieceMark();
+                PageNames = pdfTextExtractor.ExtractPageNames();
                 ProjectNumber = pdfTextExtractor.ExtractProjectNumber();
                 ProjectName = pdfTextExtractor.ExtractProjectName();
                 FileContentPieceMark = pdfTextExtractor.ExtractFileContentPieceMark();
