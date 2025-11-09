@@ -42,7 +42,8 @@ namespace BackendLibrary
             string ProjectNumber,
             string ProjectName,
             string FileContentPieceMark,
-            string[]? ControlNumbers, int PiecesRequired,
+            string[]? ControlNumbers, 
+            int PiecesRequired,
             decimal Weight,
             string DesignNumber) 
             GetExtractedText()
