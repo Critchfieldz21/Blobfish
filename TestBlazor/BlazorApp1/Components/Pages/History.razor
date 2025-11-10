@@ -3,18 +3,18 @@
 @using System.Linq
 @inject ShopTicketService sTService
 @inject NavigationManager Navigation
-
+<link href="_content/Blazor.Bootstrap/blazor.bootstrap.css" rel="stylesheet" />
 
 <PageTitle>History</PageTitle>
+    <a class="Home Button" href="/">Back to Home</a>
 
-<a class="Home Button" href="/">Back</a>
-
-@if (history == null || history.Count == 0)
-{
-    <p>No history available.</p>
-}
-else
-{
+<div class="page-wrapper">
+    @if (history == null || history.Count == 0)
+    {
+        <p>No history available.</p>
+    }
+    else
+    {
     <table class="table">
         <thead>
             <tr>
@@ -45,6 +45,7 @@ else
         </tbody>
     </table>
 }
+</div>
 
 @code {
    

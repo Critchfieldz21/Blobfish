@@ -1,0 +1,73 @@
+.page-wrapper {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.Home.Button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #4a90e2;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    transition: 0.2s ease-in-out;
+}
+
+.Home.Button:hover {
+    background-color: #1454a3;
+}
+
+table.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+     border: 1px solid black;
+}
+
+.table thead {
+    background-color: #f1f1f1;
+}
+
+.table thead th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: black;
+    font-size: 0.95rem;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: black;
+}
+
+.table tbody tr:hover {
+    background-color: black;
+}
+
+.table tbody td {
+    padding: 12px;
+    font-size: 0.92rem;
+    border-bottom: 1px solid black;
+}
+
+.ViewButton {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #183973;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: 0.2s ease-in-out;
+}
+
+.ViewButton:hover {
+    background-color: #1454a3;
+}
