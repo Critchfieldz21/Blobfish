@@ -1,0 +1,64 @@
+@page "/history"
+@using BackendLibrary
+@using System.Linq
+@inject ShopTicketService sTService
+@inject NavigationManager Navigation
+
+
+<PageTitle>History</PageTitle>
+
+<a class="Home Button" href="/">Back</a>
+
+@if (history == null || history.Count == 0)
+{
+    <p>No history available.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>File Name</th>
+                <th>Pages</th>
+                <th>Piece Mark</th>
+                <th>Project</th>
+                <th>Date Processed</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in history.Select((ticket, index) => new { ticket, index }))
+            {
+                <tr>
+                    <td>@(item.index + 1)</td>
+                    <td>@item.ticket.FileName</td>
+                    <td>@item.ticket.NumberOfPages</td>
+                    <td>@item.ticket.FileNamePieceMark</td>
+                    <td>@item.ticket.ProjectName</td>
+                    <td>@item.ticket.dateTimeExtracted.ToString("MM/dd/yyyy HH:mm")</td>
+                    <td>
+                        <a class="ViewButton" href="/processing?historyIndex=@item.index">View</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+   
+    private List<ShopTicket> history = new();
+
+    protected override void OnInitialized()
+    {
+        
+        history = sTService.History?.Where(t => t != null).Select(t => t!).ToList() ?? new List<ShopTicket>();
+    }
+
+    private void OpenTicket(int index)
+    {
+        sTService.SetCurrentHistoryIndex(index);
+        Navigation.NavigateTo("/processing");
+    }
+}

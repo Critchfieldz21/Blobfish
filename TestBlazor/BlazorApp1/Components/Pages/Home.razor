@@ -38,7 +38,8 @@
     <div class="btn-container">
         <div class="btn-group" role="group" aria-label="Home actions">
             <button class="@processButtonClass" @onclick="OnPrimary">@buttonLabel</button>
-            <button class="historybtn" @onclick="OnSecondary">History</button>
+            <button class="historybtn" @onclick="GoToHistory">History</button>
+
             <ul class="dropdown-menu @(isDropdownOpen ? "show" : "")">
                 <li><a class="dropdown-item" href="#">Option 1</a></li>
                 <li><a class="dropdown-item" href="#">Option 2</a></li>
@@ -70,11 +71,16 @@
     private Modal? modalError;
     private string modalErrorMessage = "An error occurred during PDF processing.";
 
+    private void GoToHistory()
+    {
+        Navigation.NavigateTo("/history");
+    }
+
     private async Task OnPrimary()
     {
         if (sTService.Size > 0)
         {
-            sTService.ClearTickets();
+            sTService.ClearCurrentTickets();
         }
 
         if (!isProcessing)
@@ -85,18 +91,18 @@
                 cancelRequested = false;
                 completedCount = 0;
                 buttonLabel = "Cancel";
-                
+
                 try
                 {
                     totalFiles = selectedFiles.GetMultipleFiles(50).Count;
 
                     loadingMessage = totalFiles > 1
-                        ? $"Processing batch of {totalFiles} PDFs..."
-                        : "Processing PDF...";
+                    ? $"Processing batch of {totalFiles} PDFs..."
+                    : "Processing PDF...";
 
                     StateHasChanged();
                     await HandleFileSelected(selectedFiles);
-                } 
+                }
                 catch (Exception ex)
                 {
                     cancelRequested = true;
@@ -115,7 +121,7 @@
                     totalFiles = 0;
                     StateHasChanged();
                 }
-                
+
                 if (!cancelRequested)
                 {
                     Navigation.NavigateTo("/processing");
@@ -156,7 +162,7 @@
                 {
                     isProcessing = false;
                     buttonLabel = "Process";
-                    sTService.ClearTickets();
+                    sTService.ClearCurrentTickets();
                     pdfName = "Process cancelled.";
                     completedCount = 0;
                     totalFiles = 0;
@@ -179,8 +185,8 @@
         isProcessing = false;
         buttonLabel = "Process";
         pdfName = totalFiles > 1
-            ? "Batch processing complete."
-            : $"Processed: {files[0].Name}";
+        ? "Batch processing complete."
+        : $"Processed: {files[0].Name}";
         loadingMessage = "";
         completedCount = 0;
         totalFiles = 0;

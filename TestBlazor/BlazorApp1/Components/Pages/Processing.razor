@@ -1,6 +1,8 @@
 ﻿@page "/processing"
 @using BackendLibrary
 @using BlazorBootstrap
+@using Microsoft.AspNetCore.WebUtilities
+@using System.Linq
 @rendermode InteractiveServer
 @inject ShopTicketService sTService
 @inject NavigationManager Navigation
@@ -10,14 +12,15 @@
 <PageTitle>PDF Info</PageTitle>
 
 <section class="topbar">
-    <button class="homeButt" @onclick="GoHome">Back to Home</button>
-    <button class="navbtn" @onclick="GoLeft">←</button>
-    <button class="navbtn" @onclick="GoRight">→</button>
+    <button class="homeButt" type="button" @onclick="GoHome">Back to Home</button>
+    <button class="historyButt" type="button" @onclick="GoHistory">History</button>
+    <button class="navbtn" type="button" @onclick="GoLeft">←</button>
+    <button class="navbtn" type="button" @onclick="GoRight">→</button>
 </section>
 
 <section>
     <div class="titleName">
-        <h1 <span class="pdf-name">@setName()</span></h1>
+        <h1>PDF Info: <span class="pdf-name" title="@setName()">@setName()</span></h1>
     </div>
 </section>
 
@@ -37,7 +40,7 @@
     <!-- PDF Info -->
     <div class="pdfinfo">
         <p>@((MarkupString)GetPDFInfo())</p>
-        <img src="../NortheastPrecast.webp"/>
+        <img src="../NortheastPrecast.webp" />
     </div>
 </section>
 
@@ -47,21 +50,57 @@
 
     protected override void OnInitialized()
     {
-        var ticket = sTService.GetTicket(currTicketIndex + 1);
+        // If the History page linked here with a query parameter, use it.
+        try
+        {
+            var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+            if (!string.IsNullOrEmpty(uri.Query))
+            {
+                var qp = QueryHelpers.ParseQuery(uri.Query);
+                if (qp.TryGetValue("historyIndex", out var vals))
+                {
+                    if (int.TryParse(vals.FirstOrDefault(), out var parsed))
+                    {
+                        currTicketIndex = parsed;
+                        sTService.SetCurrentHistoryIndex(currTicketIndex);
+                        LoadFromCurrentHistoryTicket();
+                        return;
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // ignore parse errors and fall back to service index
+        }
+
+        // Fall back to the service's current history index
+        currTicketIndex = sTService.CurrentIndex;
+        LoadFromCurrentHistoryTicket();
+    }
+
+    private void LoadFromCurrentHistoryTicket()
+    {
+        var ticket = sTService.GetCurrentHistoryTicket();
         if (ticket?.PdfBytes != null && ticket.PdfBytes.Length > 0)
         {
             string pdfBase64 = Convert.ToBase64String(ticket.PdfBytes);
             base64Url = $"data:application/pdf;base64,{pdfBase64}";
+        }
+        else
+        {
+            base64Url = null;
         }
         StateHasChanged();
     }
 
     private void GoRight()
     {
-        if (currTicketIndex < sTService.Size - 1)
+        if (currTicketIndex < sTService.History.Count - 1)
         {
             currTicketIndex++;
-            OnInitialized();
+            sTService.SetCurrentHistoryIndex(currTicketIndex);
+            LoadFromCurrentHistoryTicket();
         }
     }
 
@@ -70,17 +109,30 @@
         if (currTicketIndex > 0)
         {
             currTicketIndex--;
-            OnInitialized();
+            sTService.SetCurrentHistoryIndex(currTicketIndex);
+            LoadFromCurrentHistoryTicket();
         }
     }
 
-    private string GetPDFInfo() => sTService.GetTicket(currTicketIndex + 1).ToString().Replace("\n", "<br />");
+    private string GetPDFInfo()
+    {
+        try
+        {
+            var ticket = sTService.GetCurrentHistoryTicket();
+            return ticket?.ToString().Replace("\n", "<br />") ?? "No PDF info available.";
+        }
+        catch
+        {
+            return "No PDF info available.";
+        }
+    }
 
-    private string? setName() => sTService.GetTicket(currTicketIndex + 1).FileName;
+    private string? setName() => sTService.GetCurrentHistoryTicket()?.FileName ?? "(no name)";
 
     private void OnDocumentLoaded(PdfViewerEventArgs args) { }
 
     private void OnPageChanged(PdfViewerEventArgs args) { }
 
     private void GoHome() => Navigation.NavigateTo("/");
+    private void GoHistory() => Navigation.NavigateTo("/history");
 }

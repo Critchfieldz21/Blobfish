@@ -4,34 +4,61 @@ namespace BackendLibrary
 {
     public class ShopTicketService
     {
-        // Add a field named size to track the size of the shopticket array
+    
         public int Size { get; set; } = 0;
         public List<ShopTicket?> CurrentTicket = new();
+
+
+        public List<ShopTicket?> History = new();
+
+    public int CurrentIndex { get; private set; } = 0;
+
+    public event Action<int>? HistoryIndexChanged;
 
         public void AddTicket(ShopTicket ticket)
         {
             CurrentTicket.Add(ticket);
+            History.Add(ticket);  
             Size++;
         }
 
-        public ShopTicket GetTicket(int size)
+        public ShopTicket GetTicket(int index)
         {
-            return CurrentTicket[size - 1];
+            return CurrentTicket[index - 1];
         }
 
-        public void RemoveTicket(ShopTicket ticket)
+        public ShopTicket GetHistoryTicket(int index)
         {
-            if (CurrentTicket.Remove(ticket))
+            return History[index];
+        }
+
+        public int HistorySize()
+        {
+            return History.Count;
+        }
+
+        public void SetCurrentHistoryIndex(int index)
+        {
+            CurrentIndex = index;
+            try
             {
-                Size--;
+                HistoryIndexChanged?.Invoke(index);
+            }
+            catch
+            {
+                // Ignore exceptions from event handlers
             }
         }
 
-        public void ClearTickets()
+        public ShopTicket GetCurrentHistoryTicket()
+        {
+            return History[CurrentIndex];
+        }
+
+        public void ClearCurrentTickets()
         {
             CurrentTicket.Clear();
             Size = 0;
         }
     }
 }
-
