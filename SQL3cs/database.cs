@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using  BackendLibrary;
+using System.ComponentModel.Design;
 
 
 namespace SQL3cs
@@ -12,78 +13,35 @@ namespace SQL3cs
 
     public class CustomerData
     {
-        private const string DbFile = "customer.db";
-        private static readonly string connectionString = $"Data Source={DbFile}";
-
-        public class Customer
-        {
-            public int RowId { get; set; }
-            public string NumberOfPages { get; set; }
-            public string DesignNumber { get; set; }
-            public string FileName { get; set; }
-            public string FileNamePieceMark { get; set; }
-            public string ProjectNumber { get; set; }
-            public string ProjectName { get; set; }
-            public string FileContentPieceMark { get; set; }
-            public string Weight { get; set; }
-            public string PiecesRequired { get; set; }
-        }
+        private const string DbFile = "ShopTicket.db";
+        private static readonly string connectionString = $"Data Source={DbFile}";   
        
-        public void CreateRectangleTable()
+        public void CreateTables()
         {
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
                 var command = connection.CreateCommand();
+
                 command.CommandText =
                 @"
                 CREATE TABLE IF NOT EXISTS Rectangle (
                     RecID INTEGER PRIMARY KEY AUTOINCREMENT,
-                    FormViewRectangleX INTEGER,
-                    FormViewRectangleY INTEGER,
-                    FormViewRectangleWidth INTEGER,
-                    FormViewRectangleHeight INTEGER        
+                    FormViewRectangleX REAL,
+                    FormViewRectangleY REAL,
+                    FormViewRectangleWidth REAL,
+                    FormViewRectangleHeight REAL        
                      );
             ";
-                command.ExecuteNonQuery();
-            }
-        }
-        public void CreateProjectTable()
-        {
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                connection.Open();
-                var command = connection.CreateCommand();
+             command.ExecuteNonQuery();
+
                 command.CommandText =
                 @"
-                CREATE TABLE IF NOT EXISTS Project (
-                   ProjectID INTEGER PRIMARY KEY AUTOINCREMENT,
-                   ProjectName TEXT,
-                   DateCreated TEXT CURRENT_TIMESTAMP,
-                   ShopTicketID INTEGER,      
-                   Foreign KEY (ShopTicketID) REFERENCES ShopTicket(ShopTicketID)
-
-                     );
-            ";
-                command.ExecuteNonQuery();
-            }
-        }
-        public void CreateShopTicketTable()
-        {
-            using (var connection = new SqliteConnection(connectionString))
-            {
-               
-
-                    connection.Open();
-                    var command = connection.CreateCommand();
-                    command.CommandText =
-                    @"
                     CREATE TABLE IF NOT EXISTS ShopTicket (
                         ShopTicketID INTEGER PRIMARY KEY AUTOINCREMENT,
                         ProjectName TEXT,
                         ProjectNumber TEXT,
                         DesignNumber TEXT,
-                        PageName TEXT,
                         PiecesRequired INTEGER,
                         Weight INTEGER,
                         FileContentPieceMark TEXT,
@@ -95,154 +53,100 @@ namespace SQL3cs
                     
                         );
                 ";
-                    command.ExecuteNonQuery();
+                 command.ExecuteNonQuery();
                 
-              
-            }
-        }
-
-        public void RemoveRow(int rowId)
-        {
-            try
-            {
-                using (var connection = new SqliteConnection(connectionString))
-                {
-                    connection.Open();
-                    var command = connection.CreateCommand();
-                    command.CommandText = "DELETE FROM customer WHERE rowid = $id";
-                    command.Parameters.AddWithValue("$id", rowId);
-                    command.ExecuteNonQuery();
-                }
-                Console.WriteLine($"Row with RowId '{rowId}' successfully removed.");
-            }
-            catch (SqliteException ex)
-            {
-                Console.WriteLine($"An error occurred while removing the row: {ex.Message}");
-            }
-        }
-
-        public void AddDataToShopTicket(String filePath)
-        {
-
-            ShopTicket pdf = new ShopTicket(filePath);
-            using (var connection = new SqliteConnection(connectionString))
-            {
-
-                connection.Open();
-                var command = connection.CreateCommand();
                 command.CommandText =
                 @"
-                INSERT INTO ShopTicketTable (
-                    ProjectName, ProjectNumber, DesignNumber, PageName,
-                    PiecesRequired, Weight, FileContentPieceMark, FileName, FileNamePieceMark, NumberOfPages
-                ) VALUES ($pn, $prnu, $dn, $pana, $pire, $we, $fcpm, $fn, $fnpm, $nop);
-                ";
+                CREATE TABLE IF NOT EXISTS Project (
+                   ProjectID INTEGER PRIMARY KEY AUTOINCREMENT,
+                   ProjectName TEXT,
+                   DateCreated TEXT,
+                   ShopTicketID INTEGER,      
+                   Foreign KEY (ShopTicketID) REFERENCES ShopTicket(ShopTicketID)
 
-                // Assign hard-coded values directly to the parameters
-                command.Parameters.AddWithValue("$pn", pdf.ProjectName);
-                command.Parameters.AddWithValue("$prnu", pdf.ProjectNumber);
-                command.Parameters.AddWithValue("$dn", pdf.DesignNumber);
-                command.Parameters.AddWithValue("$pana", pdf.PageNames);
-                command.Parameters.AddWithValue("$pire", pdf.PiecesRequired);
-                command.Parameters.AddWithValue("$pname", pdf.Weight);
-                command.Parameters.AddWithValue("$we", pdf.FileContentPieceMark);
-                command.Parameters.AddWithValue("$fn", pdf.FileName);
-                command.Parameters.AddWithValue("$fnpm", pdf.FileNamePieceMark);
-                command.Parameters.AddWithValue("$nop", pdf.NumberOfPages);
-
+                     );
+            ";
+                    
                 command.ExecuteNonQuery();
             }
         }
+             private const string ModelPath = "../../../../BackendLibrary/best.onnx";
+        // private const string ModelPath = "C:/Users/critc/OneDrive/Desktop/Blobfish/Blobfish/BackendLibrary/best.onnx";
 
-         public void AddDataToProject(String filePath)
-
+        public void AddDataToTables(String filePath)
         {
+            ShopTicket pdf = new ShopTicket(filePath, File.ReadAllBytes(filePath), ModelPath);
 
-            ShopTicket pdf = new ShopTicket(filePath);
             using (var connection = new SqliteConnection(connectionString))
             {
-
                 connection.Open();
-                var command = connection.CreateCommand();
-                command.CommandText =
-                @"
-                INSERT INTO Project (
-                    ProjectName, ShopTicketID
-                ) VALUES ($pn, $stID);
-                ";
 
-               
-                command.Parameters.AddWithValue("$pn", pdf.ProjectName);
-                command.Parameters.AddWithValue("$stID", pdf.FileNamePieceMark);
-
-                command.ExecuteNonQuery();
-            }
-        }
-
-        public void AddDataToRectangle(String filePath)
-         
-        {
-
-            ShopTicket pdf = new ShopTicket(filePath);
-            using (var connection = new SqliteConnection(connectionString))
-            {
-
-                connection.Open();
-                var command = connection.CreateCommand();
-                command.CommandText =
+                // 1. Insert data into the PARENT table (Rectangle) and get its PK
+                var commandRect = connection.CreateCommand();
+                commandRect.CommandText =
                 @"
                 INSERT INTO Rectangle (
-                    FormViewRectangleX, FormViewRectangleY,
-                    FormViewRectangleWidth, FormViewRectangleHeight       
+                    FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight       
                 ) VALUES ($fvrx, $fvry, $fvrw, $fvrh);
+                SELECT last_insert_rowid();
                 ";
+                commandRect.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
+                commandRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
+                commandRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
+                commandRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
 
-               
-                command.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
-                command.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
-                command.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
-                command.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
+                long newRecID = (long)commandRect.ExecuteScalar();
 
-                command.ExecuteNonQuery();
+
+                // 2. Insert data into the Child table (ShopTicket) using newRecID (FK)
+                var commandShop = connection.CreateCommand();
+                commandShop.CommandText =
+                @"
+                INSERT INTO ShopTicket (
+                    ProjectName, ProjectNumber, DesignNumber, PiecesRequired, 
+                    Weight, FileContentPieceMark, FileName, FileNamePieceMark, NumberOfPages, RecID
+                ) VALUES ($pn, $prnu, $dn, $pire, $we, $fcpm, $fn, $fnpm, $nop, $recid);
+                
+                SELECT last_insert_rowid(); -- Get the PK of the newly inserted ShopTicket
+                ";
+                commandShop.Parameters.AddWithValue("$pn", pdf.ProjectName);
+                commandShop.Parameters.AddWithValue("$prnu", pdf.ProjectNumber);
+                commandShop.Parameters.AddWithValue("$dn", pdf.DesignNumber);
+                commandShop.Parameters.AddWithValue("$pire", pdf.PiecesRequired);
+                commandShop.Parameters.AddWithValue("$we", pdf.Weight);
+                commandShop.Parameters.AddWithValue("$fcpm", pdf.FileContentPieceMark);
+                commandShop.Parameters.AddWithValue("$fn", pdf.FileName);
+                commandShop.Parameters.AddWithValue("$fnpm", pdf.FileNamePieceMark);
+                commandShop.Parameters.AddWithValue("$nop", pdf.NumberOfPages);
+                commandShop.Parameters.AddWithValue("$recid", newRecID);
+
+
+                long newShopTicketID = (long)commandShop.ExecuteScalar();
+
+
+                // 3. Insert data into the Project table using newShopTicketID (FK)
+                var commandProject = connection.CreateCommand();
+                commandProject.CommandText =
+                @"
+                INSERT INTO Project (
+                    ProjectName, DateCreated, ShopTicketID
+                ) VALUES ($pn, $dc, $stid);
+                ";
+                commandProject.Parameters.AddWithValue("$pn", pdf.ProjectName);
+                commandProject.Parameters.AddWithValue("$dc", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                commandProject.Parameters.AddWithValue("$stid", newShopTicketID);
+
+                commandProject.ExecuteNonQuery();
+
+
+                Console.WriteLine($"Inserted new Project linked to ShopTicket ID: {newShopTicketID}");
             }
-        }
-        public void ShowAll()
-        {
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                connection.Open();
-                var command = connection.CreateCommand();
-                command.CommandText = "SELECT rowid, * FROM customer";
+        }         
+      
 
-                using (var reader = command.ExecuteReader())
-                {
-                    if (!reader.HasRows)
-                    {
-                        Console.WriteLine("The database is empty.");
-                        return;
-                    }
 
-                    Console.WriteLine($"{"RowId",-5} {"Nop",-5} {"Pn",-5} {"Fn",-25} {"Fnpm",-10} " +
-                                      $"{"Pnum",-15} {"Pname",-35} {"FCPM",-8} {"W",-5} {"Pr",-10}");
 
-                    while (reader.Read())
-                    {
-                        Console.WriteLine(
-                            $"{reader.GetInt64(0),-5} " +
-                            $"{reader.GetString(1),-5} " +
-                            $"{reader.GetString(2),-5} " +
-                            $"{reader.GetString(3),-25} " +
-                            $"{reader.GetString(4),-10} " +
-                            $"{reader.GetString(5),-15} " +
-                            $"{reader.GetString(6),-35} " +
-                            $"{reader.GetString(7),-8} " +
-                            $"{reader.GetString(8),-5} " +
-                            $"{reader.GetString(9),-10}"
-                        );
-                    }
-                }
-            }
-        }
+
 
         public void OpenExcelFile(string filePath)
         {
@@ -263,22 +167,7 @@ namespace SQL3cs
             }
         }
 
-
-        public void RemoveRowFromInput()
-        {
-            ShowAll();
-            Console.Write("Enter the RowId of the row to remove: ");
-            if (int.TryParse(Console.ReadLine(), out int rowId))
-            {
-                RemoveRow(rowId);
-            }
-            else
-            {
-                Console.WriteLine("Invalid input. Please enter a valid RowId.");
-            }
-        }
-
-        public void ExportToCsv(string csvFilePath)
+      public void ExportToCsvShopTicket(string csvFilePath)
         {
             try
             {
@@ -286,27 +175,109 @@ namespace SQL3cs
                 {
                     connection.Open();
                     var command = connection.CreateCommand();
-                    command.CommandText = "SELECT * FROM ShopTicketTable";
+                    command.CommandText = "SELECT ShopTicket.* FROM ShopTicket LEFT JOIN Rectangle ON ShopTicket.RecID = Rectangle.RecID";
+
+                    using (var reader = command.ExecuteReader())
+                    using (var writer = new StreamWriter(csvFilePath))
+                    {
+
+                        writer.WriteLine("ShopTicketID,ProjectName,ProjectNumber,DesignNumber,PiecesRequired,Weight,FileContentPieceMark,FileName,FileNamePieceMark,NumberOfPages,RecID");
+
+
+                        while (reader.Read())
+                        {
+                            var row = string.Join(",",
+                            
+                                reader.GetValue(0)?.ToString(),
+                                reader.GetValue(1)?.ToString(),
+                                reader.GetValue(2)?.ToString(),
+                                reader.GetValue(3)?.ToString(),
+                                reader.GetValue(4)?.ToString(),
+                                reader.GetValue(5)?.ToString(),
+                                reader.GetValue(6)?.ToString(),
+                                reader.GetValue(7)?.ToString(),
+                                reader.GetValue(8)?.ToString(),
+                                reader.GetValue(9)?.ToString(),
+                                reader.GetValue(10)?.ToString() 
+                            );
+                            writer.WriteLine(row);
+                        }
+                    }
+                    
+                    Console.WriteLine($"Data successfully exported to {csvFilePath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred during export: {ex.Message}");
+            }
+        }
+    
+        public void ExportToCsvRectangle(string csvFilePath)
+        {
+            try
+            {
+                using (var connection = new SqliteConnection(connectionString))
+                {
+                    connection.Open();
+                    var command = connection.CreateCommand();
+                    command.CommandText = "SELECT Rectangle.* FROM Rectangle";
+
+                    using (var reader = command.ExecuteReader())
+                    using (var writer = new StreamWriter(csvFilePath))
+                    {
+
+                        writer.WriteLine("RecID,FormViewRectangleX,FormViewRectangleY,FormViewRectangleWidth,FormViewRectangleHeight");
+
+
+                        while (reader.Read())
+                        {
+                            var row = string.Join(",",
+                                reader.GetValue(0).ToString(),
+                                reader.GetValue(1).ToString(),
+                                reader.GetValue(2).ToString(),
+                                reader.GetValue(3).ToString(),
+                                reader.GetValue(4).ToString()
+
+                            );
+                            writer.WriteLine(row);
+                        }
+                    }
+
+                    Console.WriteLine($"Data successfully exported to {csvFilePath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while exporting data: {ex.Message}");
+            }
+        }
+        public void ExportToCsvProject(string csvFilePath)
+        {
+            try
+            {
+                using (var connection = new SqliteConnection(connectionString))
+                {
+                    connection.Open();
+                    var command = connection.CreateCommand();
+                    command.CommandText = "SELECT Project.* FROM Project";
 
                     using (var reader = command.ExecuteReader())
                     using (var writer = new StreamWriter(csvFilePath))
                     {
                        
-                        writer.WriteLine("NumberOfPages,DesignNumber,FileName,FileNamePieceMark,ProjectNumber,ProjectName,FileContentPieceMark,Weight,PiecesRequired");
+                        writer.WriteLine("ProjectID,ProjectName,DateCreated,ShopTicketID");
 
                     
                         while (reader.Read())
                         {
                             var row = string.Join(",",
-                                reader.GetString(0),
-                                reader.GetString(1),
-                                reader.GetString(2),
-                                reader.GetString(3),
-                                reader.GetString(4),
-                                reader.GetString(5),
-                                reader.GetString(6),
-                                reader.GetString(7),
-                                reader.GetString(8)
+                                reader.GetValue(0).ToString(),
+                                reader.GetValue(1).ToString(),
+                                reader.GetValue(2).ToString(),
+                                reader.GetValue(3).ToString()
+                                
+
                             );
                             writer.WriteLine(row);
                         }
@@ -319,6 +290,8 @@ namespace SQL3cs
                 Console.WriteLine($"An error occurred while exporting data: {ex.Message}");
             }
         }
+    
+    
     }
 }
 
