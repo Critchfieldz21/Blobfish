@@ -14,8 +14,8 @@ namespace SQL3cs
     public class CustomerData
     {
         private const string DbFile = "ShopTicket.db";
-        private static readonly string connectionString = $"Data Source={DbFile}";   
-       
+        private static readonly string connectionString = $"Data Source={DbFile}";
+
         public void CreateTables()
         {
             using (var connection = new SqliteConnection(connectionString))
@@ -33,7 +33,7 @@ namespace SQL3cs
                     FormViewRectangleHeight REAL        
                      );
             ";
-             command.ExecuteNonQuery();
+                command.ExecuteNonQuery();
 
                 command.CommandText =
                 @"
@@ -53,8 +53,8 @@ namespace SQL3cs
                     
                         );
                 ";
-                 command.ExecuteNonQuery();
-                
+                command.ExecuteNonQuery();
+
                 command.CommandText =
                 @"
                 CREATE TABLE IF NOT EXISTS Project (
@@ -66,11 +66,11 @@ namespace SQL3cs
 
                      );
             ";
-                    
+
                 command.ExecuteNonQuery();
             }
         }
-             private const string ModelPath = "../../../../BackendLibrary/best.onnx";
+        private const string ModelPath = "../../../../BackendLibrary/best.onnx";
         // private const string ModelPath = "C:/Users/critc/OneDrive/Desktop/Blobfish/Blobfish/BackendLibrary/best.onnx";
 
         public void AddDataToTables(String filePath)
@@ -141,12 +141,7 @@ namespace SQL3cs
 
                 Console.WriteLine($"Inserted new Project linked to ShopTicket ID: {newShopTicketID}");
             }
-        }         
-      
-
-
-
-
+        }
 
         public void OpenExcelFile(string filePath)
         {
@@ -167,7 +162,8 @@ namespace SQL3cs
             }
         }
 
-      public void ExportToCsvShopTicket(string csvFilePath)
+
+        public void ExportToCsvShopTicket(string csvFilePath)
         {
             try
             {
@@ -187,7 +183,7 @@ namespace SQL3cs
                         while (reader.Read())
                         {
                             var row = string.Join(",",
-                            
+
                                 reader.GetValue(0)?.ToString(),
                                 reader.GetValue(1)?.ToString(),
                                 reader.GetValue(2)?.ToString(),
@@ -198,12 +194,12 @@ namespace SQL3cs
                                 reader.GetValue(7)?.ToString(),
                                 reader.GetValue(8)?.ToString(),
                                 reader.GetValue(9)?.ToString(),
-                                reader.GetValue(10)?.ToString() 
+                                reader.GetValue(10)?.ToString()
                             );
                             writer.WriteLine(row);
                         }
                     }
-                    
+
                     Console.WriteLine($"Data successfully exported to {csvFilePath}");
                 }
             }
@@ -212,7 +208,7 @@ namespace SQL3cs
                 Console.WriteLine($"An error occurred during export: {ex.Message}");
             }
         }
-    
+
         public void ExportToCsvRectangle(string csvFilePath)
         {
             try
@@ -265,10 +261,10 @@ namespace SQL3cs
                     using (var reader = command.ExecuteReader())
                     using (var writer = new StreamWriter(csvFilePath))
                     {
-                       
+
                         writer.WriteLine("ProjectID,ProjectName,DateCreated,ShopTicketID");
 
-                    
+
                         while (reader.Read())
                         {
                             var row = string.Join(",",
@@ -276,7 +272,7 @@ namespace SQL3cs
                                 reader.GetValue(1).ToString(),
                                 reader.GetValue(2).ToString(),
                                 reader.GetValue(3).ToString()
-                                
+
 
                             );
                             writer.WriteLine(row);
@@ -290,8 +286,139 @@ namespace SQL3cs
                 Console.WriteLine($"An error occurred while exporting data: {ex.Message}");
             }
         }
-    
-    
+
+        public void RemoveRowByProjectID(int projectID)
+
+        {
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        int shopTicketID = 0;
+                        int recID = 0;
+
+                        // 1. Find the associated ShopTicketID from the Project table
+                        using (var commandFindShopTicketId = connection.CreateCommand())
+                        {
+                            commandFindShopTicketId.CommandText = "SELECT ShopTicketID FROM Project WHERE ProjectID = $projectID";
+                            commandFindShopTicketId.Parameters.AddWithValue("$projectID", projectID);
+                            var result = commandFindShopTicketId.ExecuteScalar();
+
+                            if (result is long longShopTicketId)
+                            {
+                                shopTicketID = (int)longShopTicketId;
+                            }
+                            else if (result is int intShopTicketId)
+                            {
+                                shopTicketID = intShopTicketId;
+                            }
+                            else
+                            {
+                                Console.WriteLine($"ProjectID {projectID} not found. Cannot proceed with deletion.");
+                                transaction.Rollback();
+                                return;
+                            }
+                        }
+
+                        // 2. Delete the Project record itself (since we have the FK value now)
+                        using (var commandDeleteProject = connection.CreateCommand())
+                        {
+                            commandDeleteProject.CommandText = "DELETE FROM Project WHERE ProjectID = $projectID";
+                            commandDeleteProject.Parameters.AddWithValue("$projectID", projectID);
+                            commandDeleteProject.ExecuteNonQuery();
+                            Console.WriteLine($"Deleted Project record with ID {projectID}.");
+                        }
+
+
+                        // 3. Find the associated RecID from the ShopTicket table
+                        using (var commandFindRecId = connection.CreateCommand())
+                        {
+                            commandFindRecId.CommandText = "SELECT RecID FROM ShopTicket WHERE ShopTicketID = $shopTicketID";
+                            commandFindRecId.Parameters.AddWithValue("$shopTicketID", shopTicketID);
+                            var result = commandFindRecId.ExecuteScalar();
+
+                            if (result is long longRecId)
+                            {
+                                recID = (int)longRecId;
+                            }
+                            else if (result is int intRecId)
+                            {
+                                recID = intRecId;
+                            }
+                            // If recID is not found here, we can proceed but log a warning.
+                        }
+
+
+                        // 4. Delete the main record in the ShopTicket table
+                        using (var commandDeleteShopTicket = connection.CreateCommand())
+                        {
+                            commandDeleteShopTicket.CommandText = "DELETE FROM ShopTicket WHERE ShopTicketID = $shopTicketID";
+                            commandDeleteShopTicket.Parameters.AddWithValue("$shopTicketID", shopTicketID);
+                            int rowsAffected = commandDeleteShopTicket.ExecuteNonQuery();
+
+                            if (rowsAffected > 0)
+                            {
+                                Console.WriteLine($"Deleted ShopTicket record with ID {shopTicketID}.");
+                            }
+                        }
+
+                        // 5. Delete the related record in the Rectangle table
+                        if (recID > 0)
+                        {
+                            using (var commandDeleteRectangle = connection.CreateCommand())
+                            {
+                                commandDeleteRectangle.CommandText = "DELETE FROM Rectangle WHERE RecID = $recID";
+                                commandDeleteRectangle.Parameters.AddWithValue("$recID", recID);
+                                commandDeleteRectangle.ExecuteNonQuery();
+                                Console.WriteLine($"Deleted associated Rectangle record with RecID {recID}.");
+                            }
+                        }
+
+                        // Commit the transaction if all operations succeed
+                        transaction.Commit();
+                        Console.WriteLine($"Successfully removed all associated data starting from ProjectID {projectID}.");
+                    }
+                    catch (SqliteException ex)
+                    {
+                        Console.WriteLine($"A database error occurred: {ex.Message}. Rolling back operation.");
+                        transaction.Rollback();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"An unexpected error occurred: {ex.Message}. Rolling back operation.");
+                        transaction.Rollback();
+                    }
+                }
+            }
+        }
+
+        public int GetProjectIdFromUser()
+        {
+            Console.Write("Please enter the Project ID you wish to delete: ");
+            string input = Console.ReadLine();
+
+            if (int.TryParse(input, out int projectId))
+            {
+                if (projectId > 0)
+                {
+                    return projectId;
+                }
+                else
+                {
+                    Console.WriteLine("Error: ID must be a positive number.");
+                    return -1;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Error: Invalid input. Please enter a numerical ID.");
+                return -1;
+            }
+        }
     }
 }
 
