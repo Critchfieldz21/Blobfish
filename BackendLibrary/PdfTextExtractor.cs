@@ -57,17 +57,58 @@ namespace BackendLibrary
             decimal weight = 0;
             string designNumber = null;
 
+            var cts = new CancellationTokenSource();
+            List<Exception> exceptions = new();
+            ParallelOptions opts = new() { CancellationToken = cts.Token };
+
             Parallel.Invoke(
-                () => pageNames = ExtractPageNames(),
-                () => projectNumber = ExtractProjectNumber(),
-                () => projectName = ExtractProjectName(),
-                () => fileContentPieceMark = ExtractFileContentPieceMark(),
-                () => controlNumbers = ExtractControlNumbers(),
-                () => piecesRequired = ExtractPiecesRequired(),
-                () => weight = ExtractWeight(),
-                () => designNumber = ExtractDesignNumber()
+                () =>
+                {
+                    try { pageNames = ExtractPageNames(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { projectNumber = ExtractProjectNumber(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { projectName = ExtractProjectName(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { fileContentPieceMark = ExtractFileContentPieceMark(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { controlNumbers = ExtractControlNumbers(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { piecesRequired = ExtractPiecesRequired(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { weight = ExtractWeight(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { designNumber = ExtractDesignNumber(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                }
             );
-            
+
+            if (exceptions.Count > 0)
+            {
+                throw exceptions.First();
+            }
+
             return (pageNames, projectNumber, projectName, fileContentPieceMark, controlNumbers, piecesRequired, weight, designNumber);
         }
 
