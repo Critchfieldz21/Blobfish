@@ -488,3 +488,8 @@ BackendLibraryUnitTest/test_pdfs/*.pdf
 
 # Temp files
 BackendConsoleTest/temp/*.jpg
+/BackendConsoleTest/Program.cs
+/BackendConsoleTest/project_data.csv
+/BackendConsoleTest/rectangle_data.csv
+/BackendConsoleTest/ShopTicket_data.csv
+/SQL3cs/database.cs
