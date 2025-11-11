@@ -8,18 +8,18 @@ namespace BackendLibrary
     internal class PdfTextExtractor
     {
         private PdfDocument pdf;
-        private IEnumerable<Page> pages;
+        private List<Page> pages;
 
         public PdfTextExtractor(String pdfPath)
         {
             pdf = PdfDocument.Open(File.OpenRead(pdfPath));
-            pages = pdf.GetPages();
+            pages = pdf.GetPages().ToList();
         }
 
         public PdfTextExtractor(byte[] pdfBytes)
         {
             pdf = PdfDocument.Open(pdfBytes);
-            pages = pdf.GetPages();
+            pages = pdf.GetPages().ToList();
 
             //// Uncomment to debug word extraction
             //foreach (Page page in pages)
@@ -42,20 +42,73 @@ namespace BackendLibrary
             string ProjectNumber,
             string ProjectName,
             string FileContentPieceMark,
-            string[]? ControlNumbers, 
+            string[]? ControlNumbers,
             int PiecesRequired,
             decimal Weight,
-            string DesignNumber) 
+            string DesignNumber)
             GetExtractedText()
         {
-            string[] pageNames = ExtractPageNames();
-            string projectNumber = ExtractProjectNumber();
-            string projectName = ExtractProjectName();
-            string fileContentPieceMark = ExtractFileContentPieceMark();
-            string[]? controlNumbers = ExtractControlNumbers();
-            int piecesRequired = ExtractPiecesRequired();
-            decimal weight = ExtractWeight();
-            string designNumber = ExtractDesignNumber();
+            string[] pageNames = null;
+            string projectNumber = null;
+            string projectName = null;
+            string fileContentPieceMark = null;
+            string[]? controlNumbers = null;
+            int piecesRequired = 0;
+            decimal weight = 0;
+            string designNumber = null;
+
+            var cts = new CancellationTokenSource();
+            List<Exception> exceptions = new();
+            ParallelOptions opts = new() { CancellationToken = cts.Token };
+
+            Parallel.Invoke(
+                () =>
+                {
+                    try { pageNames = ExtractPageNames(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { projectNumber = ExtractProjectNumber(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { projectName = ExtractProjectName(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { fileContentPieceMark = ExtractFileContentPieceMark(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { controlNumbers = ExtractControlNumbers(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { piecesRequired = ExtractPiecesRequired(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { weight = ExtractWeight(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                },
+                () =>
+                {
+                    try { designNumber = ExtractDesignNumber(); }
+                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
+                }
+            );
+
+            if (exceptions.Count > 0)
+            {
+                throw exceptions.First();
+            }
+
             return (pageNames, projectNumber, projectName, fileContentPieceMark, controlNumbers, piecesRequired, weight, designNumber);
         }
 
