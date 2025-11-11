@@ -8,18 +8,18 @@ namespace BackendLibrary
     internal class PdfTextExtractor
     {
         private PdfDocument pdf;
-        private IEnumerable<Page> pages;
+        private List<Page> pages;
 
         public PdfTextExtractor(String pdfPath)
         {
             pdf = PdfDocument.Open(File.OpenRead(pdfPath));
-            pages = pdf.GetPages();
+            pages = pdf.GetPages().ToList();
         }
 
         public PdfTextExtractor(byte[] pdfBytes)
         {
             pdf = PdfDocument.Open(pdfBytes);
-            pages = pdf.GetPages();
+            pages = pdf.GetPages().ToList();
 
             //// Uncomment to debug word extraction
             //foreach (Page page in pages)
@@ -48,14 +48,26 @@ namespace BackendLibrary
             string DesignNumber)
             GetExtractedText()
         {
-            string[] pageNames = ExtractPageNames();
-            string projectNumber = ExtractProjectNumber();
-            string projectName = ExtractProjectName();
-            string fileContentPieceMark = ExtractFileContentPieceMark();
-            string[]? controlNumbers = ExtractControlNumbers();
-            int piecesRequired = ExtractPiecesRequired();
-            decimal weight = ExtractWeight();
-            string designNumber = ExtractDesignNumber();
+            string[] pageNames = null;
+            string projectNumber = null;
+            string projectName = null;
+            string fileContentPieceMark = null;
+            string[]? controlNumbers = null;
+            int piecesRequired = 0;
+            decimal weight = 0;
+            string designNumber = null;
+
+            Parallel.Invoke(
+                () => pageNames = ExtractPageNames(),
+                () => projectNumber = ExtractProjectNumber(),
+                () => projectName = ExtractProjectName(),
+                () => fileContentPieceMark = ExtractFileContentPieceMark(),
+                () => controlNumbers = ExtractControlNumbers(),
+                () => piecesRequired = ExtractPiecesRequired(),
+                () => weight = ExtractWeight(),
+                () => designNumber = ExtractDesignNumber()
+            );
+            
             return (pageNames, projectNumber, projectName, fileContentPieceMark, controlNumbers, piecesRequired, weight, designNumber);
         }
 
