@@ -411,6 +411,28 @@
   transform: scale(1.08) translateY(-5px);
 }
 
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #e6f0ff;
+  margin: 1rem 0;
+}
+.info-table th {
+  text-align: left;
+  width: 40%;
+  padding: 0.5rem 1rem;
+  color: #9fc8ff;
+  font-weight: 700;
+  vertical-align: top;
+}
+.info-table td {
+  padding: 0.5rem 1rem;
+  color: #ffffff;
+}
+.info-table tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
 
 .pdfVisBox::-webkit-scrollbar,
 .pdfinfo-content::-webkit-scrollbar {
