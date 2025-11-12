@@ -139,14 +139,6 @@
   z-index: 1;
 }
 
-/* Info header with massive oversized text */
-.pdfinfo-header {
-  padding: 3rem 2rem 2rem 2rem;
-  border-bottom: 2px solid rgba(24, 57, 115, 0.3);
-  background: linear-gradient(180deg, rgba(10, 14, 26, 0.9) 0%, rgba(10, 14, 26, 0.7) 100%);
-  backdrop-filter: blur(20px);
-}
-
 .pdfinfo-title {
   font-size: 4rem;
   font-weight: 900;
