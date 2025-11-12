@@ -3,6 +3,10 @@
 @using System.Linq
 @inject ShopTicketService sTService
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+
 <link href="_content/Blazor.Bootstrap/blazor.bootstrap.css" rel="stylesheet" />
 
 <PageTitle>History</PageTitle>
@@ -39,6 +43,9 @@
                     <td>@item.ticket.dateTimeExtracted</td>
                     <td>
                         <a class="ViewButton" href="/processing?historyIndex=@item.index">View</a>
+                        <button class="ViewButton" @onclick="() => HandleExportClick(true, item.index)">Export JSON</button>
+
+                        <button class="ViewButton" @onclick="() => HandleExportClick(false, item.index)">Export CSV</button>
                     </td>
                 </tr>
             }
@@ -62,4 +69,23 @@
         sTService.SetCurrentHistoryIndex(index);
         Navigation.NavigateTo("/processing");
     }
+
+    private async Task ExportAsJson(int index)
+    {
+        ShopTicket ticket = sTService.History[index];
+        string json = ticket.ToJson();
+        string filename = $"{Path.GetFileNameWithoutExtension(ticket.FileName)}_info.json";
+        await JS.InvokeVoidAsync("downloadJsonInline", filename, json);
+    }
+
+    private void HandleExportClick(bool val, int index){
+        if(val){
+            //export json
+            Navigation.NavigateTo($"/export/{val}/{index}", forceLoad: true);
+        }else{
+            //export csv
+            Navigation.NavigateTo($"/export/{val}/{index}", forceLoad: true);
+        }
+    }
+
 }

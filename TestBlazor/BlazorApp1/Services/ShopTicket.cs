@@ -1,4 +1,5 @@
-﻿using PdfSharp.Pdf;
+﻿using System.Text.Json;
+using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 
 namespace BackendLibrary
@@ -152,6 +153,61 @@ namespace BackendLibrary
 
             return str;
         }
+
+        public string ToJson()
+        {
+            return JsonSerializer.Serialize(ToExportDictionary(), new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+        }
+
+        public string ToCsv()
+        {
+            var dict = ToExportDictionary();
+            var values = dict.Values.Select(v =>
+            {
+                if (v is not IEnumerable<string> list)
+                {
+                    // Join the list into one string
+                    return v?.ToString()?.Replace(",", ";");
+                }
+                else
+                {
+                    return string.Join(";", list);
+                }
+            }); 
+            // Replace commas in values to avoid breaking CSV
+            var header = string.Join(",", dict.Keys);
+            var row = string.Join(",", values);
+            return $"{header}\n{row}";
+        }
+
+
+        private Dictionary<string, object> ToExportDictionary()
+        {
+            return new Dictionary<string, object>
+            {
+                { "FileName", FileName },
+                { "ProcessedDate", dateTimeExtracted },
+                { "NumberOfPages", NumberOfPages },
+                { "PageNames", PageNames },
+                { "FileNamePieceMark", FileNamePieceMark },
+                { "ProjectNumber", ProjectNumber },
+                { "ProjectName", ProjectName },
+                { "FileContentPieceMark", FileContentPieceMark },
+                { "ControlNumbers", ControlNumbers },
+                { "PiecesRequired", PiecesRequired },
+                { "Weight", Weight },
+                { "DesignNumber", DesignNumber },
+                { "RectanglePage", RectanglePage },
+                { "FormViewRectangleX", FormViewRectangleX },
+                { "FormViewRectangleY", FormViewRectangleY },
+                { "FormViewRectangleWidth", FormViewRectangleWidth },
+                { "FormViewRectangleHeight", FormViewRectangleHeight }
+            };
+        }
+
 
         public void Info()
         {
