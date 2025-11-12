@@ -30,7 +30,9 @@ namespace SQL3cs
                     FormViewRectangleX REAL,
                     FormViewRectangleY REAL,
                     FormViewRectangleWidth REAL,
-                    FormViewRectangleHeight REAL        
+                    FormViewRectangleHeight REAL
+                    
+                               
                      );
             ";
                 command.ExecuteNonQuery();
@@ -47,7 +49,7 @@ namespace SQL3cs
                         PageNames TEXT,
                         Weight INTEGER,
                         FileContentPieceMark TEXT,
-                        FileName TEXT,
+                        FileName TEXT UNIQUE,
                         FileNamePieceMark TEXT,
                         NumberOfPages INTEGER,
                         RecID INTEGER,
@@ -63,7 +65,7 @@ namespace SQL3cs
                    ProjectID INTEGER PRIMARY KEY AUTOINCREMENT,
                    ProjectName TEXT,
                    DateCreated TEXT,
-                   ShopTicketID INTEGER,      
+                   ShopTicketID INTEGER UNIQUE,      
                    Foreign KEY (ShopTicketID) REFERENCES ShopTicket(ShopTicketID)
 
                      );
@@ -77,31 +79,60 @@ namespace SQL3cs
 
         public void AddDataToTables(ShopTicket pdf)
         {
-            using (var connection = new SqliteConnection(connectionString))
+            try
             {
-                connection.Open();
+                using (var connection = new SqliteConnection(connectionString))
+                {
+                    connection.Open();
 
-                // 1. Insert data into the PARENT table (Rectangle) and get its PK
-                var commandRect = connection.CreateCommand();
-                commandRect.CommandText =
-                @"
-                INSERT INTO Rectangle (
-                    FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight       
-                ) VALUES ($fvrx, $fvry, $fvrw, $fvrh);
-                SELECT last_insert_rowid();
-                ";
-                commandRect.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
-                commandRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
-                commandRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
-                commandRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
+                    long newRecID;
 
-                long newRecID = (long)commandRect.ExecuteScalar();
+                    // First, try to find an existing matching rectangle
+                    var commandSelectRect = connection.CreateCommand();
+                    commandSelectRect.CommandText =
+                    @"
+                    SELECT RecID FROM Rectangle
+                    WHERE FormViewRectangleX = $fvrx
+                      AND FormViewRectangleY = $fvry
+                      AND FormViewRectangleWidth = $fvrw
+                      AND FormViewRectangleHeight = $fvrh;
+                    ";
+                    commandSelectRect.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
+                    commandSelectRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
+                    commandSelectRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
+                    commandSelectRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
 
+                    object existingRecIDResult = commandSelectRect.ExecuteScalar();
 
-                // 2. Insert data into the Child table (ShopTicket) using newRecID (FK)
-                var commandShop = connection.CreateCommand();
-                commandShop.CommandText =
-                @"
+                    if (existingRecIDResult != null)
+                    {
+                        // A matching rectangle already exists, use its ID
+                        newRecID = (long)existingRecIDResult;
+                    }
+                    else
+                    {
+                        // No matching rectangle found, insert a new one
+                        var commandInsertRect = connection.CreateCommand();
+                        commandInsertRect.CommandText =
+                        @"
+                        INSERT INTO Rectangle (
+                            FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight       
+                        ) VALUES ($fvrx, $fvry, $fvrw, $fvrh);
+                        SELECT last_insert_rowid();
+                        ";
+                        // Reuse the parameters defined above
+                        commandInsertRect.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
+                        commandInsertRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
+                        commandInsertRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
+                        commandInsertRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
+
+                        newRecID = (long)commandInsertRect.ExecuteScalar();
+                    }
+
+                    // 2. Insert data into the Child table (ShopTicket) using newRecID (FK)
+                    var commandShop = connection.CreateCommand();
+                    commandShop.CommandText =
+                    @"
                 INSERT INTO ShopTicket (
                     ProjectName, ProjectNumber, DesignNumber, PiecesRequired, ControlNumbers,PageNames, 
                     Weight, FileContentPieceMark, FileName, FileNamePieceMark, NumberOfPages, RecID
@@ -109,36 +140,47 @@ namespace SQL3cs
                 
                 SELECT last_insert_rowid(); -- Get the PK of the newly inserted ShopTicket
                 ";
-                commandShop.Parameters.AddWithValue("$pn", pdf.ProjectName);
-                commandShop.Parameters.AddWithValue("$prnu", pdf.ProjectNumber);
-                commandShop.Parameters.AddWithValue("$dn", pdf.DesignNumber);
-                commandShop.Parameters.AddWithValue("$pire", pdf.PiecesRequired);
-                commandShop.Parameters.AddWithValue("$cn", string.Join("   ", pdf.ControlNumbers != null ? string.Join("   ", pdf.ControlNumbers) : string.Empty));
-                commandShop.Parameters.AddWithValue("$pnames", string.Join("   ", pdf.PageNames));
-                commandShop.Parameters.AddWithValue("$we", pdf.Weight);
-                commandShop.Parameters.AddWithValue("$fcpm", pdf.FileContentPieceMark);
-                commandShop.Parameters.AddWithValue("$fn", pdf.FileName);
-                commandShop.Parameters.AddWithValue("$fnpm", (object)pdf.FileNamePieceMark ?? DBNull.Value);
-                commandShop.Parameters.AddWithValue("$nop", pdf.NumberOfPages);
-                commandShop.Parameters.AddWithValue("$recid", newRecID);
+                    commandShop.Parameters.AddWithValue("$pn", pdf.ProjectName);
+                    commandShop.Parameters.AddWithValue("$prnu", pdf.ProjectNumber);
+                    commandShop.Parameters.AddWithValue("$dn", pdf.DesignNumber);
+                    commandShop.Parameters.AddWithValue("$pire", pdf.PiecesRequired);
+                    commandShop.Parameters.AddWithValue("$cn", string.Join("   ", pdf.ControlNumbers != null ? string.Join("   ", pdf.ControlNumbers) : string.Empty));
+                    commandShop.Parameters.AddWithValue("$pnames", string.Join("   ", pdf.PageNames));
+                    commandShop.Parameters.AddWithValue("$we", pdf.Weight);
+                    commandShop.Parameters.AddWithValue("$fcpm", pdf.FileContentPieceMark);
+                    commandShop.Parameters.AddWithValue("$fn", pdf.FileName);
+                    commandShop.Parameters.AddWithValue("$fnpm", (object)pdf.FileNamePieceMark ?? DBNull.Value);
+                    commandShop.Parameters.AddWithValue("$nop", pdf.NumberOfPages);
+                    commandShop.Parameters.AddWithValue("$recid", newRecID);
 
 
-                long newShopTicketID = (long)commandShop.ExecuteScalar();
+                    long newShopTicketID = (long)commandShop.ExecuteScalar();
 
 
-                // 3. Insert data into the Project table using newShopTicketID (FK)
-                var commandProject = connection.CreateCommand();
-                commandProject.CommandText =
-                @"
+                    // 3. Insert data into the Project table using newShopTicketID (FK)
+                    var commandProject = connection.CreateCommand();
+                    commandProject.CommandText =
+                    @"
                 INSERT INTO Project (
                     ProjectName, DateCreated, ShopTicketID
                 ) VALUES ($pn, $dc, $stid);
                 ";
-                commandProject.Parameters.AddWithValue("$pn", pdf.ProjectName);
-                commandProject.Parameters.AddWithValue("$dc", pdf.dateTimeExtracted);
-                commandProject.Parameters.AddWithValue("$stid", newShopTicketID);
+                    commandProject.Parameters.AddWithValue("$pn", pdf.ProjectName);
+                    commandProject.Parameters.AddWithValue("$dc", pdf.dateTimeExtracted);
+                    commandProject.Parameters.AddWithValue("$stid", newShopTicketID);
 
-                commandProject.ExecuteNonQuery();
+                    commandProject.ExecuteNonQuery();
+                }
+            }
+
+            catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
+            {
+              
+            }
+            // General catch for any other unforeseen errors
+            catch (Exception ex)
+            {
+                
             }
         }
 
