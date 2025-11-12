@@ -4,7 +4,6 @@
 @using System.Linq
 @inject ShopTicketService sTService
 @inject NavigationManager Navigation
-@inject IJSRuntime JS
 @rendermode InteractiveServer
 
 
@@ -99,16 +98,6 @@
         sTService.SetCurrentHistoryIndex(index);
         Navigation.NavigateTo("/processing");
     }
-
-    private async Task ExportAsJson(int index)
-    {
-        var ticket = sTService.History.ElementAtOrDefault(index);
-        if (ticket is null) return;
-        string json = ticket.ToJson();
-        string filename = $"{Path.GetFileNameWithoutExtension(ticket.FileName)}_info.json";
-        await JS.InvokeVoidAsync("downloadJsonInline", filename, json);
-    }
-
     private void HandleExportClick(bool val, int index){
         if(val){
             //export json
