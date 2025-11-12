@@ -102,10 +102,13 @@ section {
 .processbtn {
   background-color: #007bff;
   color: white;
+  border:2px solid #007bff
 }
 
 .processbtn:hover {
-  background-color: #0056b3;
+  background-color: white;
+  color: #007bff;
+ 
 }
 
 .historybtn {
