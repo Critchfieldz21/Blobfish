@@ -43,6 +43,8 @@ namespace SQL3cs
                         ProjectNumber TEXT,
                         DesignNumber TEXT,
                         PiecesRequired INTEGER,
+                        ControlNumbers TEXT,
+                        PageNames TEXT,
                         Weight INTEGER,
                         FileContentPieceMark TEXT,
                         FileName TEXT,
@@ -101,9 +103,9 @@ namespace SQL3cs
                 commandShop.CommandText =
                 @"
                 INSERT INTO ShopTicket (
-                    ProjectName, ProjectNumber, DesignNumber, PiecesRequired, 
+                    ProjectName, ProjectNumber, DesignNumber, PiecesRequired, ControlNumbers,PageNames, 
                     Weight, FileContentPieceMark, FileName, FileNamePieceMark, NumberOfPages, RecID
-                ) VALUES ($pn, $prnu, $dn, $pire, $we, $fcpm, $fn, $fnpm, $nop, $recid);
+                ) VALUES ($pn, $prnu, $dn, $pire, $cn, $pnames, $we, $fcpm, $fn, $fnpm, $nop, $recid);
                 
                 SELECT last_insert_rowid(); -- Get the PK of the newly inserted ShopTicket
                 ";
@@ -111,10 +113,12 @@ namespace SQL3cs
                 commandShop.Parameters.AddWithValue("$prnu", pdf.ProjectNumber);
                 commandShop.Parameters.AddWithValue("$dn", pdf.DesignNumber);
                 commandShop.Parameters.AddWithValue("$pire", pdf.PiecesRequired);
+                commandShop.Parameters.AddWithValue("$cn", string.Join("   ", pdf.ControlNumbers != null ? string.Join("   ", pdf.ControlNumbers) : string.Empty));
+                commandShop.Parameters.AddWithValue("$pnames", string.Join("   ", pdf.PageNames));
                 commandShop.Parameters.AddWithValue("$we", pdf.Weight);
                 commandShop.Parameters.AddWithValue("$fcpm", pdf.FileContentPieceMark);
                 commandShop.Parameters.AddWithValue("$fn", pdf.FileName);
-                commandShop.Parameters.AddWithValue("$fnpm", pdf.FileNamePieceMark);
+                commandShop.Parameters.AddWithValue("$fnpm", (object)pdf.FileNamePieceMark ?? DBNull.Value);
                 commandShop.Parameters.AddWithValue("$nop", pdf.NumberOfPages);
                 commandShop.Parameters.AddWithValue("$recid", newRecID);
 
@@ -131,7 +135,7 @@ namespace SQL3cs
                 ) VALUES ($pn, $dc, $stid);
                 ";
                 commandProject.Parameters.AddWithValue("$pn", pdf.ProjectName);
-                commandProject.Parameters.AddWithValue("$dc", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                commandProject.Parameters.AddWithValue("$dc", pdf.dateTimeExtracted);
                 commandProject.Parameters.AddWithValue("$stid", newShopTicketID);
 
                 commandProject.ExecuteNonQuery();
@@ -172,7 +176,7 @@ namespace SQL3cs
                     using (var writer = new StreamWriter(csvFilePath))
                     {
 
-                        writer.WriteLine("ShopTicketID,ProjectName,ProjectNumber,DesignNumber,PiecesRequired,Weight,FileContentPieceMark,FileName,FileNamePieceMark,NumberOfPages,RecID");
+                        writer.WriteLine("ShopTicketID,ProjectName,ProjectNumber,DesignNumber,PiecesRequired,ContorlNumbers,PageNames,Weight,FileContentPieceMark,FileName,FileNamePieceMark,NumberOfPages,RecID");
 
 
                         while (reader.Read())
@@ -189,7 +193,9 @@ namespace SQL3cs
                                 reader.GetValue(7)?.ToString(),
                                 reader.GetValue(8)?.ToString(),
                                 reader.GetValue(9)?.ToString(),
-                                reader.GetValue(10)?.ToString()
+                                reader.GetValue(10)?.ToString(),
+                                reader.GetValue(11)?.ToString(),
+                                reader.GetValue(12)?.ToString()
                             );
                             writer.WriteLine(row);
                         }
