@@ -77,16 +77,17 @@
 
 /* Complete redesign of pdfinfo with bold geometric dark aesthetic */
 .pdfinfo {
-  flex: 1;
-  height: 100%;
-  border: none;
-  border-radius: 24px;
-  background: #0a0e1a;
-  padding: 0;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.05);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+    flex: 1;
+    height: 100%;
+    border: none;
+    border-radius: 24px;
+    background: #0a0e1a;
+    padding: 0;
+    overflow: scroll;
+    overflow-x: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
 }
 
 /* Animated gradient mesh background */
