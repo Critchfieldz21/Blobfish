@@ -1,5 +1,6 @@
 @page "/history"
 @using BackendLibrary
+@using System
 @using System.Linq
 @inject ShopTicketService sTService
 @inject NavigationManager Navigation
@@ -10,7 +11,12 @@
 <link href="_content/Blazor.Bootstrap/blazor.bootstrap.css" rel="stylesheet" />
 
 <PageTitle>History</PageTitle>
-    <a class="Home Button" href="/">Back to Home</a>
+
+    <div class="history-controls">
+        <a class="Home Button" href="/">Back</a>
+        <input class="search-input" placeholder="Search by file name, piece mark, or project (you can also type a date like 12/11/2025)..." @bind="searchTerm" @bind:event="oninput" />
+        <button class="btn btn-sm btn-secondary" type="button" @onclick="ClearSearch">Clear</button>
+    </div>
 
 <div class="page-wrapper">
     @if (history == null || history.Count == 0)
@@ -19,49 +25,73 @@
     }
     else
     {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>File Name</th>
-                <th>Pages</th>
-                <th>Piece Mark</th>
-                <th>Project</th>
-                <th>Date Processed</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in history.Select((ticket, index) => new { ticket, index }))
-            {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@(item.index + 1)</td>
-                    <td>@item.ticket.FileName</td>
-                    <td>@item.ticket.NumberOfPages</td>
-                    <td>@item.ticket.FileNamePieceMark</td>
-                    <td>@item.ticket.ProjectName</td>
-                    <td>@item.ticket.dateTimeExtracted</td>
-                    <td>
-                        <a class="ViewButton" href="/processing?historyIndex=@item.index">View</a>
-                        <button class="ViewButton" @onclick="() => HandleExportClick(true, item.index)">Export JSON</button>
-
-                        <button class="ViewButton" @onclick="() => HandleExportClick(false, item.index)">Export CSV</button>
-                    </td>
+                    <th>#</th>
+                    <th>File Name</th>
+                    <th>Pages</th>
+                    <th>Piece Mark</th>
+                    <th>Project</th>
+                    <th>Date Processed</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var item in FilteredHistory.Select((ticket, index) => new { ticket, index }))
+                {
+                    <tr>
+                        <td>@(item.index + 1)</td>
+                        <td>@item.ticket.FileName</td>
+                        <td>@item.ticket.NumberOfPages</td>
+                        <td>@item.ticket.FileNamePieceMark</td>
+                        <td>@item.ticket.ProjectName</td>
+                        <td>@item.ticket.dateTimeExtracted</td>
+                        <td>
+                            <a class="ViewButton" href="/processing?historyIndex=@item.index">View</a>
+                            <button class="ViewButton" @onclick="() => HandleExportClick(true, item.index)">Export JSON</button>
+                            <button class="ViewButton" @onclick="() => HandleExportClick(false, item.index)">Export CSV</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 </div>
 
 @code {
    
     private List<ShopTicket> history = new();
+    private string searchTerm = string.Empty;
+
+    private IEnumerable<ShopTicket> FilteredHistory
+    {
+        get
+        {
+            var q = history.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var term = searchTerm.Trim();
+                q = q.Where(t =>
+                    (t.FileName ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
+                    || (t.FileNamePieceMark ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
+                    || (t.ProjectName ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
+                );
+            }
+            return q;
+        }
+    }
 
     protected override void OnInitialized()
     {
-        
         history = sTService.History?.Where(t => t != null).Select(t => t!).ToList() ?? new List<ShopTicket>();
+    }
+
+    private void ClearSearch()
+    {
+        searchTerm = string.Empty;
+       
     }
 
     private void OpenTicket(int index)
@@ -72,7 +102,8 @@
 
     private async Task ExportAsJson(int index)
     {
-        ShopTicket ticket = sTService.History[index];
+        var ticket = sTService.History.ElementAtOrDefault(index);
+        if (ticket is null) return;
         string json = ticket.ToJson();
         string filename = $"{Path.GetFileNameWithoutExtension(ticket.FileName)}_info.json";
         await JS.InvokeVoidAsync("downloadJsonInline", filename, json);
