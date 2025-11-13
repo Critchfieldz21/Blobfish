@@ -42,7 +42,7 @@
         <table class="info-table">
             <tr><th>File Name</th><td>@(ticket?.FileName ?? "(no file)")</td></tr>
             <tr><th>Pages</th><td>@(ticket?.NumberOfPages.ToString() ?? "")</td></tr>
-            <tr><th>Processed</th><td>@(ticket != null ? ticket.dateTimeExtracted.ToLocalTime().ToString("g") : "")</td></tr>
+            <tr><th>Processed</th><td>@(ticket != null ? ticket.dateTimeExtracted : "")</td></tr>
             <tr><th>Project #</th><td>@(ticket?.ProjectNumber ?? "")</td></tr>
             <tr><th>Project</th><td>@(ticket?.ProjectName ?? "")</td></tr>
             <tr><th>File Name Piece Mark</th><td>@(ticket?.FileNamePieceMark ?? "")</td></tr>
@@ -53,10 +53,10 @@
             <tr><th>Design #</th><td>@(ticket?.DesignNumber ?? "")</td></tr>
             <tr><th>Page Names</th><td>@(ticket?.PageNames != null ? string.Join(", ", ticket.PageNames) : "")</td></tr>
             <tr><th>Rectangle Page</th><td>@((ticket != null ? ticket.RectanglePage : ""))</td></tr>
-            <tr><th>Form View Rectangle X</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleX, 2): ""))</td></tr>
+            <tr><th>Form View Rectangle X</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleX, 2) : ""))</td></tr>
             <tr><th>Form View Rectangle Y</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleY, 2) : ""))</td></tr>
             <tr><th>Form View Rectangle Width</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleWidth, 2) : ""))</td></tr>
-            <tr><th>Form View Rectangle Height</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleHeight, 2): ""))</td></tr>
+            <tr><th>Form View Rectangle Height</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleHeight, 2) : ""))</td></tr>
         </table>
         <img src="../NortheastPrecast.webp" />
     </div>
