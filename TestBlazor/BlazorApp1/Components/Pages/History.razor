@@ -47,7 +47,7 @@
                         <td>@item.ticket.ProjectName</td>
                         <td>@item.ticket.dateTimeExtracted</td>
                         <td>
-                            <a class="ViewButton" href="/processing?historyIndex=@item.index">View</a>
+                            <button class = "ViewButton" @onclick="() => OpenTicket(item.index)">View</button>
                             <button class="ViewButton" @onclick="() => HandleExportClick(true, item.index)">Export JSON</button>
                             <button class="ViewButton" @onclick="() => HandleExportClick(false, item.index)">Export CSV</button>
                         </td>
@@ -60,7 +60,7 @@
 
 @code {
    
-    private List<ShopTicket> history = new();
+    private List<ShopTicket> history = new List<ShopTicket>();
     private string searchTerm = string.Empty;
 
     private IEnumerable<ShopTicket> FilteredHistory
@@ -84,6 +84,7 @@
 
     protected override void OnInitialized()
     {
+        sTService.ClearCurrentTickets();
         history = sTService.History?.Where(t => t != null).Select(t => t!).ToList() ?? new List<ShopTicket>();
     }
 
@@ -95,17 +96,12 @@
 
     private void OpenTicket(int index)
     {
-        sTService.SetCurrentHistoryIndex(index);
+        sTService.AddTicket(history[index], true);
         Navigation.NavigateTo("/processing");
     }
     private void HandleExportClick(bool val, int index){
-        if(val){
-            //export json
-            Navigation.NavigateTo($"/export/{val}/{index}", forceLoad: true);
-        }else{
-            //export csv
-            Navigation.NavigateTo($"/export/{val}/{index}", forceLoad: true);
-        }
+        var valString = val.ToString().ToLower();
+        Navigation.NavigateTo($"/export/{valString}/{index}", forceLoad: true);
     }
 
 }

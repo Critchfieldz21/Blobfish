@@ -10,15 +10,15 @@ builder.Services.AddBlazorBootstrap();
 
 var app = builder.Build();
 
-app.MapGet("/export/{val}/{index}", (bool val, int index, ShopTicketService sTService) =>
+app.MapGet("/export/{val}/{index}", (String val, int index, ShopTicketService sTService) =>
 {
-    var ticket = sTService.GetTicket(index+1);
+    var ticket = sTService.GetHistoryTicket(index+1);
     if (ticket == null)
     {
         return Results.NotFound();
     }
 
-    if(val == true)
+    if(val.Equals("true", StringComparison.OrdinalIgnoreCase))
     {
         var json = ticket.ToJson();
         return Results.File(

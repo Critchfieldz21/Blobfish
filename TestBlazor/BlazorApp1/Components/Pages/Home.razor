@@ -174,7 +174,7 @@
             }
 
             byte[] pdfBytes = memoryStream.ToArray();
-            sTService.AddTicket(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"));
+            sTService.AddTicket(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"), false);
 
             completedCount++;
             pdfName = file.Name; // shows the last processed file

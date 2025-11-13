@@ -39,9 +39,6 @@
     </div>
     <!-- PDF Info -->
     <div class="pdfinfo">
-        @{
-            var ticket = sTService.GetCurrentHistoryTicket();
-        }
         <table class="info-table">
             <tr><th>File Name</th><td>@(ticket?.FileName ?? "(no file)")</td></tr>
             <tr><th>Pages</th><td>@(ticket?.NumberOfPages.ToString() ?? "")</td></tr>
@@ -56,10 +53,10 @@
             <tr><th>Design #</th><td>@(ticket?.DesignNumber ?? "")</td></tr>
             <tr><th>Page Names</th><td>@(ticket?.PageNames != null ? string.Join(", ", ticket.PageNames) : "")</td></tr>
             <tr><th>Rectangle Page</th><td>@((ticket != null ? ticket.RectanglePage : ""))</td></tr>
-            <tr><th>Form View Rectangle X</th><td>@((ticket != null ? ticket.FormViewRectangleX : ""))</td></tr>
-            <tr><th>Form View Rectangle Y</th><td>@((ticket != null ? ticket.FormViewRectangleY : ""))</td></tr>
-            <tr><th>Form View Rectangle Width</th><td>@((ticket != null ? ticket.FormViewRectangleWidth : ""))</td></tr>
-            <tr><th>Form View Rectangle Height</th><td>@((ticket != null ? ticket.FormViewRectangleHeight : ""))</td></tr>
+            <tr><th>Form View Rectangle X</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleX, 2): ""))</td></tr>
+            <tr><th>Form View Rectangle Y</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleY, 2) : ""))</td></tr>
+            <tr><th>Form View Rectangle Width</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleWidth, 2) : ""))</td></tr>
+            <tr><th>Form View Rectangle Height</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleHeight, 2): ""))</td></tr>
         </table>
         <img src="../NortheastPrecast.webp" />
     </div>
@@ -68,92 +65,61 @@
 @code {
     private string? base64Url;
     private int currTicketIndex = 0;
+    private ShopTicket? ticket;
 
     protected override void OnInitialized()
     {
-        // If the History page linked here with a query parameter, use it.
-        try
-        {
-            var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
-            if (!string.IsNullOrEmpty(uri.Query))
-            {
-                var qp = QueryHelpers.ParseQuery(uri.Query);
-                if (qp.TryGetValue("historyIndex", out var vals))
-                {
-                    if (int.TryParse(vals.FirstOrDefault(), out var parsed))
-                    {
-                        currTicketIndex = parsed;
-                        sTService.SetCurrentHistoryIndex(currTicketIndex);
-                        LoadFromCurrentHistoryTicket();
-                        return;
-                    }
-                }
-            }
-        }
-        catch
-        {
-            // ignore parse errors and fall back to service index
-        }
-
-        // Fall back to the service's current history index
-        currTicketIndex = sTService.CurrentIndex;
-        LoadFromCurrentHistoryTicket();
-    }
-
-    private void LoadFromCurrentHistoryTicket()
-    {
-        var ticket = sTService.GetCurrentHistoryTicket();
-        if (ticket?.PdfBytes != null && ticket.PdfBytes.Length > 0)
-        {
-            string pdfBase64 = Convert.ToBase64String(ticket.PdfBytes);
-            base64Url = $"data:application/pdf;base64,{pdfBase64}";
-        }
-        else
-        {
-            base64Url = null;
-        }
-        StateHasChanged();
+        //plus one because sTService method subtracts one for zero based indexing
+        LoadTicket();
     }
 
     private void GoRight()
     {
-        if (currTicketIndex < sTService.History.Count - 1)
+        if (currTicketIndex < sTService.Size - 1)
         {
             currTicketIndex++;
-            sTService.SetCurrentHistoryIndex(currTicketIndex);
-            LoadFromCurrentHistoryTicket();
+            LoadTicket();
         }
     }
 
     private void GoLeft()
     {
-        if (currTicketIndex > 0)
+         if (currTicketIndex > 0)
         {
             currTicketIndex--;
-            sTService.SetCurrentHistoryIndex(currTicketIndex);
-            LoadFromCurrentHistoryTicket();
+            LoadTicket();
         }
     }
 
     private string GetPDFInfo()
     {
-        try
+        return sTService.GetTicket(currTicketIndex + 1).ToString().Replace("\n", "<br />");
+    }
+
+    private void LoadTicket(){
+        ticket = sTService.GetTicket(currTicketIndex + 1);
+        if (ticket?.PdfBytes != null && ticket.PdfBytes.Length > 0)
         {
-            var ticket = sTService.GetCurrentHistoryTicket();
-            return ticket?.ToString().Replace("\n", "<br />") ?? "No PDF info available.";
-        }
-        catch
-        {
-            return "No PDF info available.";
+            string pdfBase64 = Convert.ToBase64String(ticket.PdfBytes);
+            base64Url = $"data:application/pdf;base64,{pdfBase64}";
         }
     }
 
-    private string? setName() => sTService.GetCurrentHistoryTicket()?.FileName ?? "(no name)";
+    private string? setName(){
+        String name = sTService.GetTicket(currTicketIndex + 1).FileName;
+        return ticket?.FileName ?? "(no file)";
+    }
 
     private void OnDocumentLoaded(PdfViewerEventArgs args) { }
 
     private void OnPageChanged(PdfViewerEventArgs args) { }
 
-    private void GoHome() => Navigation.NavigateTo("/");
-    private void GoHistory() => Navigation.NavigateTo("/history");
+    private void GoHome(){
+        currTicketIndex = 0;
+        Navigation.NavigateTo("/");
+    }
+    private void GoHistory(){
+        currTicketIndex = 0;
+        Navigation.NavigateTo("/history");
+    }
 }
