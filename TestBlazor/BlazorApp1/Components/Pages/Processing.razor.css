@@ -77,17 +77,19 @@
 
 /* Complete redesign of pdfinfo with bold geometric dark aesthetic */
 .pdfinfo {
-    flex: 1;
-    height: 100%;
-    border: none;
-    border-radius: 24px;
-    background: #0a0e1a;
-    padding: 0;
-    overflow: scroll;
-    overflow-x: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.05);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 24px;
+  background: #0a0e1a;
+  padding: 0;
+  /* keep scrolling inside the content wrapper only */
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 /* Animated gradient mesh background */
@@ -174,11 +176,15 @@
 
 /* Scrollable content area with custom styling */
 .pdfinfo-content {
-  padding: 2rem;
-  height: calc(100% - 180px);
+  padding: 1.25rem 1.5rem;
+  /* allow flex layout to size the content area and enable scrolling when needed */
+  flex: 1 1 auto;
+  min-height: 0; /* important for children to be able to scroll inside flex containers */
   overflow-y: auto;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Ultra-modern paragraph cards with neon accents */
@@ -334,22 +340,26 @@
   font-weight: 800;
 }
 
-/* Neon-themed custom scrollbar */
+/* Custom scrollbar consolidated for both PDF viewer and info panel */
+.pdfVisBox::-webkit-scrollbar,
 .pdfinfo-content::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
+.pdfVisBox::-webkit-scrollbar-track,
 .pdfinfo-content::-webkit-scrollbar-track {
-  background: rgba(24, 57, 115, 0.2);
+  background: rgba(24, 57, 115, 0.05);
   border-radius: 10px;
 }
 
+.pdfVisBox::-webkit-scrollbar-thumb,
 .pdfinfo-content::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #1454a3, #4a90e2);
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
 }
 
+.pdfVisBox::-webkit-scrollbar-thumb:hover,
 .pdfinfo-content::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #4a90e2, #6bb6ff);
   box-shadow: 0 0 15px rgba(74, 144, 226, 0.8);
@@ -386,13 +396,15 @@
 /* Logo image styling - targets img directly in pdfinfo */
 .pdfinfo img {
   display: block;
-  width: 280px;
+  width: 240px;
   max-width: 90%;
   height: auto;
-  margin: 2.5rem auto 1.5rem auto;
-  opacity: 0.9;
-  filter: drop-shadow(0 4px 20px rgba(74, 144, 226, 0.5)) brightness(1.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* smaller top margin so it sits closer to the info table */
+  margin: 1.25rem auto 1rem auto;
+  align-self: center;
+  opacity: 0.95;
+  filter: drop-shadow(0 6px 24px rgba(74, 144, 226, 0.5)) brightness(1.05);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   animation: logoFloat 4s ease-in-out infinite;
   position: relative;
   z-index: 2;
@@ -427,24 +439,7 @@
 }
 
 
-.pdfVisBox::-webkit-scrollbar,
-.pdfinfo-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.pdfVisBox::-webkit-scrollbar-track {
-  background: rgba(24, 57, 115, 0.05);
-  border-radius: 10px;
-}
-
-.pdfVisBox::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #183973, #1454a3);
-  border-radius: 10px;
-}
-
-.pdfVisBox::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #0f2447, #183973);
-}
+/* (consolidated above) */
 
 .homeButt {
   display: inline-flex;

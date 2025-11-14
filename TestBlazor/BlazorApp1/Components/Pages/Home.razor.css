@@ -6,27 +6,21 @@ h1 {
   font-size: 2rem;
 }
 
+.home-row { width: 92%; max-width: 1100px; margin: 2rem auto; display:flex; gap:20px; align-items:flex-start; }
+
 .pdfcontainer {
-  width: 80%;
-  max-width: 700px;
-  margin: 2rem auto;
-  padding: 3rem 1.5rem;
-  border: 2px solid black;
-  border-radius: 12px;
-  background-color: white;
-  text-align: center;
-  transition: all 0.25s ease;
-}
+  flex: 1 1 0; padding: 1.5rem; border: 2px solid #e6eefc; border-radius: 12px; background: #fff; }
+
+.processing-sidebar { width: 360px; max-width: 38%; }
 
 .pdfBox {
-  width: 80%;
-  max-width: 700px;
-  margin: 2rem auto;
-  padding: 3rem 1.5rem;
-  border: 2px solid black;
-  border-radius: 12px;
-  background-color: white;
-  text-align: center;
+  width: 100%;
+  margin: 0 0 1rem 0;
+  padding: 1.6rem;
+  border: 2px solid #e6eefc;
+  border-radius: 10px;
+  background-color: #fbfdff;
+  text-align: left;
   transition: all 0.25s ease;
   cursor: pointer;
 }
@@ -108,18 +102,17 @@ section {
 .processbtn:hover {
   background-color: white;
   color: #007bff;
- 
 }
 
 .historybtn {
-  background-color: transparent;
-  color: #007bff;
-  border: 2px solid #007bff;
+  background-color: #007bff;
+  color: white;
+  border:2px solid #007bff
 }
 
 .historybtn:hover {
-  background-color: #007bff;
-  color: white;
+background-color: white;
+  color: #007bff;
 }
 
 .cancelbtn {
@@ -147,6 +140,87 @@ section {
     display: block;
 }
 
+.processing-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 0;
+  align-items: start;
+}
+
+.proc-card {
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  box-shadow: 0 8px 20px rgba(20, 84, 163, 0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+  border: 1px solid rgba(20,84,163,0.06);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.proc-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(20,84,163,0.12);
+}
+
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.proc-card {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 420ms cubic-bezier(.22,.9,.28,1) forwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+.proc-card-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap: 12px;
+  margin-bottom:10px;
+}
+
+.proc-card-header strong {
+  font-size: 1rem;
+  color: #102840;
+  display: inline-block;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.status {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight:700;
+  font-size: 0.85rem;
+}
+
+.status.done { color: #055a2b; background: rgba(6,160,74,0.08); border: 1px solid rgba(6,160,74,0.12); }
+.status.error { color: #7a1220; background: rgba(217,51,51,0.06); border: 1px solid rgba(217,51,51,0.12); }
+.status.cancelled { color: #663d00; background: rgba(255,140,0,0.06); border: 1px solid rgba(255,140,0,0.12); }
+
+.proc-card-body { font-size: 0.95rem; color: #374151; display:flex; flex-direction:column; gap:6px; }
+.proc-card-body .meta { display:flex; gap:12px; align-items:center; color:#6b7280; font-size:0.9rem; }
+.proc-card-body .meta { display:flex; gap:10px; align-items:center; color:#6b7280; font-size:0.9rem; }
+.proc-card-body .meta .duration { font-weight:700; color:#102840; background: rgba(6,160,74,0.06); padding:4px 8px; border-radius:6px; }
+.proc-card-body .meta .ts { color:#6b7280; font-size:0.85rem; }
+.proc-actions { display:flex; gap:8px; align-items:center; }
+.btn-small { background: #0b69ff; color: #fff; border: none; padding:6px 10px; border-radius:8px; font-size:0.85rem; cursor:pointer; }
+.btn-small:hover { background: #0958d1; transform: translateY(-1px); }
+.btn-small[disabled], .btn-small:disabled { background: #e6eefc; color: #7b8aa7; cursor: not-allowed; transform: none; }
+.proc-error { color: #d63333; margin-top:8px; font-size:0.9rem; }
+
+@media (max-width: 700px) {
+  .processing-cards { grid-template-columns: 1fr; width: 95%; }
+  .proc-card-header strong { max-width: 60%; }
+}
+
 @media (max-width: 600px) {
   .pdfBox {
     width: 95%;
@@ -156,4 +230,10 @@ section {
   .btn-group {
     flex-direction: column;
   }
+}
+
+@media (max-width: 900px) {
+  .home-row { flex-direction: column; padding: 1rem; }
+  .processing-sidebar { width: 100%; }
+  .processing-cards { grid-template-columns: 1fr; margin-top: 1rem; }
 }

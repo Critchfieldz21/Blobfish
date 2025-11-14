@@ -3,48 +3,103 @@
 @using BlazorApp1.Components.Layout
 @using Microsoft.AspNetCore.Components.Forms
 @using System.Threading.Tasks
+@using System.Diagnostics
 @using BlazorBootstrap;
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
 @inject ShopTicketService sTService
+@inject IJSRuntime JS
 
 <PageTitle>Home</PageTitle>
 
 <h1>Home</h1>
 
 <section>
-    <div class="pdfcontainer">
-        <div class="pdfBox">
-            <InputFile OnChange="e => selectedFiles = e" multiple accept=".pdf" />
-            <p>Loaded PDF: @pdfName</p>
-        </div>
+    <div class="home-row">
+        <div class="pdfcontainer">
+            <div class="left-col">
+            <div class="pdfBox">
+                <InputFile OnChange="e => selectedFiles = e" multiple accept=".pdf" />
+                <p>Loaded PDF: @pdfName</p>
+            </div>
 
-        <div class="loading-container">
-            @if (isProcessing)
-            {
-                <img src="../Northeast.png" class="spinner" alt="Loading..." />
-                <p>@loadingMessage</p>
-
-                @if (totalFiles > 0)
+            <div class="loading-container">
+                @if (isProcessing)
                 {
-                    <p>Completed @completedCount / @totalFiles</p>
+                    <img src="../Northeast.png" class="spinner" alt="Loading..." />
+                    <p>@loadingMessage</p>
+
+                    @if (totalFiles > 0)
+                    {
+                        <p>Completed @completedCount / @totalFiles</p>
+                    }
                 }
-            }
-        </div>
-    </div>
-</section>
+            </div>
+            <div class="btn-container">
+                <div class="btn-group" role="group" aria-label="Home actions">
+                    <button class="@processButtonClass" @onclick="OnPrimary">@buttonLabel</button>
+                    <button class="historybtn" @onclick="GoToHistory">History</button>
 
-<section>
-    <div class="btn-container">
-        <div class="btn-group" role="group" aria-label="Home actions">
-            <button class="@processButtonClass" @onclick="OnPrimary">@buttonLabel</button>
-            <button class="historybtn" @onclick="GoToHistory">History</button>
-
-            <ul class="dropdown-menu @(isDropdownOpen ? "show" : "")">
-                <li><a class="dropdown-item" href="#">Option 1</a></li>
-                <li><a class="dropdown-item" href="#">Option 2</a></li>
-            </ul>
+                    <ul class="dropdown-menu @(isDropdownOpen ? "show" : "")">
+                        <li><a class="dropdown-item" href="#">Option 1</a></li>
+                        <li><a class="dropdown-item" href="#">Option 2</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
+
+        
+        </div>
+
+        <aside class="processing-sidebar">
+            <h3>Recent processing</h3>
+            <div class="processing-cards">
+                @if (processingCards != null && processingCards.Count > 0)
+                {
+                    @for (int i = 0; i < processingCards.Count; i++)
+                    {
+                        var card = processingCards[i];
+                        <div class="proc-card" style="--i:@i">
+                            <div class="proc-card-header">
+                                <div class="proc-title">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 2h9a2 2 0 0 1 2 2v4" stroke="#0b69ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2" stroke="#0b69ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <strong title="@card.FileName">@card.FileName</strong>
+                                </div>
+                                <div class="proc-actions">
+                                    <span class="status @card.StatusClass">@card.Status</span>
+                                    @if (card.HistoryIndex >= 0)
+                                    {
+                                        <button class="btn-small" @onclick="async () => await TryOpenHistory(card)">View</button>
+                                    }
+                                    else if (card.Status == "Done")
+                                    {
+                                        <button class="btn-small" @onclick="async () => await TryOpenHistory(card)">View</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn-small" disabled>View</button>
+                                    }
+                                </div>
+                            </div>
+                            <div class="proc-card-body">
+                                <div class="meta">
+                                    <div class="duration">@card.DurationHuman</div>
+                                    <div class="ts">@card.Timestamp.ToLocalTime().ToString("g")</div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(card.Message))
+                                {
+                                    <div class="proc-error">@((MarkupString)card.Message)</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>No recent processing events.</p>
+                }
+            </div>
+        </aside>
     </div>
 </section>
 
@@ -59,6 +114,62 @@
 
 @code {
     private string? pdfName = "No PDF Selected";
+    private List<ProcessingResult> processingCards = new();
+    private class ProcessingResult
+    {
+        public string FileName { get; set; } = string.Empty;
+        public TimeSpan Duration { get; set; }
+        public string Status { get; set; } = "Done";
+        public string Message { get; set; } = string.Empty;
+        public string DurationHuman => Duration == TimeSpan.Zero ? "< 1s" : string.Format("{0}s", Math.Round(Duration.TotalSeconds, 2));
+        public string StatusClass => Status switch { "Done" => "done", "Error" => "error", "Cancelled" => "cancelled", _ => "unknown" };
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public int HistoryIndex { get; set; } = -1;
+        // for serialization compatibility
+        public ProcessingResult() { }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadProcessingCardsAsync();
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveProcessingCardsAsync()
+    {
+        try
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(processingCards);
+            await JS.InvokeVoidAsync("sessionStorage.setItem", "processingCards", json);
+        }
+        catch
+        {
+            // ignore
+        }
+    }
+
+    private async Task LoadProcessingCardsAsync()
+    {
+        try
+        {
+            var json = await JS.InvokeAsync<string>("sessionStorage.getItem", "processingCards");
+            if (!string.IsNullOrEmpty(json))
+            {
+                var list = System.Text.Json.JsonSerializer.Deserialize<List<ProcessingResult>>(json);
+                if (list != null)
+                {
+                    processingCards = list;
+                }
+            }
+        }
+        catch
+        {
+            // ignore
+        }
+    }
     private string loadingMessage = "";
     private int totalFiles = 0;
     private int completedCount = 0;
@@ -149,44 +260,152 @@
         var files = e.GetMultipleFiles(50);
         if (files.Count == 0) return;
 
+        // capture state at batch start so we can roll back if any file errors
+        var initialProcessingCount = processingCards.Count;
+        var initialCurrentTickets = sTService.CurrentTicket?.Count ?? 0;
+
+        bool abortBatch = false;
         foreach (var file in files)
         {
-            using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
-            using var memoryStream = new MemoryStream();
-            var buffer = new byte[8192];
-
-            int bytesRead;
-            while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            var sw = Stopwatch.StartNew();
+            string status = "Done";
+            string message = string.Empty;
+            try
             {
-                if (cancelRequested)
+                using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
+                using var memoryStream = new MemoryStream();
+                var buffer = new byte[8192];
+
+                int bytesRead;
+                while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                 {
-                    isProcessing = false;
-                    buttonLabel = "Process";
-                    sTService.ClearCurrentTickets();
-                    pdfName = "Process cancelled.";
-                    completedCount = 0;
-                    totalFiles = 0;
-                    StateHasChanged();
-                    return;
+                    if (cancelRequested)
+                    {
+                        isProcessing = false;
+                        buttonLabel = "Process";
+                        sTService.ClearCurrentTickets();
+                        pdfName = "Process cancelled.";
+                        completedCount = 0;
+                        totalFiles = 0;
+                        StateHasChanged();
+                        status = "Cancelled";
+                        break;
+                    }
+
+                    await memoryStream.WriteAsync(buffer.AsMemory(0, bytesRead));
                 }
 
-                await memoryStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                if (status != "Cancelled")
+                {
+                    byte[] pdfBytes = memoryStream.ToArray();
+                    try
+                    {
+                        sTService.AddTicket(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"), false);
+                    }
+                    catch (Exception ex)
+                    {
+                        status = "Error";
+                        message = ex.Message;
+                        if (ex.InnerException != null)
+                        {
+                            message += "<br/>" + ex.InnerException.Message;
+                        }
+                    }
+
+                    if (status == "Done")
+                    {
+                        completedCount++;
+                        pdfName = file.Name; // shows the last processed file
+                    }
+                    // if ticket was successfully added, capture its history index
+                    if (status == "Done")
+                    {
+                        var idx = sTService.History.Count - 1;
+                        // assign idx to the last inserted processing card (we'll set after creating the object)
+                        // handled below when inserting ProcessingResult
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                status = "Error";
+                message = ex.Message;
+                if (ex.InnerException != null) message += "<br/>" + ex.InnerException.Message;
+            }
+            finally
+            {
+                sw.Stop();
+                var pr = new ProcessingResult
+                {
+                    FileName = file.Name,
+                    Duration = sw.Elapsed,
+                    Status = status,
+                    Message = message,
+                    Timestamp = DateTime.UtcNow,
+                    HistoryIndex = status == "Done" ? sTService.History.Count - 1 : -1
+                };
+                // add the processing card for this file
+                processingCards.Insert(0, pr);
+                await SaveProcessingCardsAsync();
+                StateHasChanged();
 
-            byte[] pdfBytes = memoryStream.ToArray();
-            sTService.AddTicket(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"), false);
+                // If this file errored, roll back the whole batch: remove processing cards added during this batch,
+                // remove tickets that were added to the service for this batch, stop processing and show the error.
+                if (status == "Error")
+                {
+                    // remove processing cards inserted during this batch (they are at the front)
+                    var addedCards = processingCards.Count - initialProcessingCount;
+                    if (addedCards > 0)
+                    {
+                        processingCards.RemoveRange(0, addedCards);
+                    }
 
-            completedCount++;
-            pdfName = file.Name; // shows the last processed file
-            StateHasChanged();
+                    // remove any tickets that were added to CurrentTicket during this batch
+                    if (sTService.CurrentTicket != null)
+                    {
+                        var addedTickets = sTService.CurrentTicket.Count - initialCurrentTickets;
+                        if (addedTickets > 0)
+                        {
+                            sTService.CurrentTicket.RemoveRange(initialCurrentTickets, addedTickets);
+                            sTService.Size = sTService.CurrentTicket.Count;
+                        }
+                    }
+
+                    await SaveProcessingCardsAsync();
+
+                    // stop processing and reset UI
+                    isProcessing = false;
+                    buttonLabel = "Process";
+                    loadingMessage = string.Empty;
+                    completedCount = 0;
+                    totalFiles = 0;
+                    cancelRequested = true;
+                    StateHasChanged();
+
+                    // show modal with the error message
+                    modalErrorMessage = pr.Message ?? "An error occurred during batch processing.";
+                    await (modalError?.ShowAsync() ?? Task.CompletedTask);
+
+                    // terminate the batch early
+                    abortBatch = true;
+                }
+            }
+            if (abortBatch) break;
         }
 
-        // Finished batch or single PDF
+        // Finished batch or single PDF (or aborted)
         isProcessing = false;
         buttonLabel = "Process";
-        pdfName = totalFiles > 1
-        ? "Batch processing complete."
-        : $"Processed: {files[0].Name}";
+        if (abortBatch)
+        {
+            pdfName = "Batch processing aborted due to error.";
+        }
+        else
+        {
+            pdfName = totalFiles > 1
+            ? "Batch processing complete."
+            : $"Processed: {files[0].Name}";
+        }
         loadingMessage = "";
         completedCount = 0;
         totalFiles = 0;
@@ -196,5 +415,40 @@
     private async Task OnHideModalClick()
     {
         await (modalError?.HideAsync() ?? Task.CompletedTask);
+    }
+
+    private void OpenHistory(int historyIndex)
+    {
+        if (historyIndex >= 0 && historyIndex < sTService.History.Count)
+        {
+            sTService.SetCurrentHistoryIndex(historyIndex);
+            Navigation.NavigateTo($"/processing?historyIndex={historyIndex}");
+        }
+    }
+
+    private async Task TryOpenHistory(ProcessingResult pr)
+    {
+        int idx = pr.HistoryIndex;
+        if (idx < 0 && pr.Status == "Done")
+        {
+            // try to find matching ticket in history by file name
+            idx = sTService.History.FindIndex(t => t != null && t.FileName == pr.FileName);
+            if (idx >= 0)
+            {
+                pr.HistoryIndex = idx;
+                await SaveProcessingCardsAsync();
+            }
+        }
+
+        if (idx >= 0 && idx < sTService.History.Count)
+        {
+            sTService.SetCurrentHistoryIndex(idx);
+            Navigation.NavigateTo($"/processing?historyIndex={idx}");
+        }
+        else
+        {
+            modalErrorMessage = "This file's processed data is not available in history.";
+            await (modalError?.ShowAsync() ?? Task.CompletedTask);
+        }
     }
 }

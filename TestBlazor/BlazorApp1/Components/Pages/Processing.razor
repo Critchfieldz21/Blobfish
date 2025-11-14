@@ -39,6 +39,7 @@
     </div>
     <!-- PDF Info -->
     <div class="pdfinfo">
+        <div class="pdfinfo-content">
         <table class="info-table">
             <tr><th>File Name</th><td>@(ticket?.FileName ?? "(no file)")</td></tr>
             <tr><th>Pages</th><td>@(ticket?.NumberOfPages.ToString() ?? "")</td></tr>
@@ -59,6 +60,7 @@
             <tr><th>Form View Rectangle Height</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleHeight, 2) : ""))</td></tr>
         </table>
         <img src="../NortheastPrecast.webp" />
+        </div>
     </div>
 </section>
 
@@ -66,19 +68,50 @@
     private string? base64Url;
     private int currTicketIndex = 0;
     private ShopTicket? ticket;
+    private bool viewingHistory = false;
 
     protected override void OnInitialized()
     {
-        //plus one because sTService method subtracts one for zero based indexing
+        // detect if a historyIndex query param was supplied and load from history
+        try
+        {
+            var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+            var qp = QueryHelpers.ParseQuery(uri.Query);
+            if (qp.TryGetValue("historyIndex", out var val))
+            {
+                if (int.TryParse(val.ToString(), out var idx) && idx >= 0)
+                {
+                    viewingHistory = true;
+                    currTicketIndex = idx;
+                }
+            }
+        }
+        catch
+        {
+            // ignore parse errors and default to current tickets
+        }
+
+        // load the ticket from the appropriate source
         LoadTicket();
     }
 
     private void GoRight()
     {
-        if (currTicketIndex < sTService.Size - 1)
+        if (viewingHistory)
         {
-            currTicketIndex++;
-            LoadTicket();
+            if (currTicketIndex < sTService.HistorySize() - 1)
+            {
+                currTicketIndex++;
+                LoadTicket();
+            }
+        }
+        else
+        {
+            if (currTicketIndex < sTService.Size - 1)
+            {
+                currTicketIndex++;
+                LoadTicket();
+            }
         }
     }
 
@@ -93,20 +126,42 @@
 
     private string GetPDFInfo()
     {
-        return sTService.GetTicket(currTicketIndex + 1).ToString().Replace("\n", "<br />");
+        if (viewingHistory)
+        {
+            var t = sTService.GetHistoryTicket(currTicketIndex + 1);
+            return (t != null ? t.ToString() : "").Replace("\n", "<br />");
+        }
+        var ct = sTService.GetTicket(currTicketIndex + 1);
+        return (ct != null ? ct.ToString() : "").Replace("\n", "<br />");
     }
 
     private void LoadTicket(){
-        ticket = sTService.GetTicket(currTicketIndex + 1);
+        if (viewingHistory)
+        {
+            ticket = sTService.GetHistoryTicket(currTicketIndex + 1);
+        }
+        else
+        {
+            ticket = sTService.GetTicket(currTicketIndex + 1);
+        }
+
         if (ticket?.PdfBytes != null && ticket.PdfBytes.Length > 0)
         {
             string pdfBase64 = Convert.ToBase64String(ticket.PdfBytes);
             base64Url = $"data:application/pdf;base64,{pdfBase64}";
         }
+        else
+        {
+            base64Url = null;
+        }
     }
 
     private string? setName(){
-        String name = sTService.GetTicket(currTicketIndex + 1).FileName;
+        if (viewingHistory)
+        {
+            var t = sTService.GetHistoryTicket(currTicketIndex + 1);
+            return t?.FileName ?? "(no file)";
+        }
         return ticket?.FileName ?? "(no file)";
     }
 
