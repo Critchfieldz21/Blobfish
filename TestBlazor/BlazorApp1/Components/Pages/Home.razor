@@ -12,9 +12,28 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Home</h1>
+<div class="home-root">
+    <h1 class="animated-heading @(skipHeadingAnimation ? "no-anim" : "")" aria-label="Northeast precast">
+        <span class="animated-word">N</span>
+        <span class="animated-word">o</span>
+        <span class="animated-word">r</span>
+        <span class="animated-word">t</span>
+        <span class="animated-word">h</span>
+        <span class="animated-word">e</span>
+        <span class="animated-word">a</span>
+        <span class="animated-word">s</span>
+        <span class="animated-word">t</span>
+        <span class="animated-word space">&nbsp;</span>
+        <span class="animated-word">p</span>
+        <span class="animated-word">r</span>
+        <span class="animated-word">e</span>
+        <span class="animated-word">c</span>
+        <span class="animated-word">a</span>
+        <span class="animated-word">s</span>
+        <span class="animated-word">t</span>
+    </h1>
 
-<section>
+    <section>
     <div class="home-row">
         <div class="pdfcontainer">
             <div class="left-col">
@@ -101,7 +120,8 @@
             </div>
         </aside>
     </div>
-</section>
+    </section>
+</div>
 
 <Modal @ref="modalError" Title="Processing Error">
     <BodyTemplate>
@@ -129,12 +149,67 @@
         public ProcessingResult() { }
     }
 
+    private bool wavesInitialized = false;
+    private bool skipHeadingAnimation = false;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            // Load saved processing cards and trigger a re-render. The actual
+            // waves initialization must wait until the cards are rendered in the DOM,
+            // so we return here and initialize on the subsequent render.
             await LoadProcessingCardsAsync();
+
+            // Check sessionStorage to see if the heading animation already ran.
+            try
+            {
+                var val = await JS.InvokeAsync<string>("sessionStorage.getItem", "npAnimated");
+                if (!string.IsNullOrEmpty(val) && val == "1")
+                {
+                    skipHeadingAnimation = true;
+                }
+                else
+                {
+                    // schedule marking the animation as played after the visual sequence completes
+                    _ = MarkHeadingAnimatedAfterDelayAsync();
+                }
+            }
+            catch
+            {
+                // ignore interop errors
+            }
             StateHasChanged();
+            return;
+        }
+
+        // After the second render, processing cards (if any) are present in the DOM.
+        if (!wavesInitialized && processingCards != null && processingCards.Count > 0)
+        {
+            try
+            {
+                var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/waves.js");
+                await module.InvokeVoidAsync("initCards");
+                wavesInitialized = true;
+            }
+            catch
+            {
+                // ignore if script fails to load
+            }
+        }
+    }
+
+    private async Task MarkHeadingAnimatedAfterDelayAsync()
+    {
+        try
+        {
+            // allow the per-letter reveal + underline to complete (approx 5s)
+            await Task.Delay(5200);
+            await JS.InvokeVoidAsync("sessionStorage.setItem", "npAnimated", "1");
+        }
+        catch
+        {
+            // ignore
         }
     }
 
@@ -348,6 +423,17 @@
                 processingCards.Insert(0, pr);
                 await SaveProcessingCardsAsync();
                 StateHasChanged();
+                // Ensure any newly inserted card gets a waves canvas. Call the module's
+                // initializer which is idempotent and will attach canvases only where missing.
+                try
+                {
+                    var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/waves.js");
+                    await module.InvokeVoidAsync("initCards");
+                }
+                catch
+                {
+                    // ignore
+                }
 
                 // If this file errored, roll back the whole batch: remove processing cards added during this batch,
                 // remove tickets that were added to the service for this batch, stop processing and show the error.

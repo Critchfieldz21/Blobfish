@@ -548,6 +548,16 @@
   letter-spacing: -0.02em;
 }
 
+/* Ensure processing page title remains readable when background colors are similar.
+   Provide a solid white fallback and subtle shadow so the title never blends into the page background.
+*/
+.titleName {
+  color: #ffffff !important;
+  background: none !important;
+  -webkit-text-fill-color: unset !important;
+  text-shadow: 0 6px 20px rgba(2,10,30,0.6), 0 2px 8px rgba(74,144,226,0.06);
+}
+
 @keyframes fadeInDown {
   from {
     opacity: 0;
