@@ -92,7 +92,7 @@ namespace BackendLibrary
                 InitializeFromPdf(pdf, pdfTextExtractor, pdfFileNameExtractor);
 
                 (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(modelPath, fileName, stream);
-                dateTimeExtracted = DateTime.UtcNow;
+                dateTimeExtracted = DateTime.Now;
             }
             catch (Exception ex)
             {
