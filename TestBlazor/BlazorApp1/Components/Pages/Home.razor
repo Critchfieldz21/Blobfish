@@ -40,8 +40,8 @@
                 <div class="upload-card">
                     <h2 class="upload-title">Upload Document</h2>
                     <p class="upload-subtitle">Select a PDF file to process</p>
-                    <div class="pdfBox">
-                        <InputFile OnChange="e => selectedFiles = e" multiple accept=".pdf" class="hidden-file-input" />
+                    <div class="pdfBox" id="pdfDropZone">
+                        <InputFile id="uploadFiles" OnChange="e => selectedFiles = e" multiple accept=".pdf" class="hidden-file-input" />
                         <div class="drop-inner">
                             @if (!isProcessing)
                             {
@@ -64,7 +64,6 @@
             </div>
                             }
                         </div>
-                        <p class="loaded-file">Loaded PDF: @pdfName</p>
                     </div>
 
                     <div class="btn-container">
@@ -208,6 +207,18 @@
             {
                 // ignore if script fails to load
             }
+        }
+
+        // Enable native drag & drop to the pdf drop zone (filters to PDFs and maps files
+        // to the hidden InputFile so existing Blazor handlers run). This is idempotent.
+        try
+        {
+            var dropModule = await JS.InvokeAsync<IJSObjectReference>("import", "/js/dropHandler.js");
+            await dropModule.InvokeVoidAsync("enableDrop", "#pdfDropZone", "uploadFiles");
+        }
+        catch
+        {
+            // ignore
         }
     }
 
