@@ -4,37 +4,7 @@ namespace BackendLibrary
 {
     internal class PdfFileNameExtractor
     {
-        public String FileName { get; set; }
-
-        private PdfFileNameExtractor()
-        {
-            // Private constructor to enforce use of static constructor methods
-        }
-
-        public static PdfFileNameExtractor InitializeWithPdfPath(String pdfPath)
-        {
-            PdfFileNameExtractor extractor = new PdfFileNameExtractor();
-            String fileName = extractor.GetFileName(pdfPath);
-            if (fileName is null)
-            {
-                throw new Exception("FileName is null");
-            }
-            extractor.FileName = fileName;
-            return extractor;
-        }
-
-        public static PdfFileNameExtractor InitializeWithFileName(String fileName)
-        {
-            PdfFileNameExtractor extractor = new PdfFileNameExtractor();
-            if (fileName is null)
-            {
-                throw new Exception("FileName is null");
-            }
-            extractor.FileName = fileName;
-            return extractor;
-        }
-
-        public String GetFileName(String pdfPath)
+        public static string GetFileName(string pdfPath)
         {
             String filePath = pdfPath;
 
@@ -51,11 +21,11 @@ namespace BackendLibrary
 
         }
 
-        public String GetFileNamePieceMark()
+        public static string GetFileNamePieceMark(string fileName)
         {
             try
             {
-                String NameOfFile = FileName;
+                String NameOfFile = fileName;
                 char[] sep = { '-', '_', ' ' };
 
                 String[] NameSplit = NameOfFile.Split(sep, StringSplitOptions.RemoveEmptyEntries);

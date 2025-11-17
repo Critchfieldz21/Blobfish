@@ -292,13 +292,6 @@
                 catch (Exception ex)
                 {
                     cancelRequested = true;
-                    modalErrorMessage = ex.Message;
-                    if (ex.InnerException is ExtractionException)
-                    {
-                        modalErrorMessage += "<br /><br />Suggestion: Double-check if this file is a valid shop ticket PDF";
-                    }
-                    await (modalError?.ShowAsync() ?? Task.CompletedTask);
-
                     pdfName = "Error";
                     isProcessing = false;
                     buttonLabel = "Process";
@@ -381,9 +374,9 @@
                     {
                         status = "Error";
                         message = ex.Message;
-                        if (ex.InnerException != null)
+                        if (ex.InnerException is ExtractionException)
                         {
-                            message += "<br/>" + ex.InnerException.Message;
+                            message += "<br /><br />Suggestion: Double-check if this file is a valid shop ticket PDF";
                         }
                     }
 
@@ -405,7 +398,6 @@
             {
                 status = "Error";
                 message = ex.Message;
-                if (ex.InnerException != null) message += "<br/>" + ex.InnerException.Message;
             }
             finally
             {
