@@ -271,6 +271,7 @@
     private string loadingMessage = "";
     private int totalFiles = 0;
     private int completedCount = 0;
+    private const int fileLimit = 50;
     private InputFileChangeEventArgs? selectedFiles;
     private bool isProcessing = false;
     private bool cancelRequested = false;
@@ -303,7 +304,7 @@
 
                 try
                 {
-                    totalFiles = selectedFiles.GetMultipleFiles(50).Count;
+                    totalFiles = selectedFiles.GetMultipleFiles(fileLimit).Count;
 
                     loadingMessage = totalFiles > 1
                     ? $"Processing batch of {totalFiles} PDFs..."
@@ -315,6 +316,8 @@
                 catch (Exception ex)
                 {
                     cancelRequested = true;
+                    modalErrorMessage = ex.Message;
+                    await (modalError?.ShowAsync() ?? Task.CompletedTask);
                     pdfName = "Error";
                     isProcessing = false;
                     buttonLabel = "Process";
@@ -348,7 +351,7 @@
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
-        var files = e.GetMultipleFiles(50);
+        var files = e.GetMultipleFiles(fileLimit);
         if (files.Count == 0) return;
 
         // capture state at batch start so we can roll back if any file errors
