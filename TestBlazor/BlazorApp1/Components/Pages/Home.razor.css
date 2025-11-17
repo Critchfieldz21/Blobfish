@@ -51,48 +51,52 @@ h1 {
   content: "";
   position: absolute;
   left: 50%;
-  transform: translateX(-30%);
+  transform: translateX(-50%);
   bottom: -12px;
   /* responsive width: a percentage with a sensible maximum */
   width: min(64%, 760px);
   height: 8px; /* thicker underline */
   border-radius: 6px;
-  background: linear-gradient(90deg, #ffffff, #66baff, #ffffff);
-  box-shadow: 0 8px 26px rgba(10, 40, 120, 0.18);
+  /* base gradient uses a white center with blue highlight; the keyframes
+     will animate `background-size` and `opacity` to create a smooth pulse */
+  background: linear-gradient(90deg, #ffffff 0%, #0a58ff 50%, #ffffff 100%);
+  background-position: center;
+  background-size: 10% 100%;
   opacity: 0;
-  animation: titleUnderline 2.2s ease-in-out infinite;
-  animation-delay: 1.6s;
+  animation: titleUnderline 2.4s cubic-bezier(.22,.9,.28,1) infinite;
+  animation-delay: 3.5s;
 }
 
 @keyframes titleUnderline {
+  /* Smooth fade + expand of the blue center using background-size */
   0% {
-    transform: translateX(-50%) scaleX(0.6);
-    opacity: 0.85;
+    transform: translateX(-50%) scaleX(0.8);
+    opacity: 0;
+    background-size: 10% 100%;
   }
-  50% {
-    transform: translateX(-50%) scaleX(1.05);
+  15% {
+    opacity: 0.6;
+    background-size: 28% 100%;
+  }
+  40% {
+    transform: translateX(-50%) scaleX(1.02);
     opacity: 1;
+    background-size: 60% 100%;
+  }
+  60% {
+    transform: translateX(-50%) scaleX(1.02);
+    opacity: 1;
+    background-size: 60% 100%;
+  }
+  85% {
+    opacity: 0.6;
+    background-size: 28% 100%;
   }
   100% {
-    transform: translateX(-50%) scaleX(0.6);
-    opacity: 0.85;
-  }
+    transform: translateX(-50%) scaleX(0.8);
+    opacity: 0;
+    background-size: 10% 100%;
 }
-
-/* Recent processing header styling */
-.processing-sidebar h3 {
-  display: inline-block; /* shrink to text width so the bar only covers the heading */
-  margin: 0 0 0.6rem 0;
-  padding: 6px 14px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: black; /* blue text for clear contrast */
-  border-radius: 8px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(255, 253, 253, 0.95) 100%
-  );
 }
 
 /* Full-viewport background for Home page (applies to the whole browser window)
@@ -194,7 +198,8 @@ h1 {
   display: grid;
   grid-template-columns: 1fr 1fr; /* use grid to guarantee equal column widths */
   gap: 28px; /* slightly larger separation */
-  align-items: center; /* center children vertically inside the grid area */
+  align-items: stretch; /* make both columns equal height */
+  height: 420px; /* fixed height so cards don't resize containers */
   min-height: 420px; /* ensure a comfortable card height */
 }
 
@@ -210,6 +215,7 @@ h1 {
   flex-direction: column;
   gap: 12px;
   height: 100%;
+  overflow: auto; /* keep internal scroll so card content doesn't expand parent */
 }
 .upload-card .upload-title {
   margin: 0 0 6px 0;
@@ -231,6 +237,8 @@ h1 {
   flex-direction: column;
   gap: 8px;
   height: 100%;
+  min-height: 0; /* allow flex child to shrink and enable scrolling */
+  overflow: auto; /* scroll internal cards instead of expanding */
 }
 
 .processing-sidebar {
