@@ -1,9 +1,4 @@
-h1 {
-  text-align: center;
-  margin-top: 2rem;
-  font-weight: 600;
-  font-size: 2rem;
-}
+
 
 .animated-word {
   opacity: 0; /* Start with text invisible */
@@ -104,17 +99,26 @@ h1 {
 */
 :global(body) {
   background: transparent !important;
+
 }
 
 /* Use a wrapper element for Home so the pseudo-element can be attached directly
    to it. This avoids relying on body-level :global selectors which can be reset.
 */
 .home-root {
-  position: relative; /* create stacking context */
+  /* Keep the root element positioned normally so the page scrollbar
+     remains available. Use flexbox to center content horizontally and
+     vertically while allowing natural page flow and scrolling when
+     content overflows the viewport. */
+  position: fixed;
   z-index: 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   min-height: 100vh;
+  padding-top: 28px; /* slight top offset so content doesn't sit flush */
 }
 
 .home-root::before {
@@ -128,7 +132,7 @@ h1 {
     #04123f 0%,
     #0b3b8c 30%,
     #0a58ff 60%,
-    #6fd7ff 100%
+    #04123f 100%
   );
   background-size: 200% 200%;
   filter: blur(10px) saturate(120%);
@@ -199,8 +203,13 @@ h1 {
   grid-template-columns: 1fr 1fr; /* use grid to guarantee equal column widths */
   gap: 28px; /* slightly larger separation */
   align-items: stretch; /* make both columns equal height */
-  height: 420px; /* fixed height so cards don't resize containers */
-  min-height: 420px; /* ensure a comfortable card height */
+  /* Set an explicit, viewport-relative height so the grid doesn't grow as cards
+     are added. Adjust the `220px` offset to match header + heading space. */
+  box-sizing: border-box;
+  min-height: 420px;
+  /* Removed forced viewport height so the grid keeps its previous natural size.
+     Let columns size naturally, but constrain the processing cards area below so
+     adding processed PDFs doesn't expand the page. */
 }
 
 /* Upload card wrapper (left) */
@@ -214,8 +223,22 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  height: 100%;
-  overflow: auto; /* keep internal scroll so card content doesn't expand parent */
+  /* Keep the upload card at its natural size (previous behavior). Allow internal
+     scrolling only if content exceeds the card so it doesn't push the layout. */
+  height: auto;
+  max-height: 520px; /* reasonable cap for very tall content */
+  overflow: auto;
+  /* Hide the scrollbar visually while keeping scroll functionality */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  box-sizing: border-box;
+}
+
+/* Hide webkit scrollbar for the upload card while still allowing scrolling */
+.upload-card::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 .upload-card .upload-title {
   margin: 0 0 6px 0;
@@ -236,9 +259,13 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  height: 100%;
-  min-height: 0; /* allow flex child to shrink and enable scrolling */
-  overflow: auto; /* scroll internal cards instead of expanding */
+  /* Let the processing column size naturally, but keep the list of cards
+     constrained so new processed PDFs create a scrollbar instead of growing
+     the whole layout. */
+  height: auto;
+  min-height: 0; /* enable proper flexbox clipping */
+  overflow: hidden; /* inner .processing-cards handles scrolling */
+  box-sizing: border-box;
 }
 
 .processing-sidebar {
@@ -401,6 +428,7 @@ section {
   align-items: center;
   justify-content: center;
   margin-top: 0;
+  min-height: 0;
 }
 
 /* heading wrapper: push the heading down and keep it above the boxes */
@@ -536,14 +564,18 @@ section > .heading-wrapper > h1 {
   font-size: 0.98rem;
 }
 
-/* If there are many cards, allow the queue to scroll without growing the page too much */
+/* Ensure the cards list fills the column and scrolls internally */
+.processing-queue > .recent-header { flex: 0 0 auto; }
 .processing-queue .processing-cards {
-  /* allow the cards area to take remaining vertical space and scroll */
-  flex: 1 1 0;
-  overflow: auto;
-  padding-right: 6px; /* room for scrollbar */
   display: grid;
   gap: 12px;
+  padding-right: 6px; /* room for scrollbar */
+  flex: 1 1 auto;
+  min-height: 0; /* allow proper flexbox clipping */
+  /* Constrain the list so it doesn't grow the column. Adjust `max-height` if
+     you want a different visible area before scrolling appears. */
+  max-height: 420px;
+  overflow: auto; /* internal scrolling */
 }
 
 /* Slim custom scrollbar to better match the screenshot */
