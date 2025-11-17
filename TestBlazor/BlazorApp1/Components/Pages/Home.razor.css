@@ -185,7 +185,51 @@ h1 {
 .home-row { width: 92%; max-width: 1100px; margin: 2rem auto; display:flex; gap:20px; align-items:flex-start; }
 
 .pdfcontainer {
-  flex: 1 1 0; padding: 1.5rem; border: 2px solid #e6eefc; border-radius: 12px; background: #fff; }
+  flex: 1 1 0;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: transparent;
+  display: grid; /* use grid to guarantee equal column widths */
+  grid-template-columns: 1fr 1fr;
+  gap: 28px; /* slightly larger separation */
+  align-items: stretch; /* make children equal height */
+  min-height: 420px; /* ensure a comfortable card height */
+}
+
+.left-col {
+  flex: 1 1 0;
+  min-width: 0; /* allow children to shrink inside flex */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Upload card wrapper (left) */
+.upload-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 18px 48px rgba(11,105,255,0.08);
+  border: 1px solid rgba(11,105,255,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+.upload-card .upload-title { margin: 0 0 6px 0; font-size: 1.85rem; font-weight: 700; }
+.upload-card .upload-subtitle { margin: 0 0 16px 0; color: #6b7280; }
+
+.processing-queue {
+  flex: 1 1 0; /* equal width with left column */
+  /* visual separation from the dropzone: subtle divider and padding */
+  padding-left: 18px;
+  margin-left: 4px;
+  border-left: 1px solid rgba(11,105,255,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+}
 
 .processing-sidebar { width: 360px; max-width: 38%; }
 
@@ -200,6 +244,56 @@ h1 {
   transition: all 0.25s ease;
   cursor: pointer;
 }
+
+/* Ensure absolute full-cover input positions relative to the pdfBox */
+.pdfBox {
+  position: relative;
+  overflow: visible;
+}
+
+/* Make the drop area larger and use an inner dashed zone */
+.pdfBox {
+  padding: 20px;
+}
+
+.pdfBox input[type="file"].hidden-file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 30;
+  cursor: pointer;
+}
+
+/* hide the native file chooser text that some browsers still render */
+.pdfBox input[type="file"]::-webkit-file-upload-button { visibility: hidden; }
+.pdfBox input[type="file"]::-ms-browse { visibility: hidden; }
+
+.drop-inner {
+  border: 2px dashed rgba(148,163,184,0.45);
+  border-radius: 12px;
+  height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,252,255,0.95));
+  padding: 18px;
+}
+
+.drop-inner svg { opacity: 0.9; color: #9ca3af; }
+.drop-title { font-weight: 700; color: #102840; font-size: 1.05rem; }
+.drop-sub { font-size: 0.9rem; color: #6b7280; }
+.loaded-file { margin-top: 10px; font-size: 0.95rem; color: #374151; }
+
+/* Processing state inside the drop zone */
+.drop-processing { display:flex; flex-direction:column; align-items:center; gap:8px; }
+.drop-processing .drop-title { font-size: 1.02rem; color: #08325f; }
+.drop-processing .drop-sub { color: #6b7280; }
+.spinner-small { width: 28px; height: 28px; border-radius: 50%; border: 4px solid rgba(203,213,225,0.85); border-top-color: #0b69ff; animation: spin 1s linear infinite; }
 
 .pdfBox.drag-over {
   background-color: #e8f0fe;
@@ -255,15 +349,16 @@ section {
 
 .btn-group {
   display: flex;
-  gap: 20px;
+  gap: 12px;
+  width: 100%;
 }
 
 .processbtn,
 .historybtn {
-  padding: 12px 28px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-radius: 8px;
+  padding: 14px 20px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -272,7 +367,9 @@ section {
 .processbtn {
   background-color: #007bff;
   color: white;
-  border:2px solid #007bff
+  border:2px solid #007bff;
+  flex: 1 1 0;
+  box-shadow: 0 8px 24px rgba(11,105,255,0.12);
 }
 
 .processbtn:hover {
@@ -283,11 +380,13 @@ section {
 .historybtn {
   background-color: #007bff;
   color: white;
-  border:2px solid #007bff
+  border:2px solid #007bff;
+  flex: 1 1 0;
+  box-shadow: 0 8px 24px rgba(11,105,255,0.12);
 }
 
 .historybtn:hover {
-background-color: white;
+  background-color: white;
   color: #007bff;
 }
 
@@ -312,12 +411,59 @@ background-color: white;
   align-items: start;
 }
 
+/* New processing queue container (appears in the main left column) */
+.processing-queue {
+  margin-top: 0;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(6, 96, 200, 0.06);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  box-shadow: 0 14px 40px rgba(11,105,255,0.08);
+  padding: 18px;
+}
+.processing-queue > .recent-header {
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #08325f;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 12px;
+  color: #6b7280;
+}
+.empty-state svg { opacity: 0.9; margin-bottom: 12px; }
+.empty-text { font-size: 0.98rem; }
+
+/* If there are many cards, allow the queue to scroll without growing the page too much */
+.processing-queue .processing-cards {
+  /* allow the cards area to take remaining vertical space and scroll */
+  flex: 1 1 0;
+  overflow: auto;
+  padding-right: 6px; /* room for scrollbar */
+  display: grid;
+  gap: 12px;
+}
+
+/* Slim custom scrollbar to better match the screenshot */
+.processing-queue .processing-cards::-webkit-scrollbar { width: 10px; }
+.processing-queue .processing-cards::-webkit-scrollbar-track { background: transparent; }
+.processing-queue .processing-cards::-webkit-scrollbar-thumb { background: rgba(11,105,255,0.14); border-radius: 999px; }
+.processing-queue .processing-cards { scrollbar-width: thin; scrollbar-color: rgba(11,105,255,0.14) transparent; }
+
 .proc-card {
   border-radius: 12px;
   padding: 14px 16px;
-  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
-  box-shadow: 0 8px 20px rgba(20, 84, 163, 0.06), inset 0 1px 0 rgba(255,255,255,0.6);
-  border: 1px solid rgba(20,84,163,0.06);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  box-shadow: 0 10px 24px rgba(11,105,255,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+  border: 1px solid rgba(11,105,255,0.06);
   transition: transform 200ms ease, box-shadow 200ms ease;
 }
 
@@ -398,6 +544,9 @@ background-color: white;
 
 @media (max-width: 900px) {
   .home-row { flex-direction: column; padding: 1rem; }
+  .pdfcontainer { display: block; }
+  .left-col { width: 100%; }
+  .processing-queue { width: 100%; margin-top: 1rem; padding-left: 0; border-left: none; margin-left: 0; }
   .processing-sidebar { width: 100%; }
   .processing-cards { grid-template-columns: 1fr; margin-top: 1rem; }
 }
