@@ -364,7 +364,7 @@
 
         // capture state at batch start so we can roll back if any file errors
         var initialProcessingCount = processingCards.Count;
-        var initialCurrentTickets = sTService.CurrentTicket?.Count ?? 0;
+        int initialCurrentTickets = tempList.Count;
 
         bool abortBatch = false;
         foreach (var file in files)
@@ -385,7 +385,7 @@
                     {
                         isProcessing = false;
                         buttonLabel = "Process";
-                        sTService.ClearCurrentTickets();
+                        tempList.Clear();
                         pdfName = "Process cancelled.";
                         completedCount = 0;
                         totalFiles = 0;
@@ -402,7 +402,7 @@
                     byte[] pdfBytes = memoryStream.ToArray();
                     try
                     {
-                        sTService.AddTicket(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"), false);
+                        tempList.Add(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"));
                     }
                     catch (Exception ex)
                     {
@@ -473,13 +473,12 @@
                     }
 
                     // remove any tickets that were added to CurrentTicket during this batch
-                    if (sTService.CurrentTicket != null)
+                    if (tempList != null)
                     {
-                        var addedTickets = sTService.CurrentTicket.Count - initialCurrentTickets;
+                        var addedTickets = tempList.Count - initialCurrentTickets;
                         if (addedTickets > 0)
                         {
-                            sTService.CurrentTicket.RemoveRange(initialCurrentTickets, addedTickets);
-                            sTService.Size = sTService.CurrentTicket.Count;
+                            tempList.Clear();
                         }
                     }
 
