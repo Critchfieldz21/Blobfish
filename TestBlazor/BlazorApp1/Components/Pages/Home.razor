@@ -71,6 +71,8 @@
     private Modal? modalError;
     private string modalErrorMessage = "An error occurred during PDF processing.";
 
+    private List<ShopTicket> tempList = new List<ShopTicket>();
+
     private void GoToHistory()
     {
         Navigation.NavigateTo("/history");
@@ -124,6 +126,7 @@
 
                 if (!cancelRequested)
                 {
+                    sTService.SetCurrentTicket(tempList);
                     Navigation.NavigateTo("/processing");
                 }
             }
@@ -174,7 +177,7 @@
             }
 
             byte[] pdfBytes = memoryStream.ToArray();
-            sTService.AddTicket(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"), false);
+            tempList.Add(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"));
 
             completedCount++;
             pdfName = file.Name; // shows the last processed file

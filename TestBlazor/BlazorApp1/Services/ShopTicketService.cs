@@ -7,7 +7,7 @@ namespace BackendLibrary
     {
     
         public int Size { get; set; } = 0;
-        public List<ShopTicket?> CurrentTicket = new();
+        public List<ShopTicket?> CurrentTicket { get; set; } = new();
 
 
         public List<ShopTicket?> History { get; set; } = new();
@@ -21,9 +21,10 @@ namespace BackendLibrary
         public void AddTicket(ShopTicket ticket, bool isDuplicate)
         {
             dupe = isDuplicate;
-            CurrentTicket.Add(ticket);  
+            CurrentTicket.Add(ticket);
             Size++;
         }
+        
 
         public ShopTicket GetTicket(int index)
         {
@@ -40,6 +41,12 @@ namespace BackendLibrary
         public ShopTicket GetHistoryTicket(int index)
         {
             return History[index - 1];
+        }
+
+        public void SetCurrentTicket(List<ShopTicket?> tickets)
+        {
+            Size = tickets.Count;
+            CurrentTicket = tickets;
         }
 
         public int HistorySize()
