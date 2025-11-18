@@ -1,28 +1,94 @@
-
-
 .animated-word {
   opacity: 0; /* Start with text invisible */
   transform: translateY(20px); /* Start slightly below its final position */
   animation: revealText 1s forwards; /* Apply the animation */
 }
 
-.animated-word:nth-child(1)  { color: #ffffff; animation-delay: 0.2s; }
-.animated-word:nth-child(2)  { color: #f7fbff; animation-delay: 0.4s; }
-.animated-word:nth-child(3)  { color: #eff7ff; animation-delay: 0.6s; }
-.animated-word:nth-child(4)  { color: #e6f3ff; animation-delay: 0.8s; }
-.animated-word:nth-child(5)  { color: #cfeaff; animation-delay: 1s;   }
-.animated-word:nth-child(6)  { color: #b8e1ff; animation-delay: 1.2s; }
-.animated-word:nth-child(7)  { color: #99d1ff; animation-delay: 1.4s; }
-.animated-word:nth-child(8)  { color: #66baff; animation-delay: 1.6s; }
-.animated-word:nth-child(9)  { color: #66baff; animation-delay: 1.8s; }
-.animated-word:nth-child(10) { color: #66baff; animation-delay: 2s;   }
-.animated-word:nth-child(11) { color: #99d1ff; animation-delay: 2.2s; }
-.animated-word:nth-child(12) { color: #b8e1ff; animation-delay: 2.4s; }
-.animated-word:nth-child(13) { color: #cfeaff; animation-delay: 2.6s; }
-.animated-word:nth-child(14) { color: #e6f3ff; animation-delay: 2.8s; }
-.animated-word:nth-child(15) { color: #eff7ff; animation-delay: 3s;   }
-.animated-word:nth-child(16) { color: #f7fbff; animation-delay: 3.2s; }
-.animated-word:nth-child(17) { color: #ffffff; animation-delay: 3.4s; }
+.animated-word:nth-child(1) {
+  color: #ffffff;
+  animation-delay: 0.2s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(2) {
+  color: #f7fbff;
+  animation-delay: 0.4s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(3) {
+  color: #eff7ff;
+  animation-delay: 0.6s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(4) {
+  color: #e6f3ff;
+  animation-delay: 0.8s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(5) {
+  color: #cfeaff;
+  animation-delay: 1s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(6) {
+  color: #b8e1ff;
+  animation-delay: 1.2s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(7) {
+  color: #99d1ff;
+  animation-delay: 1.4s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(8) {
+  color: #66baff;
+  animation-delay: 1.6s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(9) {
+  color: #66baff;
+  animation-delay: 1.8s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(10) {
+  color: #66baff;
+  animation-delay: 2s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(11) {
+  color: #99d1ff;
+  animation-delay: 2.2s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(12) {
+  color: #b8e1ff;
+  animation-delay: 2.4s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(13) {
+  color: #cfeaff;
+  animation-delay: 2.6s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(14) {
+  color: #e6f3ff;
+  animation-delay: 2.8s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(15) {
+  color: #eff7ff;
+  animation-delay: 3s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(16) {
+  color: #f7fbff;
+  animation-delay: 3.2s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(17) {
+  color: #ffffff;
+  animation-delay: 3.4s;
+  font-size: 4rem;
+}
 
 /* Keyframes for the animation */
 @keyframes revealText {
@@ -33,7 +99,7 @@
 }
 
 .home-root h1 {
-  font-size: 2.1rem;
+  font-size: 2.5rem;
   font-weight: 700;
   margin-top: 0.6rem;
   margin-bottom: 1.25rem;
@@ -58,7 +124,7 @@
   background-position: center;
   background-size: 10% 100%;
   opacity: 0;
-  animation: titleUnderline 2.4s cubic-bezier(.22,.9,.28,1) infinite;
+  animation: titleUnderline 2.4s cubic-bezier(0.22, 0.9, 0.28, 1) infinite;
   animation-delay: 3.5s;
 }
 
@@ -91,7 +157,7 @@
     transform: translateX(-50%) scaleX(0.8);
     opacity: 0;
     background-size: 10% 100%;
-}
+  }
 }
 
 /* Full-viewport background for Home page (applies to the whole browser window)
@@ -99,7 +165,6 @@
 */
 :global(body) {
   background: transparent !important;
-
 }
 
 /* Use a wrapper element for Home so the pseudo-element can be attached directly
@@ -187,11 +252,11 @@
 }
 
 .home-row {
-  width: 92%;
-  max-width: 1100px;
+  width: 95%;
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
-  gap: 20px;
+  gap: 28px;
   align-items: center;
   justify-content: center;
 }
@@ -200,24 +265,40 @@
   padding: 0rem;
   border-radius: 12px;
   display: grid;
-  grid-template-columns: 1fr 1fr; /* use grid to guarantee equal column widths */
-  gap: 28px; /* slightly larger separation */
+  /* Use fixed-width columns so the upload + processing boxes keep a static,
+    larger size before processing. `minmax` ensures they won't shrink below
+    a usable width while allowing slight expansion. */
+  grid-template-columns: repeat(2, minmax(480px, 560px));
+  gap: 32px; /* slightly larger separation */
   align-items: stretch; /* make both columns equal height */
-  /* Set an explicit, viewport-relative height so the grid doesn't grow as cards
-     are added. Adjust the `220px` offset to match header + heading space. */
   box-sizing: border-box;
   min-height: 420px;
-  /* Removed forced viewport height so the grid keeps its previous natural size.
-     Let columns size naturally, but constrain the processing cards area below so
-     adding processed PDFs doesn't expand the page. */
+}
+
+/* Responsive fallback: switch to a single-column flow on smaller viewports */
+@media (max-width: 1100px) {
+  .pdfcontainer {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .upload-card,
+  .processing-queue {
+    width: 100% !important;
+    max-width: 100% !important;
+    /* on smaller screens allow the boxes to size naturally again */
+    height: auto !important;
+    max-height: none !important;
+  }
 }
 
 /* Upload card wrapper (left) */
 .upload-card {
-  width: 100%;
+  /* Use a fixed width to match the grid columns and keep the card size static */
+  width: 540px;
+  max-width: 100%;
   background: #ffffff;
   border-radius: 14px;
-  padding: 22px;
+  padding: 28px;
   box-shadow: 0 18px 48px rgba(11, 105, 255, 0.08);
   border: 1px solid rgba(11, 105, 255, 0.06);
   display: flex;
@@ -225,8 +306,10 @@
   gap: 12px;
   /* Keep the upload card at its natural size (previous behavior). Allow internal
      scrolling only if content exceeds the card so it doesn't push the layout. */
-  height: auto;
-  max-height: 520px; /* reasonable cap for very tall content */
+  /* Fixed height so the upload box stays static while content scrolls */
+  height: 580px;
+  min-height: 380px;
+  max-height: 580px; /* fixed visible area */
   overflow: auto;
   /* Hide the scrollbar visually while keeping scroll functionality */
   -ms-overflow-style: none; /* IE and Edge */
@@ -251,7 +334,11 @@
 }
 
 .processing-queue {
-  flex: 1 1 0; /* equal width with left column */
+  /* Fix the processing column width to match the upload card so layout
+    remains static before/while processing */
+  flex: 0 0 auto;
+  width: 540px;
+  max-width: 100%;
   /* visual separation from the dropzone: subtle divider and padding */
   padding-left: 18px;
   margin-left: 4px;
@@ -260,17 +347,19 @@
   flex-direction: column;
   gap: 8px;
   /* Let the processing column size naturally, but keep the list of cards
-     constrained so new processed PDFs create a scrollbar instead of growing
-     the whole layout. */
-  height: auto;
+    constrained so new processed PDFs create a scrollbar instead of growing
+    the whole layout. */
+  /* Fixed height to prevent the processing column from expanding when new
+     cards are added. The inner .processing-cards will scroll. */
+  height: 580px;
   min-height: 0; /* enable proper flexbox clipping */
   overflow: hidden; /* inner .processing-cards handles scrolling */
   box-sizing: border-box;
 }
 
 .processing-sidebar {
-  width: 360px;
-  max-width: 38%;
+  width: 420px;
+  max-width: 42%;
 }
 
 .pdfBox {
@@ -318,7 +407,7 @@
 .drop-inner {
   border: 2px dashed rgba(148, 163, 184, 0.45);
   border-radius: 12px;
-  height: 220px;
+  height: 260px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -444,7 +533,7 @@ section > .heading-wrapper > h1 {
   max-width: 1100px;
   margin: 0;
   /* larger, prominent title */
-  font-size: 3.6rem;
+  font-size: 2.5rem;
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: 0.6px;
@@ -565,16 +654,19 @@ section > .heading-wrapper > h1 {
 }
 
 /* Ensure the cards list fills the column and scrolls internally */
-.processing-queue > .recent-header { flex: 0 0 auto; }
+.processing-queue > .recent-header {
+  flex: 0 0 auto;
+}
 .processing-queue .processing-cards {
   display: grid;
   gap: 12px;
   padding-right: 6px; /* room for scrollbar */
   flex: 1 1 auto;
   min-height: 0; /* allow proper flexbox clipping */
-  /* Constrain the list so it doesn't grow the column. Adjust `max-height` if
-     you want a different visible area before scrolling appears. */
-  max-height: 420px;
+  /* Make the cards list fill the remaining vertical space inside the
+      fixed-height processing column and scroll internally. Subtract an
+      estimated header height so the list doesn't overlap the header. */
+  max-height: calc(100% - 72px);
   overflow: auto; /* internal scrolling */
 }
 
@@ -595,8 +687,8 @@ section > .heading-wrapper > h1 {
 }
 
 .proc-card {
-  border-radius: 12px;
-  padding: 14px 16px;
+  border-radius: 14px;
+  padding: 18px 20px;
   background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
   box-shadow: 0 10px 24px rgba(11, 105, 255, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
