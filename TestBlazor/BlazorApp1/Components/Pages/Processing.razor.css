@@ -535,15 +535,22 @@
 
 
 .titleName {
+  /* Make gradient text reliable inside the Processing panel. Use a more
+     specific selector so this rule overrides any global `.home-root h1` rules.
+     `display:inline-block` is required in some browsers for background-clip:text
+     to render correctly. */
+  display: center;
   text-align: center;
   margin-top: 2rem;
   margin-bottom: 2rem;
   font-weight: 700;
   font-size: 2.5rem;
   background: linear-gradient(135deg, #183973 0%, #1454a3 50%, #4a90e2 100%);
-  -webkit-background-clip: text; 
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent !important;
+  /* fallback color if clipping not supported */
   color: transparent;
-  -webkit-text-fill-color: transparent; 
   letter-spacing: -0.02em;
 }
 
