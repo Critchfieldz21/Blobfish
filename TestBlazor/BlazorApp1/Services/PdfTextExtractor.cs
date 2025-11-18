@@ -7,19 +7,18 @@ namespace BackendLibrary
 {
     internal class PdfTextExtractor
     {
-        private PdfDocument pdf;
-        private List<Page> pages;
-
-        public PdfTextExtractor(String pdfPath)
+        public static (string[] pageNames,
+            string ProjectNumber,
+            string ProjectName,
+            string FileContentPieceMark,
+            string[]? ControlNumbers,
+            int PiecesRequired,
+            decimal Weight,
+            string DesignNumber)
+            GetExtractedText(byte[] pdfBytes)
         {
-            pdf = PdfDocument.Open(File.OpenRead(pdfPath));
-            pages = pdf.GetPages().ToList();
-        }
-
-        public PdfTextExtractor(byte[] pdfBytes)
-        {
-            pdf = PdfDocument.Open(pdfBytes);
-            pages = pdf.GetPages().ToList();
+            PdfDocument pdf = PdfDocument.Open(pdfBytes);
+            List<Page> pages = pdf.GetPages().ToList();
 
             //// Uncomment to debug word extraction
             //foreach (Page page in pages)
@@ -36,18 +35,7 @@ namespace BackendLibrary
             //        Console.WriteLine($"Annotation: {annotation.Content}");
             //    }
             //}
-        }
 
-        public (string[] pageNames,
-            string ProjectNumber,
-            string ProjectName,
-            string FileContentPieceMark,
-            string[]? ControlNumbers,
-            int PiecesRequired,
-            decimal Weight,
-            string DesignNumber)
-            GetExtractedText()
-        {
             string[] pageNames = null;
             string projectNumber = null;
             string projectName = null;
@@ -64,42 +52,42 @@ namespace BackendLibrary
             Parallel.Invoke(
                 () =>
                 {
-                    try { pageNames = ExtractPageNames(); }
+                    try { pageNames = ExtractPageNames(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { projectNumber = ExtractProjectNumber(); }
+                    try { projectNumber = ExtractProjectNumber(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { projectName = ExtractProjectName(); }
+                    try { projectName = ExtractProjectName(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { fileContentPieceMark = ExtractFileContentPieceMark(); }
+                    try { fileContentPieceMark = ExtractFileContentPieceMark(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { controlNumbers = ExtractControlNumbers(); }
+                    try { controlNumbers = ExtractControlNumbers(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { piecesRequired = ExtractPiecesRequired(); }
+                    try { piecesRequired = ExtractPiecesRequired(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { weight = ExtractWeight(); }
+                    try { weight = ExtractWeight(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { designNumber = ExtractDesignNumber(); }
+                    try { designNumber = ExtractDesignNumber(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 }
             );
@@ -112,7 +100,7 @@ namespace BackendLibrary
             return (pageNames, projectNumber, projectName, fileContentPieceMark, controlNumbers, piecesRequired, weight, designNumber);
         }
 
-        public string[] ExtractPageNames()
+        public static string[] ExtractPageNames(List<Page> pages)
         {
             List<String> resultList = new List<String>();
             List<String> annotationStrings = new List<String>();
@@ -161,7 +149,7 @@ namespace BackendLibrary
             return resultList.ToArray();
         }
 
-        private string ExtractPageNameNoAnnotations(Page page)
+        private static string ExtractPageNameNoAnnotations(Page page)
         {
             IEnumerable<Word> words = page.GetWords();
             List<Word> formWords = (from Word word in words
@@ -222,7 +210,7 @@ namespace BackendLibrary
             return "UnknownPage";
             //throw new ExtractionException($"Failed to get PageNames - Page {page.Number} has no valid view label");
         }
-        public string ExtractProjectNumber()
+        public static string ExtractProjectNumber(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -252,7 +240,7 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get ProjectNumber");
         }
 
-        public string ExtractProjectName()
+        public static string ExtractProjectName(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -285,7 +273,7 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get ProjectName");
         }
 
-        public string ExtractFileContentPieceMark()
+        public static string ExtractFileContentPieceMark(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -314,7 +302,7 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get FileContentPieceMark");
         }
 
-        public string[]? ExtractControlNumbers()
+        public static string[]? ExtractControlNumbers(List<Page> pages)
         {
             List<Word> controlnumWords = new List<Word>();
             List<String> controlnumstrList = new List<String>();
@@ -394,7 +382,7 @@ namespace BackendLibrary
             return null;
         }
 
-        public int ExtractPiecesRequired()
+        public static int ExtractPiecesRequired(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -423,7 +411,7 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get PiecesRequired");
         }
 
-        public decimal ExtractWeight()
+        public static decimal ExtractWeight(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -444,7 +432,7 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get Weight");
         }
 
-        public string ExtractDesignNumber()
+        public static string ExtractDesignNumber(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -466,7 +454,7 @@ namespace BackendLibrary
         }
 
         // Finds one word among IEnumerable<Word> words relative to an anchorWord given specified bounds
-        public Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
+        public static Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
         {
             return (from Word word in words
                     where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
@@ -477,7 +465,7 @@ namespace BackendLibrary
         }
 
         // Finds all words among IEnumerable<Word> words relative to an anchorWord given specified bounds
-        public List<Word> FindWordsNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
+        public static List<Word> FindWordsNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
         {
             return (from Word word in words
                     where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&

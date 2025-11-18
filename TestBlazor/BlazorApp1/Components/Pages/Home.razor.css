@@ -1,34 +1,474 @@
-h1 {
-  text-align: center;
-  margin-top: 2rem;
-  color: #050505;
-  font-weight: 600;
-  font-size: 2rem;
+.animated-word {
+  opacity: 0; /* Start with text invisible */
+  transform: translateY(20px); /* Start slightly below its final position */
+  animation: revealText 1s forwards; /* Apply the animation */
+}
+
+.animated-word:nth-child(1) {
+  color: #ffffff;
+  animation-delay: 0.2s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(2) {
+  color: #f7fbff;
+  animation-delay: 0.4s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(3) {
+  color: #eff7ff;
+  animation-delay: 0.6s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(4) {
+  color: #e6f3ff;
+  animation-delay: 0.8s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(5) {
+  color: #cfeaff;
+  animation-delay: 1s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(6) {
+  color: #b8e1ff;
+  animation-delay: 1.2s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(7) {
+  color: #99d1ff;
+  animation-delay: 1.4s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(8) {
+  color: #66baff;
+  animation-delay: 1.6s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(9) {
+  color: #66baff;
+  animation-delay: 1.8s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(10) {
+  color: #66baff;
+  animation-delay: 2s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(11) {
+  color: #99d1ff;
+  animation-delay: 2.2s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(12) {
+  color: #b8e1ff;
+  animation-delay: 2.4s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(13) {
+  color: #cfeaff;
+  animation-delay: 2.6s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(14) {
+  color: #e6f3ff;
+  animation-delay: 2.8s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(15) {
+  color: #eff7ff;
+  animation-delay: 3s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(16) {
+  color: #f7fbff;
+  animation-delay: 3.2s;
+  font-size: 4rem;
+}
+.animated-word:nth-child(17) {
+  color: #ffffff;
+  animation-delay: 3.4s;
+  font-size: 4rem;
+}
+
+/* Keyframes for the animation */
+@keyframes revealText {
+  to {
+    opacity: 1; /* Fade in */
+    transform: translateY(0); /* Move to final position */
+  }
+}
+
+.home-root h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-top: 0.6rem;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.6px;
+  -webkit-background-clip: text;
+  position: relative;
+}
+
+/* hide the per-heading underline — we'll render the animated bar between
+   the heading and the content boxes using the .heading-wrapper pseudo. */
+.home-root h1::after { display: none; }
+
+/* place the animated bar between the heading and the boxes */
+.heading-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+  position: relative; /* allow pseudo-element positioning */
+  /* gap between the heading baseline and the animated bar */
+  --heading-bar-gap: 20px;
+}
+
+.heading-wrapper::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(100% + var(--heading-bar-gap));
+  width: min(100%, 760px);
+  height: 6px;
+  border-radius: 6px;
+  background: linear-gradient(90deg,
+    #ffffff 0%,
+    #f7fbff 6.25%,
+    #eff7ff 12.5%,
+    #e6f3ff 18.75%,
+    #cfeaff 25%,
+    #b8e1ff 31.25%,
+    #99d1ff 37.5%,
+    #66baff 43.75%,
+    #66baff 50%,
+    #66baff 56.25%,
+    #99d1ff 62.5%,
+    #b8e1ff 68.75%,
+    #cfeaff 75%,
+    #e6f3ff 81.25%,
+    #eff7ff 87.5%,
+    #f7fbff 93.75%,
+    #ffffff 100%
+  );
+  background-size: 100% 100%;
+  transform-origin: left;
+  animation: slideIn 3.8s ease-out forwards;
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translateX(-50%) scaleX(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(-50%) scaleX(1);
+    opacity: 1;
+  }
+}
+
+
+/* Full-viewport background for Home page (applies to the whole browser window)
+   Uses :global to affect the <body> so it covers the entire page regardless of layout.
+*/
+:global(body) {
+  background: transparent !important;
+}
+
+/* Use a wrapper element for Home so the pseudo-element can be attached directly
+   to it. This avoids relying on body-level :global selectors which can be reset.
+*/
+.home-root {
+  /* Keep the root element positioned normally so the page scrollbar
+     remains available. Use flexbox to center content horizontally and
+     vertically while allowing natural page flow and scrolling when
+     content overflows the viewport. */
+  position: fixed;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  padding-top: 28px; /* slight top offset so content doesn't sit flush */
+}
+
+.home-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1; /* place behind page content */
+  pointer-events: none;
+  background: linear-gradient(
+    45deg,
+    #04123f 0%,
+    #0b3b8c 30%,
+    #0a58ff 60%,
+    #04123f 100%
+  );
+  background-size: 200% 200%;
+  filter: blur(10px) saturate(120%);
+  transform: translateZ(0);
+  animation: homeBgMove 14s ease-in-out infinite;
+}
+
+/* Ensure the main Home title is always readable above the animated background.
+   This provides a solid high-contrast fallback and a subtle shadow for legibility.
+*/
+.home-root h1 {
+  color: #ffffff !important;
+  background: none !important;
+  -webkit-text-fill-color: unset !important;
+  text-shadow: 0 6px 20px rgba(2, 10, 30, 0.65),
+    0 2px 8px rgba(111, 215, 255, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-title span {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+  .animated-title {
+    animation: none;
+  }
+}
+
+/* Ensure main content stacks above the decorative background */
+:global(.content) {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes homeBgMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(body)::before {
+    animation: none;
+  }
+}
+
+.home-row {
+  width: 95%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  justify-content: center;
 }
 
 .pdfcontainer {
-  width: 80%;
-  max-width: 700px;
-  margin: 2rem auto;
-  padding: 3rem 1.5rem;
-  border: 2px solid black;
+  padding: 0rem;
   border-radius: 12px;
-  background-color: white;
-  text-align: center;
-  transition: all 0.25s ease;
+  display: grid;
+  /* Use fixed-width columns so the upload + processing boxes keep a static,
+    larger size before processing. `minmax` ensures they won't shrink below
+    a usable width while allowing slight expansion. */
+  grid-template-columns: repeat(2, minmax(480px, 560px));
+  gap: 32px; /* slightly larger separation */
+  align-items: stretch; /* make both columns equal height */
+  box-sizing: border-box;
+  min-height: 420px;
+}
+
+/* Responsive fallback: switch to a single-column flow on smaller viewports */
+@media (max-width: 1100px) {
+  .pdfcontainer {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .upload-card,
+  .processing-queue {
+    width: 100% !important;
+    max-width: 100% !important;
+    /* on smaller screens allow the boxes to size naturally again */
+    height: auto !important;
+    max-height: none !important;
+  }
+}
+
+/* Upload card wrapper (left) */
+.upload-card {
+  /* Use a fixed width to match the grid columns and keep the card size static */
+  width: 540px;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 18px 48px rgba(11, 105, 255, 0.08);
+  border: 1px solid rgba(11, 105, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* Keep the upload card at its natural size (previous behavior). Allow internal
+     scrolling only if content exceeds the card so it doesn't push the layout. */
+  /* Fixed height so the upload box stays static while content scrolls */
+  height: 580px;
+  min-height: 380px;
+  max-height: 580px; /* fixed visible area */
+  overflow: auto;
+  /* Hide the scrollbar visually while keeping scroll functionality */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  box-sizing: border-box;
+}
+
+/* Hide webkit scrollbar for the upload card while still allowing scrolling */
+.upload-card::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.upload-card .upload-title {
+  margin: 0 0 6px 0;
+  font-size: 1.85rem;
+  font-weight: 700;
+}
+.upload-card .upload-subtitle {
+  margin: 0 0 16px 0;
+  color: #6b7280;
+}
+
+.processing-queue {
+  /* Fix the processing column width to match the upload card so layout
+    remains static before/while processing */
+  flex: 0 0 auto;
+  width: 540px;
+  max-width: 100%;
+  /* visual separation from the dropzone: subtle divider and padding */
+  padding-left: 18px;
+  margin-left: 4px;
+  border-left: 1px solid rgba(11, 105, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Let the processing column size naturally, but keep the list of cards
+    constrained so new processed PDFs create a scrollbar instead of growing
+    the whole layout. */
+  /* Fixed height to prevent the processing column from expanding when new
+     cards are added. The inner .processing-cards will scroll. */
+  height: 580px;
+  min-height: 0; /* enable proper flexbox clipping */
+  overflow: hidden; /* inner .processing-cards handles scrolling */
+  box-sizing: border-box;
+}
+
+.processing-sidebar {
+  width: 420px;
+  max-width: 42%;
 }
 
 .pdfBox {
-  width: 80%;
-  max-width: 700px;
-  margin: 2rem auto;
-  padding: 3rem 1.5rem;
-  border: 2px solid black;
-  border-radius: 12px;
-  background-color: white;
-  text-align: center;
+  width: 100%;
+  margin: 0 0 1rem 0;
+  padding: 1.6rem;
+  border: 2px solid #e6eefc;
+  border-radius: 10px;
+  background-color: #fbfdff;
+  text-align: left;
   transition: all 0.25s ease;
   cursor: pointer;
+}
+
+/* Ensure absolute full-cover input positions relative to the pdfBox */
+.pdfBox {
+  position: relative;
+  overflow: visible;
+}
+
+/* Make the drop area larger and use an inner dashed zone */
+.pdfBox {
+  padding: 20px;
+}
+
+.pdfBox input[type="file"].hidden-file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 30;
+  cursor: pointer;
+}
+
+/* hide the native file chooser text that some browsers still render */
+.pdfBox input[type="file"]::-webkit-file-upload-button {
+  visibility: hidden;
+}
+.pdfBox input[type="file"]::-ms-browse {
+  visibility: hidden;
+}
+
+.drop-inner {
+  border: 2px dashed rgba(148, 163, 184, 0.45);
+  border-radius: 12px;
+  height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(250, 252, 255, 0.95)
+  );
+  padding: 18px;
+}
+
+.drop-inner svg {
+  opacity: 0.9;
+  color: #9ca3af;
+}
+.drop-title {
+  font-weight: 700;
+  color: #102840;
+  font-size: 1.05rem;
+}
+.drop-sub {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+.loaded-file {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+/* Processing state inside the drop zone */
+.drop-processing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.drop-processing .drop-title {
+  font-size: 1.02rem;
+  color: #08325f;
+}
+.drop-processing .drop-sub {
+  color: #6b7280;
+}
+.spinner-small {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 4px solid rgba(203, 213, 225, 0.85);
+  border-top-color: #0b69ff;
+  animation: spin 1s linear infinite;
 }
 
 .pdfBox.drag-over {
@@ -69,14 +509,93 @@ h1 {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 section {
-  margin-top: 3rem;
+  /* make the section take remaining vertical space and center its child row */
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+  min-height: 0;
 }
 
+/* heading wrapper: push the heading down and keep it above the boxes */
+.heading-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+section > .heading-wrapper > h1 {
+  width: 92%;
+  max-width: 1100px;
+  margin: 0;
+  /* larger, prominent title */
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: 0.6px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  section > .heading-wrapper > h1 {
+    font-size: 2.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  section > .heading-wrapper > h1 {
+    font-size: 2rem;
+  }
+}
+
+/* Logo section: a small wrapper for the decorative site logo so CSS can target it */
+.logo-section {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  margin-bottom: 1rem; /* tuck the logo up a bit above the heading */
+  pointer-events: none; /* decorative only */
+}
+
+.site-logo {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeSlideUp 1.2s ease-out forwards;
+}
+
+@keyframes fadeSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes subtlePulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.95;
+    }
+    50% {
+        transform: scale(1.02);
+        opacity: 1;
+    }
+}
 .btn-container {
   display: flex;
   justify-content: center;
@@ -85,15 +604,16 @@ section {
 
 .btn-group {
   display: flex;
-  gap: 20px;
+  gap: 12px;
+  width: 100%;
 }
 
 .processbtn,
 .historybtn {
-  padding: 12px 28px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-radius: 8px;
+  padding: 14px 20px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -102,24 +622,27 @@ section {
 .processbtn {
   background-color: #007bff;
   color: white;
-  border:2px solid #007bff
+  border: 2px solid #007bff;
+  flex: 1 1 0;
+  box-shadow: 0 8px 24px rgba(11, 105, 255, 0.12);
 }
 
 .processbtn:hover {
   background-color: white;
   color: #007bff;
- 
 }
 
 .historybtn {
-  background-color: transparent;
-  color: #007bff;
+  background-color: #007bff;
+  color: white;
   border: 2px solid #007bff;
+  flex: 1 1 0;
+  box-shadow: 0 8px 24px rgba(11, 105, 255, 0.12);
 }
 
 .historybtn:hover {
-  background-color: #007bff;
-  color: white;
+  background-color: white;
+  color: #007bff;
 }
 
 .cancelbtn {
@@ -128,23 +651,232 @@ section {
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
-  transition: background-color 0.3s ease;
 }
 
-.cancelbtn:hover {
-  background-color: #a71d2a;
+.processing-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 0;
+  align-items: start;
 }
 
-.dropdown-menu {
-    position: absolute;
-    top: 100%; 
-    left: 50%;
-    display: none;
-    z-index: 1000;
+/* New processing queue container (appears in the main left column) */
+.processing-queue {
+  margin-top: 0;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(6, 96, 200, 0.06);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  box-shadow: 0 14px 40px rgba(11, 105, 255, 0.08);
+  padding: 18px;
+}
+.processing-queue > .recent-header {
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #08325f;
 }
 
-.dropdown-menu.show {
-    display: block;
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 12px;
+  color: #6b7280;
+}
+.empty-state svg {
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+.empty-text {
+  font-size: 0.98rem;
+}
+
+/* Ensure the cards list fills the column and scrolls internally */
+.processing-queue > .recent-header {
+  flex: 0 0 auto;
+}
+.processing-queue .processing-cards {
+  display: grid;
+  gap: 12px;
+  padding-right: 6px; /* room for scrollbar */
+  flex: 1 1 auto;
+  min-height: 0; /* allow proper flexbox clipping */
+  /* Make the cards list fill the remaining vertical space inside the
+      fixed-height processing column and scroll internally. Subtract an
+      estimated header height so the list doesn't overlap the header. */
+  max-height: calc(100% - 72px);
+  overflow: auto; /* internal scrolling */
+}
+
+/* Slim custom scrollbar to better match the screenshot */
+.processing-queue .processing-cards::-webkit-scrollbar {
+  width: 10px;
+}
+.processing-queue .processing-cards::-webkit-scrollbar-track {
+  background: transparent;
+}
+.processing-queue .processing-cards::-webkit-scrollbar-thumb {
+  background: rgba(11, 105, 255, 0.14);
+  border-radius: 999px;
+}
+.processing-queue .processing-cards {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(11, 105, 255, 0.14) transparent;
+}
+
+.proc-card {
+  border-radius: 14px;
+  padding: 18px 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  box-shadow: 0 10px 24px rgba(11, 105, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(11, 105, 255, 0.06);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.proc-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(20, 84, 163, 0.12);
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.proc-card {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 420ms cubic-bezier(0.22, 0.9, 0.28, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+.proc-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.proc-card-header strong {
+  font-size: 1rem;
+  color: #102840;
+  display: inline-block;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.status.done {
+  color: #055a2b;
+  background: rgba(6, 160, 74, 0.08);
+  border: 1px solid rgba(6, 160, 74, 0.12);
+}
+.status.error {
+  color: #7a1220;
+  background: rgba(217, 51, 51, 0.06);
+  border: 1px solid rgba(217, 51, 51, 0.12);
+}
+.status.cancelled {
+  color: #663d00;
+  background: rgba(255, 140, 0, 0.06);
+  border: 1px solid rgba(255, 140, 0, 0.12);
+}
+
+.proc-card-body {
+  font-size: 0.95rem;
+  color: #374151;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.proc-card-body .meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+.proc-card-body .meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+.proc-card-body .meta .duration {
+  font-weight: 700;
+  color: #102840;
+  background: rgba(6, 160, 74, 0.06);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.proc-card-body .meta .ts {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+.proc-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.btn-small {
+  background: #0b69ff;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.btn-small:hover {
+  background: #0958d1;
+  transform: translateY(-1px);
+}
+.btn-small[disabled],
+.btn-small:disabled {
+  background: #e6eefc;
+  color: #7b8aa7;
+  cursor: not-allowed;
+  transform: none;
+}
+.proc-error {
+  color: #d63333;
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 700px) {
+  .processing-cards {
+    grid-template-columns: 1fr;
+    width: 95%;
+  }
+  .proc-card-header strong {
+    max-width: 60%;
+  }
 }
 
 @media (max-width: 600px) {
@@ -157,3 +889,33 @@ section {
     flex-direction: column;
   }
 }
+
+@media (max-width: 900px) {
+  .home-row {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  .pdfcontainer {
+    display: block;
+  }
+  .left-col {
+    width: 100%;
+  }
+  .processing-queue {
+    width: 100%;
+    margin-top: 1rem;
+    padding-left: 0;
+    border-left: none;
+    margin-left: 0;
+  }
+  .processing-sidebar {
+    width: 100%;
+  }
+  .processing-cards {
+    grid-template-columns: 1fr;
+    margin-top: 1rem;
+  }
+}
+
+/* Note: animations always play; any JS that toggles `no-anim` will no longer
+   prevent the heading or underline animations from running. */

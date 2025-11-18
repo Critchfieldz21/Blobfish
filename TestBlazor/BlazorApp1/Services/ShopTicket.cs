@@ -34,16 +34,12 @@ namespace BackendLibrary
             try
             {
                 PdfBytes = File.ReadAllBytes(pdfPath);
+                FileName = PdfFileNameExtractor.GetFileName(pdfPath);
 
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of the input file path
                 PdfDocument pdf = PdfReader.Open(pdfPath);
 
-                PdfFileNameExtractor pdfFileNameExtractor = PdfFileNameExtractor.InitializeWithPdfPath(pdfPath);
-
-                // Use PdfPig to extract text from pdf
-                PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfPath);
-
-                InitializeFromPdf(pdf, pdfTextExtractor, pdfFileNameExtractor);
+                InitializeFromPdf(pdf);
             }
             catch (Exception ex)
             {
@@ -56,17 +52,13 @@ namespace BackendLibrary
             try
             {
                 PdfBytes = pdfBytes;
+                FileName = fileName;
 
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
                 MemoryStream stream = new MemoryStream(pdfBytes);
                 PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
 
-                PdfFileNameExtractor pdfFileNameExtractor = PdfFileNameExtractor.InitializeWithFileName(fileName);
-
-                // Use PdfPig to extract text from pdf
-                PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
-
-                InitializeFromPdf(pdf, pdfTextExtractor, pdfFileNameExtractor);
+                InitializeFromPdf(pdf);
             }
             catch (Exception ex)
             {
@@ -79,20 +71,16 @@ namespace BackendLibrary
             try
             {
                 PdfBytes = pdfBytes;
+                FileName = fileName;
 
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
                 MemoryStream stream = new MemoryStream(pdfBytes);
                 PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
 
-                PdfFileNameExtractor pdfFileNameExtractor = PdfFileNameExtractor.InitializeWithFileName(fileName);
-
-                // Use PdfPig to extract text from pdf
-                PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
-
-                InitializeFromPdf(pdf, pdfTextExtractor, pdfFileNameExtractor);
+                InitializeFromPdf(pdf);
 
                 (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(modelPath, fileName, stream);
-                dateTimeExtracted = DateTime.UtcNow;
+                dateTimeExtracted = DateTime.Now;
             }
             catch (Exception ex)
             {
@@ -101,7 +89,7 @@ namespace BackendLibrary
         }
 
         // Combine shared logic between constructors
-        private void InitializeFromPdf(PdfDocument pdf, PdfTextExtractor pdfTextExtractor, PdfFileNameExtractor pdfFileNameExtractor)
+        private void InitializeFromPdf(PdfDocument pdf)
         {
             // OwnerPassword property needs a password to set SecuritySettings
             pdf.SecuritySettings.OwnerPassword = "admin";
@@ -110,7 +98,6 @@ namespace BackendLibrary
             try
             {
                 NumberOfPages = pdf.PageCount;
-                FileName = pdfFileNameExtractor.FileName;
             }
             catch (Exception ex)
             {
@@ -119,9 +106,9 @@ namespace BackendLibrary
 
             try
             {
-                FileNamePieceMark = pdfFileNameExtractor.GetFileNamePieceMark();
+                FileNamePieceMark = PdfFileNameExtractor.GetFileNamePieceMark(FileName);
                 (PageNames, ProjectNumber, ProjectName, FileContentPieceMark, ControlNumbers, PiecesRequired, Weight, DesignNumber) =
-                    pdfTextExtractor.GetExtractedText();
+                    PdfTextExtractor.GetExtractedText(PdfBytes);
             }
             catch (Exception ex)
             {

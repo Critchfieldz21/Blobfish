@@ -486,3 +486,6 @@ $RECYCLE.BIN/
 # temp uploaded files
 TestBlazor/BlazorApp1/wwwroot/uploads/*.pdf
 TestBlazor/BlazorApp1/temp/*.jpg
+
+# Unit test pdf files
+BackendLibraryUnitTest/test_pdfs/*.pdf

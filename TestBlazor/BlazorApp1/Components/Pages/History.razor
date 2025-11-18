@@ -15,6 +15,15 @@
         <a class="Home Button" href="/">Back</a>
         <input class="search-input" placeholder="Search by file name, piece mark, or project (you can also type a date like 12/11/2025)..." @bind="searchTerm" @bind:event="oninput" />
         <button class="btn btn-sm btn-secondary" type="button" @onclick="ClearSearch">Clear</button>
+        <div class="export-dropdown @(IsAnySelected ? "" : "disabled")" style="margin-left:8px;">
+            <button type="button" class="ViewButton export-toggle" aria-haspopup="menu" disabled="@(!IsAnySelected)" aria-disabled="@(!IsAnySelected)">Export Selected ▾</button>
+            <div class="export-list" role="menu">
+                <ul>
+                    <li role="none"><button role="menuitem" class="dropdown-item" type="button" @onclick="() => BatchExport(true)">Export Selected JSON</button></li>
+                    <li role="none"><button role="menuitem" class="dropdown-item" type="button" @onclick="() => BatchExport(false)">Export Selected CSV</button></li>
+                </ul>
+            </div>
+        </div>
     </div>
 
 <div class="page-wrapper">
@@ -27,6 +36,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th style="width:38px"><input type="checkbox" @onclick="ToggleSelectAll" /></th>
                     <th>#</th>
                     <th>File Name</th>
                     <th>Pages</th>
@@ -37,19 +47,27 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in FilteredHistory.Select((ticket, index) => new { ticket, index }))
+                @foreach (var item in DisplayItems.Select((di, displayIndex) => new { di.ticket, di.historyIndex, displayIndex }))
                 {
                     <tr>
-                        <td>@(item.index + 1)</td>
+                        <td><input type="checkbox" checked="@IsSelected(item.historyIndex)" @onchange="(e) => ToggleSelect(item.historyIndex, e)" /></td>
+                        <td>@(item.displayIndex + 1)</td>
                         <td>@item.ticket.FileName</td>
                         <td>@item.ticket.NumberOfPages</td>
                         <td>@item.ticket.FileNamePieceMark</td>
                         <td>@item.ticket.ProjectName</td>
                         <td>@item.ticket.dateTimeExtracted</td>
                         <td>
-                            <button class = "ViewButton" @onclick="() => OpenTicket(item.index)">View</button>
-                            <button class="ViewButton" @onclick="() => HandleExportClick(true, item.index)">Export JSON</button>
-                            <button class="ViewButton" @onclick="() => HandleExportClick(false, item.index)">Export CSV</button>
+                            <button class = "ViewButton" @onclick="() => OpenTicket(item.historyIndex)">View</button>
+                                <div class="export-dropdown">
+                                    <button type="button" class="ViewButton export-toggle" aria-haspopup="menu" aria-expanded="false">Export ▾</button>
+                                    <div class="export-list" role="menu">
+                                        <ul>
+                                            <li role="none"><button role="menuitem" class="dropdown-item" type="button" @onclick="() => HandleExportClick(true, item.historyIndex)">Export JSON <span class="hint">.json</span></button></li>
+                                            <li role="none"><button role="menuitem" class="dropdown-item" type="button" @onclick="() => HandleExportClick(false, item.historyIndex)">Export CSV <span class="hint">.csv</span></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
                         </td>
                     </tr>
                 }
@@ -76,9 +94,19 @@
                     (t.FileName ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
                     || (t.FileNamePieceMark ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
                     || (t.ProjectName ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
+                    || (t.dateTimeExtracted.ToString() ?? string.Empty).Contains(term, StringComparison.OrdinalIgnoreCase)
                 );
             }
             return q;
+        }
+    }
+
+    // Display items map the filtered ticket to its original history index
+    private IEnumerable<(ShopTicket ticket, int historyIndex)> DisplayItems
+    {
+        get
+        {
+            return FilteredHistory.Select(t => (ticket: t, historyIndex: history.IndexOf(t)));
         }
     }
 
@@ -96,12 +124,64 @@
 
     private void OpenTicket(int index)
     {
-        sTService.AddTicket(history[index], true);
-        Navigation.NavigateTo("/processing");
+        // Add the selected history ticket to the current ticket list and navigate
+        if (index >= 0 && index < history.Count)
+        {
+            sTService.AddTicket(history[index], true);
+            Navigation.NavigateTo("/processing");
+        }
     }
     private void HandleExportClick(bool val, int index){
         var valString = val.ToString().ToLower();
         Navigation.NavigateTo($"/export/{valString}/{index}", forceLoad: true);
+    }
+
+    // Selection state for batch export
+    private HashSet<int> selectedIndices = new HashSet<int>();
+
+    private bool IsAnySelected => selectedIndices != null && selectedIndices.Count > 0;
+
+    private bool IsSelected(int index) => selectedIndices.Contains(index);
+
+    private void ToggleSelect(int index, ChangeEventArgs e)
+    {
+        bool now = false;
+        if (e?.Value is bool b)
+            now = b;
+        else if (e?.Value is string s && bool.TryParse(s, out var parsed))
+            now = parsed;
+
+        if (now)
+            selectedIndices.Add(index);
+        else
+            selectedIndices.Remove(index);
+    }
+
+    private void ToggleSelectAll()
+    {
+        var all = DisplayItems.Select(di => di.historyIndex).ToList();
+        bool anyNotSelected = all.Any(i => !selectedIndices.Contains(i));
+        if (anyNotSelected)
+        {
+            foreach (var i in all) selectedIndices.Add(i);
+        }
+        else
+        {
+            foreach (var i in all) selectedIndices.Remove(i);
+        }
+    }
+
+    private void BatchExport(bool isJson)
+    {
+        if (selectedIndices == null || selectedIndices.Count == 0)
+        {
+            // nothing selected — no-op for now
+            return;
+        }
+
+        var ids = string.Join(',', selectedIndices.OrderBy(i => i));
+        var url = $"/export/batch/{isJson}?ids={ids}";
+        Navigation.NavigateTo(url, forceLoad: true);
     }
 
 }
