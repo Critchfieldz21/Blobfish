@@ -108,57 +108,65 @@
   position: relative;
 }
 
-.home-root h1::after {
+/* hide the per-heading underline — we'll render the animated bar between
+   the heading and the content boxes using the .heading-wrapper pseudo. */
+.home-root h1::after { display: none; }
+
+/* place the animated bar between the heading and the boxes */
+.heading-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+  position: relative; /* allow pseudo-element positioning */
+  /* gap between the heading baseline and the animated bar */
+  --heading-bar-gap: 20px;
+}
+
+.heading-wrapper::after {
   content: "";
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: -12px;
-  /* responsive width: a percentage with a sensible maximum */
-  width: min(64%, 760px);
-  height: 8px; /* thicker underline */
+  top: calc(100% + var(--heading-bar-gap));
+  width: min(100%, 760px);
+  height: 6px;
   border-radius: 6px;
-  /* base gradient uses a white center with blue highlight; the keyframes
-     will animate `background-size` and `opacity` to create a smooth pulse */
-  background: linear-gradient(90deg, #ffffff 0%, #0a58ff 50%, #ffffff 100%);
-  background-position: center;
-  background-size: 10% 100%;
-  opacity: 0;
-  animation: titleUnderline 2.4s cubic-bezier(0.22, 0.9, 0.28, 1) infinite;
-  animation-delay: 3.5s;
+  background: linear-gradient(90deg,
+    #ffffff 0%,
+    #f7fbff 6.25%,
+    #eff7ff 12.5%,
+    #e6f3ff 18.75%,
+    #cfeaff 25%,
+    #b8e1ff 31.25%,
+    #99d1ff 37.5%,
+    #66baff 43.75%,
+    #66baff 50%,
+    #66baff 56.25%,
+    #99d1ff 62.5%,
+    #b8e1ff 68.75%,
+    #cfeaff 75%,
+    #e6f3ff 81.25%,
+    #eff7ff 87.5%,
+    #f7fbff 93.75%,
+    #ffffff 100%
+  );
+  background-size: 100% 100%;
+  transform-origin: left;
+  animation: slideIn 3.8s ease-out forwards;
 }
 
-@keyframes titleUnderline {
-  /* Smooth fade + expand of the blue center using background-size */
+@keyframes slideIn {
   0% {
-    transform: translateX(-50%) scaleX(0.8);
+    transform: translateX(-50%) scaleX(0);
     opacity: 0;
-    background-size: 10% 100%;
-  }
-  15% {
-    opacity: 0.6;
-    background-size: 28% 100%;
-  }
-  40% {
-    transform: translateX(-50%) scaleX(1.02);
-    opacity: 1;
-    background-size: 60% 100%;
-  }
-  60% {
-    transform: translateX(-50%) scaleX(1.02);
-    opacity: 1;
-    background-size: 60% 100%;
-  }
-  85% {
-    opacity: 0.6;
-    background-size: 28% 100%;
   }
   100% {
-    transform: translateX(-50%) scaleX(0.8);
-    opacity: 0;
-    background-size: 10% 100%;
+    transform: translateX(-50%) scaleX(1);
+    opacity: 1;
   }
 }
+
 
 /* Full-viewport background for Home page (applies to the whole browser window)
    Uses :global to affect the <body> so it covers the entire page regardless of layout.
@@ -552,6 +560,42 @@ section > .heading-wrapper > h1 {
   }
 }
 
+/* Logo section: a small wrapper for the decorative site logo so CSS can target it */
+.logo-section {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  margin-bottom: 1rem; /* tuck the logo up a bit above the heading */
+  pointer-events: none; /* decorative only */
+}
+
+.site-logo {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeSlideUp 1.2s ease-out forwards;
+}
+
+@keyframes fadeSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes subtlePulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.95;
+    }
+    50% {
+        transform: scale(1.02);
+        opacity: 1;
+    }
+}
 .btn-container {
   display: flex;
   justify-content: center;
