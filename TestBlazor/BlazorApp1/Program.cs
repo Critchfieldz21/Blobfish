@@ -8,6 +8,10 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddBlazorBootstrap();
 
+// Configure logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 var app = builder.Build();
 
 app.MapGet("/export/{val}/{index}", (String val, int index, ShopTicketService sTService) =>
