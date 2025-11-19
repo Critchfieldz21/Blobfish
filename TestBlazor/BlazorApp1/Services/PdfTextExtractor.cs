@@ -9,12 +9,12 @@ namespace BackendLibrary
     {
         public static TextGroup GetExtractedText(byte[] pdfBytes, ILogger<PdfTextExtractor> logger)
         {
-            logger.LogInformation("Start PdfPig PdfDocument initialization");
+            logger.LogDebug("Start PdfPig PdfDocument initialization");
             PdfDocument pdf = PdfDocument.Open(pdfBytes);
-            logger.LogInformation("PdfPig PdfDocument opened");
+            logger.LogDebug("PdfPig PdfDocument opened");
 
             List<Page> pages = pdf.GetPages().ToList();
-            logger.LogInformation("List<Page> created");
+            logger.LogDebug("List<Page> created");
 
             //// Uncomment to debug word extraction
             //foreach (Page page in pages)
@@ -41,42 +41,42 @@ namespace BackendLibrary
             Parallel.Invoke(
                 () =>
                 {
-                    try { textGroup.PageNames = ExtractPageNames(pages); logger.LogInformation("PageNames extracted"); }
+                    try { textGroup.PageNames = ExtractPageNames(pages); logger.LogDebug("PageNames extracted"); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { textGroup.ProjectNumber = ExtractProjectNumber(pages); logger.LogInformation("ProjectNumber extracted"); }
+                    try { textGroup.ProjectNumber = ExtractProjectNumber(pages); logger.LogDebug("ProjectNumber extracted"); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { textGroup.ProjectName = ExtractProjectName(pages); logger.LogInformation("ProjectName extracted"); }
+                    try { textGroup.ProjectName = ExtractProjectName(pages); logger.LogDebug("ProjectName extracted"); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { textGroup.FileContentPieceMark = ExtractFileContentPieceMark(pages); logger.LogInformation("FileContentPieceMark extracted"); }
+                    try { textGroup.FileContentPieceMark = ExtractFileContentPieceMark(pages); logger.LogDebug("FileContentPieceMark extracted"); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { textGroup.ControlNumbers = ExtractControlNumbers(pages); logger.LogInformation("ControlNumbers extracted"); }
+                    try { textGroup.ControlNumbers = ExtractControlNumbers(pages); logger.LogDebug("ControlNumbers extracted"); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { textGroup.PiecesRequired = ExtractPiecesRequired(pages); logger.LogInformation("PiecesRequired extracted"); }
+                    try { textGroup.PiecesRequired = ExtractPiecesRequired(pages); logger.LogDebug("PiecesRequired extracted"); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { textGroup.Weight = ExtractWeight(pages); logger.LogInformation("Weight extracted"); }
+                    try { textGroup.Weight = ExtractWeight(pages); logger.LogDebug("Weight extracted"); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { textGroup.DesignNumber = ExtractDesignNumber(pages); logger.LogInformation("DesignNumber extracted"); }
+                    try { textGroup.DesignNumber = ExtractDesignNumber(pages); logger.LogDebug("DesignNumber extracted"); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 }
             );

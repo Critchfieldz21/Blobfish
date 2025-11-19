@@ -78,20 +78,20 @@ namespace BackendLibrary
             {
                 _loggerFactory = loggerFactory;
                 _logger = _loggerFactory.CreateLogger<ShopTicket>();
-                _logger.LogInformation("Starting ShopTicket construction for {FileName}", fileName);
+                _logger.LogDebug("Starting ShopTicket construction for {FileName}", fileName);
                
                 PdfBytes = pdfBytes;
-                _logger.LogInformation("PdfBytes stored");
+                _logger.LogDebug("PdfBytes stored");
                
                 FileName = fileName;
-                _logger.LogInformation("FileName stored");
+                _logger.LogDebug("FileName stored");
 
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
                 MemoryStream stream = new MemoryStream(pdfBytes);
-                _logger.LogInformation("MemoryStream created from PdfBytes");
+                _logger.LogDebug("MemoryStream created from PdfBytes");
 
                 PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
-                _logger.LogInformation("PdfSharp PdfDocument created from stream");
+                _logger.LogDebug("PdfSharp PdfDocument created from stream");
 
                 InitializeFromPdf(pdf);
 
@@ -99,7 +99,7 @@ namespace BackendLibrary
                     = Detect.GetRectInfo(modelPath, fileName, stream);
 
                 dateTimeExtracted = DateTime.Now;
-                _logger.LogInformation("Ending ShopTicket construction for {FileName}", fileName);
+                _logger.LogDebug("Ending ShopTicket construction for {FileName}", fileName);
             }
             catch (Exception ex)
             {
@@ -117,7 +117,7 @@ namespace BackendLibrary
             try
             {
                 NumberOfPages = pdf.PageCount;
-                _logger.LogInformation("NumberOfPages extracted");
+                _logger.LogDebug("NumberOfPages extracted");
             }
             catch (Exception ex)
             {
@@ -127,10 +127,10 @@ namespace BackendLibrary
             try
             {
                 FileNamePieceMark = PdfFileNameExtractor.GetFileNamePieceMark(FileName);
-                _logger.LogInformation("FileNamePieceMark extracted");
+                _logger.LogDebug("FileNamePieceMark extracted");
 
                 TextGroup textGroup = PdfTextExtractor.GetExtractedText(PdfBytes, _loggerFactory.CreateLogger<PdfTextExtractor>());
-                _logger.LogInformation("TextGroup extracted");
+                _logger.LogDebug("TextGroup extracted");
 
                 PageNames = textGroup.PageNames;
                 ProjectNumber = textGroup.ProjectNumber;
@@ -140,7 +140,7 @@ namespace BackendLibrary
                 PiecesRequired = textGroup.PiecesRequired;
                 Weight = textGroup.Weight;
                 DesignNumber = textGroup.DesignNumber;
-                _logger.LogInformation("TextGroup properties assigned to ShopTicket");
+                _logger.LogDebug("TextGroup properties assigned to ShopTicket");
             }
             catch (Exception ex)
             {

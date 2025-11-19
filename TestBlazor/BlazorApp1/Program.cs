@@ -10,7 +10,6 @@ builder.Services.AddBlazorBootstrap();
 
 // Configure logging
 builder.Logging.ClearProviders();
-builder.Logging.SetMinimumLevel(LogLevel.Debug);
 builder.Logging.AddSimpleConsole(options =>
 {
     // Display timestamps in hh:mm:ss format for each log message

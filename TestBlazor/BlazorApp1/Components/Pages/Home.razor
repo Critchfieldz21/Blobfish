@@ -407,6 +407,7 @@
                     {
 						Logger.LogInformation("Processing file: {FileName}", file.Name);
                         tempList.Add(new ShopTicket(loggerFactory, file.Name, pdfBytes, "Services/best.onnx"));
+						Logger.LogInformation("Successfully processed file: {FileName}", file.Name);
                     }
                     catch (Exception ex)
                     {
