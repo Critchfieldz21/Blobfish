@@ -7,15 +7,7 @@ namespace BackendLibrary
 {
     internal class PdfTextExtractor
     {
-        public static (string[] pageNames,
-            string ProjectNumber,
-            string ProjectName,
-            string FileContentPieceMark,
-            string[]? ControlNumbers,
-            int PiecesRequired,
-            decimal Weight,
-            string DesignNumber)
-            GetExtractedText(byte[] pdfBytes)
+        public static TextGroup GetExtractedText(byte[] pdfBytes)
         {
             PdfDocument pdf = PdfDocument.Open(pdfBytes);
             List<Page> pages = pdf.GetPages().ToList();
@@ -36,14 +28,7 @@ namespace BackendLibrary
             //    }
             //}
 
-            string[] pageNames = null;
-            string projectNumber = null;
-            string projectName = null;
-            string fileContentPieceMark = null;
-            string[]? controlNumbers = null;
-            int piecesRequired = 0;
-            decimal weight = 0;
-            string designNumber = null;
+            TextGroup textGroup = new TextGroup();
 
             var cts = new CancellationTokenSource();
             List<Exception> exceptions = new();
@@ -52,42 +37,42 @@ namespace BackendLibrary
             Parallel.Invoke(
                 () =>
                 {
-                    try { pageNames = ExtractPageNames(pages); }
+                    try { textGroup.PageNames = ExtractPageNames(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { projectNumber = ExtractProjectNumber(pages); }
+                    try { textGroup.ProjectNumber = ExtractProjectNumber(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { projectName = ExtractProjectName(pages); }
+                    try { textGroup.ProjectName = ExtractProjectName(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { fileContentPieceMark = ExtractFileContentPieceMark(pages); }
+                    try { textGroup.FileContentPieceMark = ExtractFileContentPieceMark(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { controlNumbers = ExtractControlNumbers(pages); }
+                    try { textGroup.ControlNumbers = ExtractControlNumbers(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { piecesRequired = ExtractPiecesRequired(pages); }
+                    try { textGroup.PiecesRequired = ExtractPiecesRequired(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { weight = ExtractWeight(pages); }
+                    try { textGroup.Weight = ExtractWeight(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 },
                 () =>
                 {
-                    try { designNumber = ExtractDesignNumber(pages); }
+                    try { textGroup.DesignNumber = ExtractDesignNumber(pages); }
                     catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
                 }
             );
@@ -97,7 +82,7 @@ namespace BackendLibrary
                 throw exceptions.First();
             }
 
-            return (pageNames, projectNumber, projectName, fileContentPieceMark, controlNumbers, piecesRequired, weight, designNumber);
+            return textGroup;
         }
 
         public static string[] ExtractPageNames(List<Page> pages)

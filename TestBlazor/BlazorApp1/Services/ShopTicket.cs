@@ -107,8 +107,15 @@ namespace BackendLibrary
             try
             {
                 FileNamePieceMark = PdfFileNameExtractor.GetFileNamePieceMark(FileName);
-                (PageNames, ProjectNumber, ProjectName, FileContentPieceMark, ControlNumbers, PiecesRequired, Weight, DesignNumber) =
-                    PdfTextExtractor.GetExtractedText(PdfBytes);
+                TextGroup textGroup = PdfTextExtractor.GetExtractedText(PdfBytes);
+                PageNames = textGroup.PageNames;
+                ProjectNumber = textGroup.ProjectNumber;
+                ProjectName = textGroup.ProjectName;
+                FileContentPieceMark = textGroup.FileContentPieceMark;
+                ControlNumbers = textGroup.ControlNumbers;
+                PiecesRequired = textGroup.PiecesRequired;
+                Weight = textGroup.Weight;
+                DesignNumber = textGroup.DesignNumber;
             }
             catch (Exception ex)
             {
