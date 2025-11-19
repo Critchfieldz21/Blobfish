@@ -1,4 +1,5 @@
-﻿using PdfSharp.Pdf;
+﻿using System.Text.Json;
+using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 
 namespace BackendLibrary
@@ -33,16 +34,12 @@ namespace BackendLibrary
             try
             {
                 PdfBytes = File.ReadAllBytes(pdfPath);
+                FileName = PdfFileNameExtractor.GetFileName(pdfPath);
 
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of the input file path
                 PdfDocument pdf = PdfReader.Open(pdfPath);
 
-                PdfFileNameExtractor pdfFileNameExtractor = PdfFileNameExtractor.InitializeWithPdfPath(pdfPath);
-
-                // Use PdfPig to extract text from pdf
-                PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfPath);
-
-                InitializeFromPdf(pdf, pdfTextExtractor, pdfFileNameExtractor);
+                InitializeFromPdf(pdf);
             }
             catch (Exception ex)
             {
@@ -55,17 +52,13 @@ namespace BackendLibrary
             try
             {
                 PdfBytes = pdfBytes;
+                FileName = fileName;
 
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
                 MemoryStream stream = new MemoryStream(pdfBytes);
                 PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
 
-                PdfFileNameExtractor pdfFileNameExtractor = PdfFileNameExtractor.InitializeWithFileName(fileName);
-
-                // Use PdfPig to extract text from pdf
-                PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
-
-                InitializeFromPdf(pdf, pdfTextExtractor, pdfFileNameExtractor);
+                InitializeFromPdf(pdf);
             }
             catch (Exception ex)
             {
@@ -78,20 +71,16 @@ namespace BackendLibrary
             try
             {
                 PdfBytes = pdfBytes;
+                FileName = fileName;
 
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
                 MemoryStream stream = new MemoryStream(pdfBytes);
                 PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
 
-                PdfFileNameExtractor pdfFileNameExtractor = PdfFileNameExtractor.InitializeWithFileName(fileName);
-
-                // Use PdfPig to extract text from pdf
-                PdfTextExtractor pdfTextExtractor = new PdfTextExtractor(pdfBytes);
-
-                InitializeFromPdf(pdf, pdfTextExtractor, pdfFileNameExtractor);
+                InitializeFromPdf(pdf);
 
                 (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(modelPath, fileName, stream);
-                dateTimeExtracted = DateTime.UtcNow;
+                dateTimeExtracted = DateTime.Now;
             }
             catch (Exception ex)
             {
@@ -100,7 +89,7 @@ namespace BackendLibrary
         }
 
         // Combine shared logic between constructors
-        private void InitializeFromPdf(PdfDocument pdf, PdfTextExtractor pdfTextExtractor, PdfFileNameExtractor pdfFileNameExtractor)
+        private void InitializeFromPdf(PdfDocument pdf)
         {
             // OwnerPassword property needs a password to set SecuritySettings
             pdf.SecuritySettings.OwnerPassword = "admin";
@@ -109,7 +98,6 @@ namespace BackendLibrary
             try
             {
                 NumberOfPages = pdf.PageCount;
-                FileName = pdfFileNameExtractor.FileName;
             }
             catch (Exception ex)
             {
@@ -118,9 +106,16 @@ namespace BackendLibrary
 
             try
             {
-                FileNamePieceMark = pdfFileNameExtractor.GetFileNamePieceMark();
-                (PageNames, ProjectNumber, ProjectName, FileContentPieceMark, ControlNumbers, PiecesRequired, Weight, DesignNumber) =
-                    pdfTextExtractor.GetExtractedText();
+                FileNamePieceMark = PdfFileNameExtractor.GetFileNamePieceMark(FileName);
+                TextGroup textGroup = PdfTextExtractor.GetExtractedText(PdfBytes);
+                PageNames = textGroup.PageNames;
+                ProjectNumber = textGroup.ProjectNumber;
+                ProjectName = textGroup.ProjectName;
+                FileContentPieceMark = textGroup.FileContentPieceMark;
+                ControlNumbers = textGroup.ControlNumbers;
+                PiecesRequired = textGroup.PiecesRequired;
+                Weight = textGroup.Weight;
+                DesignNumber = textGroup.DesignNumber;
             }
             catch (Exception ex)
             {
@@ -151,6 +146,83 @@ namespace BackendLibrary
 
 
             return str;
+        }
+
+        public string ToJson()
+        {
+            return JsonSerializer.Serialize(ToExportDictionary(), new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+        }
+
+        public string ToCsv()
+        {
+            var dict = ToExportDictionary();
+            var values = dict.Values.Select(v =>
+            {
+                if (v is not IEnumerable<string> list)
+                {
+                    // Join the list into one string
+                    return v?.ToString()?.Replace(",", ";");
+                }
+                else
+                {
+                    return string.Join(";", list);
+                }
+            });
+            // Replace commas in values to avoid breaking CSV
+            var header = string.Join(",", dict.Keys);
+            var row = string.Join(",", values);
+            return $"{header}\n{row}";
+        }
+
+
+        private Dictionary<string, object> ToExportDictionary()
+        {
+            return new Dictionary<string, object>
+            {
+                { "FileName", FileName },
+                { "ProcessedDate", dateTimeExtracted },
+                { "NumberOfPages", NumberOfPages },
+                { "PageNames", PageNames },
+                { "FileNamePieceMark", FileNamePieceMark },
+                { "ProjectNumber", ProjectNumber },
+                { "ProjectName", ProjectName },
+                { "FileContentPieceMark", FileContentPieceMark },
+                { "ControlNumbers", ControlNumbers },
+                { "PiecesRequired", PiecesRequired },
+                { "Weight", Weight },
+                { "DesignNumber", DesignNumber },
+                { "RectanglePage", RectanglePage },
+                { "FormViewRectangleX", FormViewRectangleX },
+                { "FormViewRectangleY", FormViewRectangleY },
+                { "FormViewRectangleWidth", FormViewRectangleWidth },
+                { "FormViewRectangleHeight", FormViewRectangleHeight }
+            };
+        }
+
+
+        public void Info()
+        {
+            string str = NumberOfPages.ToString() + " | " + FileName + " | " + FileNamePieceMark + " | " + ProjectNumber +
+                         " | " + ProjectName + " | " + FileContentPieceMark + " | " + PiecesRequired.ToString() +
+                         " | " + Weight.ToString() + " lb | " + DesignNumber;
+
+            String filepath = "/Users/zacharycritchfield/Documents/GitHub/Blobfish/SQL3cs/ShopTicketInfo.txt";
+
+            List<String> lines = new List<String>();
+            if (File.Exists(filepath))
+            {
+                File.Delete(filepath);
+                lines.Add(str);
+                File.WriteAllLines(filepath, lines);
+            }
+            else
+            {
+                lines.Add(str);
+                File.WriteAllLines(filepath, lines);
+            }
         }
     }
 }
