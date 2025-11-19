@@ -6,6 +6,8 @@ namespace BackendLibrary
 {
     public class ShopTicket
     {
+        private readonly ILogger<ShopTicket> _logger;
+        private readonly ILoggerFactory _loggerFactory;
         public byte[] PdfBytes { get; }                             // Bytearray of PDF file
         public DateTime dateTimeExtracted { get; }                  // Date and time when ShopTicket was constructed
         public int NumberOfPages { get; set; }                      // Number of pages in the PDF file.
@@ -29,10 +31,12 @@ namespace BackendLibrary
         //public double SectionViewRectangleWidth { get; set; }      // Width of the section view rectangle (inches).
         //public double SectionViewRectangleHeight { get; set; }     // Height of the section view rectangle (inches).
 
-        public ShopTicket(String pdfPath)
+        public ShopTicket(ILoggerFactory loggerFactory, String pdfPath)
         {
             try
             {
+                _loggerFactory = loggerFactory;
+                _logger = _loggerFactory.CreateLogger<ShopTicket>();
                 PdfBytes = File.ReadAllBytes(pdfPath);
                 FileName = PdfFileNameExtractor.GetFileName(pdfPath);
 
@@ -47,10 +51,12 @@ namespace BackendLibrary
             }
         }
 
-        public ShopTicket(String fileName, byte[] pdfBytes)
+        public ShopTicket(ILoggerFactory loggerFactory, String fileName, byte[] pdfBytes)
         {
             try
             {
+                _loggerFactory = loggerFactory;
+                _logger = _loggerFactory.CreateLogger<ShopTicket>();
                 PdfBytes = pdfBytes;
                 FileName = fileName;
 
@@ -66,21 +72,34 @@ namespace BackendLibrary
             }
         }
 
-        public ShopTicket(String fileName, byte[] pdfBytes, string modelPath)
+        public ShopTicket(ILoggerFactory loggerFactory, String fileName, byte[] pdfBytes, string modelPath)
         {
             try
             {
+                _loggerFactory = loggerFactory;
+                _logger = _loggerFactory.CreateLogger<ShopTicket>();
+                _logger.LogInformation("Starting ShopTicket construction for {FileName}", fileName);
+               
                 PdfBytes = pdfBytes;
+                _logger.LogInformation("PdfBytes stored");
+               
                 FileName = fileName;
+                _logger.LogInformation("FileName stored");
 
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
                 MemoryStream stream = new MemoryStream(pdfBytes);
+                _logger.LogInformation("MemoryStream created from PdfBytes");
+
                 PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
+                _logger.LogInformation("PdfSharp PdfDocument created from stream");
 
                 InitializeFromPdf(pdf);
 
-                (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(modelPath, fileName, stream);
+                (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) 
+                    = Detect.GetRectInfo(modelPath, fileName, stream);
+
                 dateTimeExtracted = DateTime.Now;
+                _logger.LogInformation("Ending ShopTicket construction for {FileName}", fileName);
             }
             catch (Exception ex)
             {
@@ -98,6 +117,7 @@ namespace BackendLibrary
             try
             {
                 NumberOfPages = pdf.PageCount;
+                _logger.LogInformation("NumberOfPages extracted");
             }
             catch (Exception ex)
             {
@@ -107,7 +127,11 @@ namespace BackendLibrary
             try
             {
                 FileNamePieceMark = PdfFileNameExtractor.GetFileNamePieceMark(FileName);
-                TextGroup textGroup = PdfTextExtractor.GetExtractedText(PdfBytes);
+                _logger.LogInformation("FileNamePieceMark extracted");
+
+                TextGroup textGroup = PdfTextExtractor.GetExtractedText(PdfBytes, _loggerFactory.CreateLogger<PdfTextExtractor>());
+                _logger.LogInformation("TextGroup extracted");
+
                 PageNames = textGroup.PageNames;
                 ProjectNumber = textGroup.ProjectNumber;
                 ProjectName = textGroup.ProjectName;
@@ -116,6 +140,7 @@ namespace BackendLibrary
                 PiecesRequired = textGroup.PiecesRequired;
                 Weight = textGroup.Weight;
                 DesignNumber = textGroup.DesignNumber;
+                _logger.LogInformation("TextGroup properties assigned to ShopTicket");
             }
             catch (Exception ex)
             {

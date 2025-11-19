@@ -1,4 +1,5 @@
 ﻿using BackendLibrary;
+using Microsoft.Extensions.Logging;
 
 namespace BackendLibraryUnitTest
 {
@@ -588,7 +589,8 @@ namespace BackendLibraryUnitTest
         {
             byte[] pdfBytes = File.ReadAllBytes(filePath);
             String pdfName = Path.GetFileNameWithoutExtension(filePath);
-            ShopTicket pdf = new ShopTicket(pdfName, pdfBytes);
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ShopTicket pdf = new ShopTicket(loggerFactory, pdfName, pdfBytes);
 
             Assert.Multiple(
                 () => Assert.Equal(expectedNumberOfPages, pdf.NumberOfPages),

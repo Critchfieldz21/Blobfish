@@ -10,6 +10,7 @@
 @inject ShopTicketService sTService
 @inject IJSRuntime JS
 @inject ILogger<Home> Logger
+@inject ILoggerFactory loggerFactory;
 
 <PageTitle>Home</PageTitle>
 
@@ -314,6 +315,7 @@
                 {
                     totalFiles = selectedFiles.GetMultipleFiles(fileLimit).Count;
 
+					Logger.LogInformation("Starting processing of {FileCount} files.", totalFiles);
                     loadingMessage = totalFiles > 1
                     ? $"Processing batch of {totalFiles} PDFs..."
                     : "Processing PDF...";
@@ -403,7 +405,8 @@
                     byte[] pdfBytes = memoryStream.ToArray();
                     try
                     {
-                        tempList.Add(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"));
+						Logger.LogInformation("Processing file: {FileName}", file.Name);
+                        tempList.Add(new ShopTicket(loggerFactory, file.Name, pdfBytes, "Services/best.onnx"));
                     }
                     catch (Exception ex)
                     {
