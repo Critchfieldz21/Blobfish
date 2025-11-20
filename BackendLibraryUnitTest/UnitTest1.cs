@@ -82,7 +82,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/24-NE1096-DT051_P0.pdf",    // filePath
                     2,                                              // expectedNumberOfPages
-                    new string[] {"FormView","UnknownPage"},        // expectedPageNames
+                    new string[] {"FormView","OtherPage"},          // expectedPageNames
                     "24-NE1096-DT051_P0",                           // expectedFileName
                     "DT051",                                        // expectedFileNamePieceMark
                     "24-NE1096",                                    // expectedProjectNumber
@@ -502,7 +502,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/24-NE1096-B001_P0.pdf",     // filePath
                     2,                                              // expectedNumberOfPages
-                    new string[] {"FormView","UnknownPage"},        // expectedPageNames
+                    new string[] {"FormView","OtherPage"},          // expectedPageNames
                     "24-NE1096-B001_P0",                            // expectedFileName
                     "B001",                                         // expectedFileNamePieceMark
                     "24-NE1096",                                    // expectedProjectNumber
@@ -516,7 +516,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/24-NE1096-DT007_P0.pdf",    // filePath
                     2,                                              // expectedNumberOfPages
-                    new string[] {"FormView","UnknownPage"},        // expectedPageNames
+                    new string[] {"FormView","OtherPage"},          // expectedPageNames
                     "24-NE1096-DT007_P0",                           // expectedFileName
                     "DT007",                                        // expectedFileNamePieceMark
                     "24-NE1096",                                    // expectedProjectNumber
@@ -530,7 +530,7 @@ namespace BackendLibraryUnitTest
                 new object[] {
                     "../../../test_pdfs/24-NE1096-DT003_P0.pdf",    // filePath
                     2,                                              // expectedNumberOfPages
-                    new string[] {"FormView","UnknownPage"},        // expectedPageNames
+                    new string[] {"FormView","OtherPage"},          // expectedPageNames
                     "24-NE1096-DT003_P0",                           // expectedFileName
                     "DT003",                                        // expectedFileNamePieceMark
                     "24-NE1096",                                    // expectedProjectNumber
