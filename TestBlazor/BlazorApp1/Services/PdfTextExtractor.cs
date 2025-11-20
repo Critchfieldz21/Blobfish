@@ -17,22 +17,6 @@ namespace BackendLibrary
             List<Page> pages = pdf.GetPages().ToList();
             logger.LogDebug("List<Page> created");
 
-            //// Uncomment to debug word extraction
-            //foreach (Page page in pages)
-            //{
-            //    IEnumerable<Word> words = page.GetWords();
-            //    IEnumerable<Annotation> annotations = page.GetAnnotations();
-
-            //    foreach (Word word in words)
-            //    {
-            //        Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
-            //    }
-            //    foreach (Annotation annotation in annotations)
-            //    {
-            //        Console.WriteLine($"Annotation: {annotation.Content}");
-            //    }
-            //}
-
             TextGroup textGroup = new TextGroup();
 
             var cts = new CancellationTokenSource();
@@ -184,7 +168,6 @@ namespace BackendLibrary
             }
 
             return "OtherPage";
-            //throw new ExtractionException($"Failed to get PageNames - Page {page.Number} has no valid view label");
         }
         private static string ExtractProjectNumber(List<Page> pages)
         {
