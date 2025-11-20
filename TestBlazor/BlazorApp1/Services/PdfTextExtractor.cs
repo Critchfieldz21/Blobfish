@@ -2,6 +2,7 @@
 using UglyToad.PdfPig.Annotations;
 using UglyToad.PdfPig.Content;
 using UglyToad.PdfPig.Geometry;
+using System.Text.RegularExpressions;
 
 namespace BackendLibrary
 {
@@ -415,7 +416,11 @@ namespace BackendLibrary
                     {
                         throw new ExtractionException($"Failed to get Weight");
                     }
-                    return decimal.Parse(weightWord.Text);
+                    // Remove any non-numeric characters except for decimal points and commas
+                    string pattern = "[^0-9,.]";
+                    string weightStr = Regex.Replace(weightWord.Text, pattern, "");
+
+                    return decimal.Parse(weightStr);
                 }
             }
             throw new ExtractionException($"Failed to get Weight");
