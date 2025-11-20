@@ -39,47 +39,33 @@ namespace BackendLibrary
             List<Exception> exceptions = new();
             ParallelOptions opts = new() { CancellationToken = cts.Token };
 
+            var jobs = new (Action Extract, string label)[]
+            {
+                (() => textGroup.PageNames            = ExtractPageNames(pages),            "PageNames"),
+                (() => textGroup.ProjectNumber        = ExtractProjectNumber(pages),        "ProjectNumber"),
+                (() => textGroup.ProjectName          = ExtractProjectName(pages),          "ProjectName"),
+                (() => textGroup.FileContentPieceMark = ExtractFileContentPieceMark(pages), "FileContentPieceMark"),
+                (() => textGroup.ControlNumbers       = ExtractControlNumbers(pages),       "ControlNumbers"),
+                (() => textGroup.PiecesRequired       = ExtractPiecesRequired(pages),       "PiecesRequired"),
+                (() => textGroup.Weight               = ExtractWeight(pages),               "Weight"),
+                (() => textGroup.DesignNumber         = ExtractDesignNumber(pages),         "DesignNumber")
+            };
+
             Parallel.Invoke(
-                () =>
+                jobs.Select(job => (Action)(() =>
                 {
-                    try { textGroup.PageNames = ExtractPageNames(pages); logger.LogDebug("PageNames extracted"); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { textGroup.ProjectNumber = ExtractProjectNumber(pages); logger.LogDebug("ProjectNumber extracted"); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { textGroup.ProjectName = ExtractProjectName(pages); logger.LogDebug("ProjectName extracted"); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { textGroup.FileContentPieceMark = ExtractFileContentPieceMark(pages); logger.LogDebug("FileContentPieceMark extracted"); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { textGroup.ControlNumbers = ExtractControlNumbers(pages); logger.LogDebug("ControlNumbers extracted"); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { textGroup.PiecesRequired = ExtractPiecesRequired(pages); logger.LogDebug("PiecesRequired extracted"); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { textGroup.Weight = ExtractWeight(pages); logger.LogDebug("Weight extracted"); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { textGroup.DesignNumber = ExtractDesignNumber(pages); logger.LogDebug("DesignNumber extracted"); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                }
+                    try
+                    {
+                        job.Extract();
+                        logger.LogDebug("{job.label} extracted", job.label);
+                    }
+                    catch (Exception ex)
+                    {
+                        lock (exceptions) exceptions.Add(ex);
+                        cts.Cancel();
+                    }
+                }))
+                .ToArray()
             );
 
             if (exceptions.Count > 0)
