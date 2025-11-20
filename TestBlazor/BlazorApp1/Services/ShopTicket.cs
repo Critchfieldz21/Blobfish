@@ -81,10 +81,7 @@ namespace BackendLibrary
                 _logger.LogDebug("Starting ShopTicket construction for {FileName}", fileName);
                
                 PdfBytes = pdfBytes;
-                _logger.LogDebug("PdfBytes stored");
-               
                 FileName = fileName;
-                _logger.LogDebug("FileName stored");
 
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
                 MemoryStream stream = new MemoryStream(pdfBytes);
@@ -96,7 +93,8 @@ namespace BackendLibrary
                 InitializeFromPdf(pdf);
 
                 (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) 
-                    = Detect.GetRectInfo(modelPath, fileName, stream);
+                    = Detect.GetRectInfo(_loggerFactory.CreateLogger<Detect>(), modelPath, fileName, stream);
+                _logger.LogDebug("FormViewRectangle extracted");
 
                 dateTimeExtracted = DateTime.Now;
                 _logger.LogDebug("Ending ShopTicket construction for {FileName}", fileName);
@@ -129,7 +127,7 @@ namespace BackendLibrary
                 FileNamePieceMark = PdfFileNameExtractor.GetFileNamePieceMark(FileName);
                 _logger.LogDebug("FileNamePieceMark extracted");
 
-                TextGroup textGroup = PdfTextExtractor.GetExtractedText(PdfBytes, _loggerFactory.CreateLogger<PdfTextExtractor>());
+                TextGroup textGroup = PdfTextExtractor.GetExtractedText(_loggerFactory.CreateLogger<PdfTextExtractor>(), PdfBytes);
                 _logger.LogDebug("TextGroup extracted");
 
                 PageNames = textGroup.PageNames;
@@ -140,7 +138,6 @@ namespace BackendLibrary
                 PiecesRequired = textGroup.PiecesRequired;
                 Weight = textGroup.Weight;
                 DesignNumber = textGroup.DesignNumber;
-                _logger.LogDebug("TextGroup properties assigned to ShopTicket");
             }
             catch (Exception ex)
             {

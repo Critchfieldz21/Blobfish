@@ -7,7 +7,7 @@ namespace BackendLibrary
 {
     internal class PdfTextExtractor
     {
-        public static TextGroup GetExtractedText(byte[] pdfBytes, ILogger<PdfTextExtractor> logger)
+        public static TextGroup GetExtractedText(ILogger<PdfTextExtractor> logger, byte[] pdfBytes)
         {
             logger.LogDebug("Start PdfPig PdfDocument initialization");
             PdfDocument pdf = PdfDocument.Open(pdfBytes);
