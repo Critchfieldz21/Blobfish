@@ -197,7 +197,7 @@ namespace BackendLibrary
                 }
             }
 
-            return "UnknownPage";
+            return "OtherPage";
             //throw new ExtractionException($"Failed to get PageNames - Page {page.Number} has no valid view label");
         }
         public static string ExtractProjectNumber(List<Page> pages)
