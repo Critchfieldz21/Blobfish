@@ -90,7 +90,7 @@ namespace BackendLibrary
             return textGroup;
         }
 
-        public static string[] ExtractPageNames(List<Page> pages)
+        private static string[] ExtractPageNames(List<Page> pages)
         {
             List<String> resultList = new List<String>();
             List<String> annotationStrings = new List<String>();
@@ -200,7 +200,7 @@ namespace BackendLibrary
             return "OtherPage";
             //throw new ExtractionException($"Failed to get PageNames - Page {page.Number} has no valid view label");
         }
-        public static string ExtractProjectNumber(List<Page> pages)
+        private static string ExtractProjectNumber(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -230,7 +230,7 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get ProjectNumber");
         }
 
-        public static string ExtractProjectName(List<Page> pages)
+        private static string ExtractProjectName(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -263,7 +263,7 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get ProjectName");
         }
 
-        public static string ExtractFileContentPieceMark(List<Page> pages)
+        private static string ExtractFileContentPieceMark(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -292,7 +292,7 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get FileContentPieceMark");
         }
 
-        public static string[]? ExtractControlNumbers(List<Page> pages)
+        private static string[]? ExtractControlNumbers(List<Page> pages)
         {
             List<Word> controlnumWords = new List<Word>();
             List<String> controlnumstrList = new List<String>();
@@ -372,7 +372,7 @@ namespace BackendLibrary
             return null;
         }
 
-        public static int ExtractPiecesRequired(List<Page> pages)
+        private static int ExtractPiecesRequired(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -401,7 +401,7 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get PiecesRequired");
         }
 
-        public static decimal ExtractWeight(List<Page> pages)
+        private static decimal ExtractWeight(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -426,7 +426,7 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get Weight");
         }
 
-        public static string ExtractDesignNumber(List<Page> pages)
+        private static string ExtractDesignNumber(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -448,7 +448,7 @@ namespace BackendLibrary
         }
 
         // Finds one word among IEnumerable<Word> words relative to an anchorWord given specified bounds
-        public static Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
+        private static Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
         {
             return (from Word word in words
                     where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
@@ -459,7 +459,7 @@ namespace BackendLibrary
         }
 
         // Finds all words among IEnumerable<Word> words relative to an anchorWord given specified bounds
-        public static List<Word> FindWordsNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
+        private static List<Word> FindWordsNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
         {
             return (from Word word in words
                     where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
