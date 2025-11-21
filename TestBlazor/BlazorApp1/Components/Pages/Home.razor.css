@@ -201,16 +201,13 @@
   z-index: -1; /* place behind page content */
   pointer-events: none;
   background: linear-gradient(
-    45deg,
-    #04123f 0%,
-    #0b3b8c 30%,
-    #0a58ff 60%,
-    #04123f 100%
-  );
+    135deg,
+   #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
+
   background-size: 200% 200%;
   filter: blur(10px) saturate(120%);
   transform: translateZ(0);
-  animation: homeBgMove 14s ease-in-out infinite;
+  animation: homeBgMove 3s ease-in-out infinite;
 }
 
 /* Ensure the main Home title is always readable above the animated background.
@@ -273,29 +270,39 @@
   padding: 0rem;
   border-radius: 12px;
   display: grid;
-  /* Use fixed-width columns so the upload + processing boxes keep a static,
-    larger size before processing. `minmax` ensures they won't shrink below
-    a usable width while allowing slight expansion. */
   grid-template-columns: repeat(2, minmax(480px, 560px));
   gap: 32px; /* slightly larger separation */
   align-items: stretch; /* make both columns equal height */
   box-sizing: border-box;
   min-height: 420px;
+  /* Allow horizontal scrolling instead of stacking the cards when the
+     viewport is narrower than the combined card widths. This keeps the
+     upload card and processing queue on a single row. */
+  overflow-x: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Responsive fallback: switch to a single-column flow on smaller viewports */
 @media (max-width: 1100px) {
+  /* On medium/narrow viewports keep the two-column layout but allow
+     horizontal scrolling; ensure cards have reasonable minimum widths so
+     they don't collapse and wrap to a second row. */
   .pdfcontainer {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(320px, 560px));
     gap: 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .upload-card,
   .processing-queue {
-    width: 100% !important;
-    max-width: 100% !important;
-    /* on smaller screens allow the boxes to size naturally again */
-    height: auto !important;
-    max-height: none !important;
+     width: auto !important;
+     min-width: 320px;
+     max-width: 560px;
+     /* keep a fixed visible height so new cards scroll internally instead
+       of expanding the page and pushing content down */
+     height: 580px !important;
+     max-height: 580px !important;
+     overflow: hidden;
   }
 }
 
@@ -344,8 +351,8 @@
 .processing-queue {
   /* Fix the processing column width to match the upload card so layout
     remains static before/while processing */
-  flex: 0 0 auto;
-  width: 540px;
+  flex: auto;
+    width: 540px;
   max-width: 100%;
   /* visual separation from the dropzone: subtle divider and padding */
   padding-left: 18px;
@@ -530,6 +537,7 @@ section {
 
 /* heading wrapper: push the heading down and keep it above the boxes */
 .heading-wrapper {
+  white-space: nowrap;
   width: 100%;
   display: flex;
   justify-content: center;

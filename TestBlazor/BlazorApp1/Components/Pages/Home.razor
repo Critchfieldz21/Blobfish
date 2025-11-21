@@ -9,16 +9,17 @@
 @inject NavigationManager Navigation
 @inject ShopTicketService sTService
 @inject IJSRuntime JS
+@inject ILogger<Home> Logger
+@inject ILoggerFactory loggerFactory;
 
 <PageTitle>Home</PageTitle>
 
 <div class="home-root">
     <section>
-            <div class="logo-section">
-                <img src="/NortheastLogo.png" class="heading-overlay site-logo" alt="" aria-hidden="true" />
-            </div>
+        <div class="logo-section">
+            <img src="/NortheastLogo.png" class="heading-overlay site-logo" alt="" aria-hidden="true" />
+        </div>
         <div class="heading-wrapper">
-
             <h1 class="animated-heading @(skipHeadingAnimation ? "no-anim" : "")" aria-label="Northeast precast">
                 <span class="animated-word">N</span>
                 <span class="animated-word">o</span>
@@ -39,103 +40,97 @@
                 <span class="animated-word">t</span>
             </h1>
         </div>
-    <div class="home-row">
-        <div class="pdfcontainer">
-            <div class="left-col">
-                <div class="upload-card">
-                    <h2 class="upload-title">Upload Document</h2>
-                    <p class="upload-subtitle">Select a PDF file to process</p>
-                    <div class="pdfBox" id="pdfDropZone">
-                        <InputFile id="uploadFiles" OnChange="e => selectedFiles = e" multiple accept=".pdf" class="hidden-file-input" />
-                        <div class="drop-inner">
-                            @if (!isProcessing)
-                            {
-                                <div class="drop-title">Choose a file or drag it here</div>
-                                <div class="drop-sub">PDF files only</div>
-                            }
-                            else
-                            {
-                                <div class="loading-container">
-                @if (isProcessing)
-                {
-                    <img src="../Northeast.png" class="spinner" alt="Loading..." />
-                    <p>@loadingMessage</p>
+        <div class="home-row">
+            <div class="pdfcontainer">
+                <div class="left-col">
+                    <div class="upload-card">
+                        <h2 class="upload-title">Upload Document</h2>
+                        <p class="upload-subtitle">Select a PDF file to process</p>
+                        <div class="pdfBox" id="pdfDropZone">
+                            <InputFile id="uploadFiles" OnChange="e => selectedFiles = e" multiple accept=".pdf" class="hidden-file-input" />
+                            <div class="drop-inner">
+                                @if (!isProcessing)
+                                {
+                                    <div class="drop-title">Choose a file or drag it here</div>
+                                    <div class="drop-sub">PDF files only</div>
+                                }
+                                else
+                                {
+                                    <div class="loading-container">
+                                        @if (isProcessing)
+                                        {
+                                            <img src="../Northeast.png" class="spinner" alt="Loading..." />
+                                            <p>@loadingMessage</p>
 
-                    @if (totalFiles > 0)
-                    {
-                        <p>Completed @completedCount / @totalFiles</p>
-                    }
-                }
-            </div>
-                            }
+                                            @if (totalFiles > 0)
+                                            {
+                                                <p>Completed @completedCount / @totalFiles</p>
+                                            }
+                                        }
+                                    </div>
+                                }
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="btn-container">
-                        <div class="btn-group" role="group" aria-label="Home actions">
-                            <button class="@processButtonClass" @onclick="OnPrimary">@buttonLabel</button>
-                            <button class="historybtn" @onclick="GoToHistory">History</button>
+                        <div class="btn-container">
+                            <div class="btn-group" role="group" aria-label="Home actions">
+                                <button class="@processButtonClass" @onclick="OnPrimary">@buttonLabel</button>
+                                <button class="historybtn" @onclick="GoToHistory">History</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-           
-            
-        </div>
-
-            <div class="processing-queue">
-                <h3 class="recent-header">Recent Processing</h3>
-                <div class="processing-cards">
-                    @if (processingCards != null && processingCards.Count > 0)
-                    {
-                        @for (int i = 0; i < processingCards.Count; i++)
+                <div class="processing-queue">
+                    <h3 class="recent-header">Recent Processing</h3>
+                    <div class="processing-cards">
+                        @if (processingCards != null && processingCards.Count > 0)
                         {
-                            var card = processingCards[i];
-                            <div class="proc-card" style="--i:@i">
-                                <div class="proc-card-header">
-                                    <div class="proc-title">
-                                        <strong title="@card.FileName">@card.FileName</strong>
+                            @for (int i = 0; i < processingCards.Count; i++)
+                            {
+                                var card = processingCards[i];
+                                <div class="proc-card" style="--i:@i">
+                                    <div class="proc-card-header">
+                                        <div class="proc-title">
+                                            <strong title="@card.FileName">@card.FileName</strong>
+                                        </div>
+                                        <div class="proc-actions">
+                                            <span class="status @card.StatusClass">@card.Status</span>
+                                            @if (card.HistoryIndex >= 0)
+                                            {
+                                                <button class="btn-small" @onclick="async () => await TryOpenHistory(card)">View</button>
+                                            }
+                                            else if (card.Status == "Done")
+                                            {
+                                                <button class="btn-small" @onclick="async () => await TryOpenHistory(card)">View</button>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn-small" disabled>View</button>
+                                            }
+                                        </div>
                                     </div>
-                                    <div class="proc-actions">
-                                        <span class="status @card.StatusClass">@card.Status</span>
-                                        @if (card.HistoryIndex >= 0)
+                                    <div class="proc-card-body">
+                                        <div class="meta">
+                                            <div class="duration">@card.DurationHuman</div>
+                                            <div class="ts">@card.Timestamp.ToLocalTime().ToString("g")</div>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(card.Message))
                                         {
-                                            <button class="btn-small" @onclick="async () => await TryOpenHistory(card)">View</button>
-                                        }
-                                        else if (card.Status == "Done")
-                                        {
-                                            <button class="btn-small" @onclick="async () => await TryOpenHistory(card)">View</button>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn-small" disabled>View</button>
+                                            <div class="proc-error">@((MarkupString)card.Message)</div>
                                         }
                                     </div>
                                 </div>
-                                <div class="proc-card-body">
-                                    <div class="meta">
-                                        <div class="duration">@card.DurationHuman</div>
-                                        <div class="ts">@card.Timestamp.ToLocalTime().ToString("g")</div>
-                                    </div>
-                                    @if (!string.IsNullOrEmpty(card.Message))
-                                    {
-                                        <div class="proc-error">@((MarkupString)card.Message)</div>
-                                    }
-                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <div class="empty-text">No recent processing events.</div>
                             </div>
                         }
-                    }
-                    else
-                    {
-                        <div class="empty-state">
-                            <div class="empty-text">No recent processing events.</div>
-                        </div>
-                    }
+                    </div>
                 </div>
             </div>
-
-    </div>
-    </div>
+        </div>
     </section>
 </div>
 
@@ -276,7 +271,7 @@
     private string loadingMessage = "";
     private int totalFiles = 0;
     private int completedCount = 0;
-    private const int fileLimit = 50;
+    private const int fileLimit = 200;
     private InputFileChangeEventArgs? selectedFiles;
     private bool isProcessing = false;
     private bool cancelRequested = false;
@@ -313,6 +308,7 @@
                 {
                     totalFiles = selectedFiles.GetMultipleFiles(fileLimit).Count;
 
+					Logger.LogInformation("Starting processing of {FileCount} files.", totalFiles);
                     loadingMessage = totalFiles > 1
                     ? $"Processing batch of {totalFiles} PDFs..."
                     : "Processing PDF...";
@@ -402,7 +398,9 @@
                     byte[] pdfBytes = memoryStream.ToArray();
                     try
                     {
-                        tempList.Add(new ShopTicket(file.Name, pdfBytes, "Services/best.onnx"));
+						Logger.LogInformation("Processing file: {FileName}", file.Name);
+                        tempList.Add(new ShopTicket(loggerFactory, file.Name, pdfBytes, "Services/best.onnx"));
+						Logger.LogInformation("Successfully processed file: {FileName}", file.Name);
                     }
                     catch (Exception ex)
                     {

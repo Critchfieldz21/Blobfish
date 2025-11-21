@@ -54,10 +54,10 @@
             <tr><th>Design #</th><td>@(ticket?.DesignNumber ?? "")</td></tr>
             <tr><th>Page Names</th><td>@(ticket?.PageNames != null ? string.Join(", ", ticket.PageNames) : "")</td></tr>
             <tr><th>Rectangle Page</th><td>@((ticket != null ? ticket.RectanglePage : ""))</td></tr>
-            <tr><th>Form View Rectangle X</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleX, 2) : ""))</td></tr>
-            <tr><th>Form View Rectangle Y</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleY, 2) : ""))</td></tr>
-            <tr><th>Form View Rectangle Width</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleWidth, 2) : ""))</td></tr>
-            <tr><th>Form View Rectangle Height</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleHeight, 2) : ""))</td></tr>
+            <tr><th>Form View Rectangle X</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleX, 4) : ""))</td></tr>
+            <tr><th>Form View Rectangle Y</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleY, 4) : ""))</td></tr>
+            <tr><th>Form View Rectangle Width</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleWidth, 4) : ""))</td></tr>
+            <tr><th>Form View Rectangle Height</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleHeight, 4) : ""))</td></tr>
         </table>
         <img src="../NortheastPrecast.webp" />
         </div>

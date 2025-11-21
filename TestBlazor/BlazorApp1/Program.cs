@@ -8,6 +8,15 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddBlazorBootstrap();
 
+// Configure logging
+builder.Logging.ClearProviders();
+builder.Logging.AddSimpleConsole(options =>
+{
+    // Display timestamps in hh:mm:ss format for each log message
+    options.TimestampFormat = "hh:mm:ss.fff ";
+    options.SingleLine = true;
+});
+
 var app = builder.Build();
 
 app.MapGet("/export/{val}/{index}", (String val, int index, ShopTicketService sTService) =>

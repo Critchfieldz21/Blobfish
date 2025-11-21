@@ -2,94 +2,61 @@
 using UglyToad.PdfPig.Annotations;
 using UglyToad.PdfPig.Content;
 using UglyToad.PdfPig.Geometry;
+using System.Text.RegularExpressions;
 
 namespace BackendLibrary
 {
+    /// <summary>
+    /// Utility class for ShopTicket.cs to extract text from ShopTicket PDFs using PdfPig.
+    /// </summary>
     internal class PdfTextExtractor
     {
-        public static (string[] pageNames,
-            string ProjectNumber,
-            string ProjectName,
-            string FileContentPieceMark,
-            string[]? ControlNumbers,
-            int PiecesRequired,
-            decimal Weight,
-            string DesignNumber)
-            GetExtractedText(byte[] pdfBytes)
+        /// <summary>
+        /// Extracts relevant text elements from a ShopTicket PDF. The TextGroup it extracts includes PageNames, 
+        /// ProjectNumber, ProjectName, FileContentPieceMark, ControlNumbers, PiecesRequired, Weight, and DesignNumber.
+        /// </summary>
+        public static TextGroup GetExtractedText(ILogger<PdfTextExtractor> logger, byte[] pdfBytes)
         {
+            logger.LogDebug("Start PdfPig PdfDocument initialization");
             PdfDocument pdf = PdfDocument.Open(pdfBytes);
+            logger.LogDebug("PdfPig PdfDocument opened");
+
             List<Page> pages = pdf.GetPages().ToList();
+            logger.LogDebug("List<Page> created");
 
-            //// Uncomment to debug word extraction
-            //foreach (Page page in pages)
-            //{
-            //    IEnumerable<Word> words = page.GetWords();
-            //    IEnumerable<Annotation> annotations = page.GetAnnotations();
-
-            //    foreach (Word word in words)
-            //    {
-            //        Console.WriteLine($"Word: {word.Text}, Bounding Box: {word.BoundingBox}");
-            //    }
-            //    foreach (Annotation annotation in annotations)
-            //    {
-            //        Console.WriteLine($"Annotation: {annotation.Content}");
-            //    }
-            //}
-
-            string[] pageNames = null;
-            string projectNumber = null;
-            string projectName = null;
-            string fileContentPieceMark = null;
-            string[]? controlNumbers = null;
-            int piecesRequired = 0;
-            decimal weight = 0;
-            string designNumber = null;
+            TextGroup textGroup = new TextGroup();
 
             var cts = new CancellationTokenSource();
             List<Exception> exceptions = new();
             ParallelOptions opts = new() { CancellationToken = cts.Token };
 
+            var jobs = new (Action Extract, string label)[]
+            {
+                (() => textGroup.PageNames            = ExtractPageNames(pages),            "PageNames"),
+                (() => textGroup.ProjectNumber        = ExtractProjectNumber(pages),        "ProjectNumber"),
+                (() => textGroup.ProjectName          = ExtractProjectName(pages),          "ProjectName"),
+                (() => textGroup.FileContentPieceMark = ExtractFileContentPieceMark(pages), "FileContentPieceMark"),
+                (() => textGroup.ControlNumbers       = ExtractControlNumbers(pages),       "ControlNumbers"),
+                (() => textGroup.PiecesRequired       = ExtractPiecesRequired(pages),       "PiecesRequired"),
+                (() => textGroup.Weight               = ExtractWeight(pages),               "Weight"),
+                (() => textGroup.DesignNumber         = ExtractDesignNumber(pages),         "DesignNumber")
+            };
+
             Parallel.Invoke(
-                () =>
+                jobs.Select(job => (Action)(() =>
                 {
-                    try { pageNames = ExtractPageNames(pages); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { projectNumber = ExtractProjectNumber(pages); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { projectName = ExtractProjectName(pages); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { fileContentPieceMark = ExtractFileContentPieceMark(pages); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { controlNumbers = ExtractControlNumbers(pages); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { piecesRequired = ExtractPiecesRequired(pages); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { weight = ExtractWeight(pages); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                },
-                () =>
-                {
-                    try { designNumber = ExtractDesignNumber(pages); }
-                    catch (Exception ex) { lock (exceptions) exceptions.Add(ex); cts.Cancel(); }
-                }
+                    try
+                    {
+                        job.Extract();
+                        logger.LogDebug("{job.label} extracted", job.label);
+                    }
+                    catch (Exception ex)
+                    {
+                        lock (exceptions) exceptions.Add(ex);
+                        cts.Cancel();
+                    }
+                }))
+                .ToArray()
             );
 
             if (exceptions.Count > 0)
@@ -97,10 +64,13 @@ namespace BackendLibrary
                 throw exceptions.First();
             }
 
-            return (pageNames, projectNumber, projectName, fileContentPieceMark, controlNumbers, piecesRequired, weight, designNumber);
+            return textGroup;
         }
 
-        public static string[] ExtractPageNames(List<Page> pages)
+        /// <summary>
+        /// Utility method to extract page names from PDF pages based on AutoCAD annotations or view labels.
+        /// </summary>
+        private static string[] ExtractPageNames(List<Page> pages)
         {
             List<String> resultList = new List<String>();
             List<String> annotationStrings = new List<String>();
@@ -149,6 +119,9 @@ namespace BackendLibrary
             return resultList.ToArray();
         }
 
+        /// <summary>
+        /// Utility method to extract page name from a PDF page without annotations by searching for specific words.
+        /// </summary>
         private static string ExtractPageNameNoAnnotations(Page page)
         {
             IEnumerable<Word> words = page.GetWords();
@@ -160,14 +133,16 @@ namespace BackendLibrary
                                        select word).ToList();
             foreach (Word word in formWords)
             {
-                Word? foundWord = FindWordNextTo(word, words, 20, 50, -1, 1);
+                DetectionBox formWordDetectionBox = new DetectionBox(minX: 20, maxX: 50, minY: -1, maxY: 1);
+                Word? foundWord = FindWordNextTo(word, words, formWordDetectionBox);
                 if (foundWord is null)
                 {
                     if (word.BoundingBox.Left > 900)
                     {
                         continue;
                     }
-                    List<Word> foundWords = FindWordsNextTo(word, words, -80, -20, -1, 1);
+                    DetectionBox formWordDetectionBox2 = new DetectionBox(minX: -80, maxX: -20, minY: -1, maxY: 1);
+                    List<Word> foundWords = FindWordsNextTo(word, words, formWordDetectionBox2);
                     foreach (Word foundWord2 in foundWords)
                     {
                         if (string.Equals(foundWord2.Text, "TOP", StringComparison.OrdinalIgnoreCase))
@@ -184,7 +159,8 @@ namespace BackendLibrary
             }
             foreach (Word word in drawingWords)
             {
-                Word? foundWord = FindWordNextTo(word, words, -80, -20, -1, 1);
+                DetectionBox drawingWordDetectionBox = new DetectionBox(minX: -80, maxX: -20, minY: -1, maxY: 1);
+                Word? foundWord = FindWordNextTo(word, words, drawingWordDetectionBox);
                 if (foundWord is null)
                 {
                     continue;
@@ -207,10 +183,13 @@ namespace BackendLibrary
                 }
             }
 
-            return "UnknownPage";
-            //throw new ExtractionException($"Failed to get PageNames - Page {page.Number} has no valid view label");
+            return "OtherPage";
         }
-        public static string ExtractProjectNumber(List<Page> pages)
+
+        /// <summary>
+        /// Utility method to extract project number from PDF pages by searching for "JOB NO." keywords and its context.
+        /// </summary>
+        private static string ExtractProjectNumber(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -220,15 +199,18 @@ namespace BackendLibrary
                                        select word).ToList();
                 foreach (Word word in jobWords)
                 {
-                    Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
+                    DetectionBox jobWordDetectionBox = new DetectionBox(minX: 5, maxX: 15, minY: -1, maxY: 1);
+                    Word? foundWord = FindWordNextTo(word, words, jobWordDetectionBox);
                     List<String> searchTerms = new List<String> { "NO.", "NO:", "NUMBER", "NUMBER:", "NUM", "NUM:" };
                     if (foundWord is null)
                     {
                         continue;
                     }
+                    // If the word next to "JOB" is "NUMBER" or a variation of it
                     if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                     {
-                        Word? piecesreqdWord = FindWordNextTo(word, words, -4, 8, -12, -4);
+                        DetectionBox numberWordDetectionBox = new DetectionBox(minX: -4, maxX: 8, minY: -12, maxY: -4);
+                        Word? piecesreqdWord = FindWordNextTo(word, words, numberWordDetectionBox);
                         if (piecesreqdWord is null)
                         {
                             throw new ExtractionException($"Failed to get ProjectNumber");
@@ -240,7 +222,10 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get ProjectNumber");
         }
 
-        public static string ExtractProjectName(List<Page> pages)
+        /// <summary>
+        /// Utility method to extract project name from PDF pages by searching for "PROJECT" keyword and its context.
+        /// </summary>
+        private static string ExtractProjectName(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -250,11 +235,14 @@ namespace BackendLibrary
                                            select word).ToList();
                 foreach (Word word in projectWords)
                 {
-                    List<Word> projectNameWords = FindWordsNextTo(word, words, -2, 120, -10, 0);
+                    DetectionBox projectWordDetectionBox = new DetectionBox(minX: -2, maxX: 120, minY: -10, maxY: 0);
+                    List<Word> projectNameWords = FindWordsNextTo(word, words, projectWordDetectionBox);
                     if (projectNameWords.Count == 0)
                     {
                         throw new ExtractionException($"Failed to get ProjectName");
                     }
+
+                    // Concatenate projectNameWords into a single string
                     String projectName = "";
                     foreach (Word w in projectNameWords)
                     {
@@ -273,7 +261,10 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get ProjectName");
         }
 
-        public static string ExtractFileContentPieceMark(List<Page> pages)
+        /// <summary>
+        /// Utility method to extract file content piece mark from PDF pages by searching for "PIECE MARK" keywords and its context.
+        /// </summary>
+        private static string ExtractFileContentPieceMark(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -283,14 +274,16 @@ namespace BackendLibrary
                                          select word).ToList();
                 foreach (Word word in pieceWords)
                 {
-                    Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
+                    DetectionBox pieceWordDetectionBox = new DetectionBox(minX: 5, maxX: 15, minY: -1, maxY: 1);
+                    Word? foundWord = FindWordNextTo(word, words, pieceWordDetectionBox);
                     if (foundWord is null)
                     {
                         continue;
                     }
                     if (string.Equals(foundWord.Text, "MARK", StringComparison.OrdinalIgnoreCase))
                     {
-                        Word? piecemarkWord = FindWordNextTo(word, words, -2, 15, -10, -2);
+                        DetectionBox markWordDetectionBox = new DetectionBox(minX: -2, maxX: 15, minY: -10, maxY: -2);
+                        Word? piecemarkWord = FindWordNextTo(word, words, markWordDetectionBox);
                         if (piecemarkWord is null)
                         {
                             throw new ExtractionException($"Failed to get FileContentPieceMark");
@@ -302,7 +295,10 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get FileContentPieceMark");
         }
 
-        public static string[]? ExtractControlNumbers(List<Page> pages)
+        /// <summary>
+        /// Utility method to extract control numbers from PDF pages by searching for "CONTROL NO." keywords and its context.
+        /// </summary>
+        private static string[]? ExtractControlNumbers(List<Page> pages)
         {
             List<Word> controlnumWords = new List<Word>();
             List<String> controlnumstrList = new List<String>();
@@ -317,7 +313,8 @@ namespace BackendLibrary
                                            select word).ToList();
                 foreach (Word word in controlWords)
                 {
-                    Word? foundWord = FindWordNextTo(word, words, 5, 35, -1, 1);
+                    DetectionBox controlWordDetectionBox = new DetectionBox(minX: 5, maxX: 35, minY: -1, maxY: 1);
+                    Word? foundWord = FindWordNextTo(word, words, controlWordDetectionBox);
                     if (foundWord is null)
                     {
                         continue;
@@ -327,7 +324,8 @@ namespace BackendLibrary
                     searchTerms = new List<String> { "NUMBER", "NUMBER:" };
                     if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                     {
-                        controlnumWords = FindWordsNextTo(word, words, -4, 50, -12, -2);
+                        DetectionBox numberWordDetectionBox = new DetectionBox(minX: -4, maxX: 50, minY: -12, maxY: -2);
+                        controlnumWords = FindWordsNextTo(word, words, numberWordDetectionBox);
                         if (controlnumWords.Count == 0)
                         {
                             return null;
@@ -340,11 +338,13 @@ namespace BackendLibrary
                     {
                         if (word.BoundingBox.Left > 800 && word.BoundingBox.Left < 860)
                         {
-                            controlnumWords = FindWordsNextTo(word, words, -4, 30, -15, -2);
+                            DetectionBox numberWordDetectionBox2 = new DetectionBox(minX: -4, maxX: 30, minY: -15, maxY: -2);
+                            controlnumWords = FindWordsNextTo(word, words, numberWordDetectionBox2);
                         }
                         else
                         {
-                            controlnumWords = FindWordsNextTo(word, words, -4, 150, -40, -2);
+                            DetectionBox numberWordDetectionBox3 = new DetectionBox(minX: -4, maxX: 150, minY: -40, maxY: -2);
+                            controlnumWords = FindWordsNextTo(word, words, numberWordDetectionBox3);
                         }
                         if (controlnumWords.Count == 0)
                         {
@@ -382,7 +382,10 @@ namespace BackendLibrary
             return null;
         }
 
-        public static int ExtractPiecesRequired(List<Page> pages)
+        /// <summary>
+        /// Utility method to extract pieces required from PDF pages by searching for "PIECES REQ'D" keywords and its context.
+        /// </summary>
+        private static int ExtractPiecesRequired(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -392,14 +395,16 @@ namespace BackendLibrary
                                           select word).ToList();
                 foreach (Word word in piecesWords)
                 {
-                    Word? foundWord = FindWordNextTo(word, words, 5, 15, -1, 1);
+                    DetectionBox piecesWordDetectionBox = new DetectionBox(minX: 5, maxX: 15, minY: -1, maxY: 1);
+                    Word? foundWord = FindWordNextTo(word, words, piecesWordDetectionBox);
                     if (foundWord is null)
                     {
                         continue;
                     }
                     if (foundWord.Text.Contains("REQ", StringComparison.OrdinalIgnoreCase))
                     {
-                        Word? piecesreqdWord = FindWordNextTo(word, words, -2, 30, -10, -4);
+                        DetectionBox reqWordDetectionBox = new DetectionBox(minX: -2, maxX: 30, minY: -10, maxY: -4);
+                        Word? piecesreqdWord = FindWordNextTo(word, words, reqWordDetectionBox);
                         if (piecesreqdWord is null)
                         {
                             throw new ExtractionException($"Failed to get PiecesRequired");
@@ -411,7 +416,10 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get PiecesRequired");
         }
 
-        public static decimal ExtractWeight(List<Page> pages)
+        /// <summary>
+        /// Utility method to extract weight from PDF pages by searching for "WEIGHT" keyword and its context.
+        /// </summary>
+        private static decimal ExtractWeight(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -421,18 +429,23 @@ namespace BackendLibrary
                                           select word).ToList();
                 foreach (Word word in weightWords)
                 {
-                    Word? weightWord = FindWordNextTo(word, words, -10, 30, -20, -1);
-                    if (weightWord is null)
-                    {
-                        throw new ExtractionException($"Failed to get Weight");
-                    }
-                    return decimal.Parse(weightWord.Text);
+                    DetectionBox weightWordDetectionBox = new DetectionBox(minX: -10, maxX: 30, minY: -20, maxY: -1);
+                    Word? weightWord = FindWordNextTo(word, words, weightWordDetectionBox);
+                    
+                    // Remove any non-numeric characters except for decimal points and commas
+                    string pattern = "[^0-9,.]";
+                    string weightStr = Regex.Replace(weightWord.Text, pattern, "");
+
+                    return decimal.Parse(weightStr);
                 }
             }
             throw new ExtractionException($"Failed to get Weight");
         }
 
-        public static string ExtractDesignNumber(List<Page> pages)
+        /// <summary>
+        /// Utility method to extract design number from PDF pages by searching for "DESIGN" keyword and its context.
+        /// </summary>
+        private static string ExtractDesignNumber(List<Page> pages)
         {
             foreach (Page page in pages)
             {
@@ -442,36 +455,46 @@ namespace BackendLibrary
                                           select word).ToList();
                 foreach (Word word in designWords)
                 {
-                    Word? designnumberWord = FindWordNextTo(word, words, -2, 30, -40, -4);
-                    if (designnumberWord is null)
+                    DetectionBox designWordDetectionBox = new DetectionBox(minX: -2, maxX: 30, minY: -40, maxY: -4);
+                    Word? foundWord = FindWordNextTo(word, words, designWordDetectionBox);
+                    if (foundWord is null)
                     {
                         throw new ExtractionException($"Failed to get DesignNumber");
                     }
-                    return designnumberWord.Text;
+                    return foundWord.Text;
                 }
             }
             throw new ExtractionException($"Failed to get DesignNumber");
         }
 
-        // Finds one word among IEnumerable<Word> words relative to an anchorWord given specified bounds
-        public static Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
+        /// <summary>
+        /// Holds the detection boundary values for find word(s) methods
+        /// </summary>
+        private record DetectionBox(int minX, int maxX, int minY, int maxY);
+
+        /// <summary>
+        /// Finds one word among IEnumerable&lt;Word&gt; words relative to an anchorWord given specified bounds
+        /// </summary>
+        private static Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, DetectionBox detectionBox)
         {
             return (from Word word in words
-                    where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
-                      (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
-                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
-                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
+                    where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > detectionBox.minX) &&
+                      (word.BoundingBox.Left - anchorWord.BoundingBox.Left < detectionBox.maxX) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top > detectionBox.minY) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top < detectionBox.maxY)
                     select word).FirstOrDefault();
         }
 
-        // Finds all words among IEnumerable<Word> words relative to an anchorWord given specified bounds
-        public static List<Word> FindWordsNextTo(Word anchorWord, IEnumerable<Word> words, double minX, double maxX, double minY, double maxY)
+        /// <summary>
+        /// Finds all words among IEnumerable&lt;Word&gt; words relative to an anchorWord given specified bounds
+        /// </summary>
+        private static List<Word> FindWordsNextTo(Word anchorWord, IEnumerable<Word> words, DetectionBox detectionBox)
         {
             return (from Word word in words
-                    where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > minX) &&
-                      (word.BoundingBox.Left - anchorWord.BoundingBox.Left < maxX) &&
-                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top > minY) &&
-                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top < maxY)
+                    where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > detectionBox.minX) &&
+                      (word.BoundingBox.Left - anchorWord.BoundingBox.Left < detectionBox.maxX) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top > detectionBox.minY) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top < detectionBox.maxY)
                     select word).ToList();
         }
     }
