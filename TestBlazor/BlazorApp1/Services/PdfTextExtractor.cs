@@ -123,12 +123,9 @@ namespace BackendLibrary
         private static string ExtractPageNameNoAnnotations(Page page)
         {
             IEnumerable<Word> words = page.GetWords();
-            List<Word> formWords = (from Word word in words
-                                    where word.Text.Equals("FORM", StringComparison.OrdinalIgnoreCase)
-                                    select word).ToList();
-            List<Word> drawingWords = (from Word word in words
-                                       where word.Text.Equals("DRAWING", StringComparison.OrdinalIgnoreCase)
-                                       select word).ToList();
+            List<Word> formWords = GetWordsEqualTo("FORM", words);
+            List<Word> drawingWords = GetWordsEqualTo("DRAWING", words);
+
             foreach (Word word in formWords)
             {
                 DetectionBox formWordDetectionBox = new DetectionBox(minX: 20, maxX: 50, minY: -1, maxY: 1);
@@ -193,9 +190,7 @@ namespace BackendLibrary
             foreach (Page page in pages)
             {
                 IEnumerable<Word> words = page.GetWords();
-                List<Word> jobWords = (from Word word in words
-                                       where word.Text.Equals("JOB", StringComparison.OrdinalIgnoreCase)
-                                       select word).ToList();
+                List<Word> jobWords = GetWordsEqualTo("JOB", words);
                 foreach (Word word in jobWords)
                 {
                     DetectionBox jobWordDetectionBox = new DetectionBox(minX: 5, maxX: 15, minY: -1, maxY: 1);
@@ -229,9 +224,7 @@ namespace BackendLibrary
             foreach (Page page in pages)
             {
                 IEnumerable<Word> words = page.GetWords();
-                List<Word> projectWords = (from Word word in words
-                                           where word.Text.Contains("PROJECT", StringComparison.OrdinalIgnoreCase)
-                                           select word).ToList();
+                List<Word> projectWords = GetWordsContaining("PROJECT", words);
                 foreach (Word word in projectWords)
                 {
                     DetectionBox projectWordDetectionBox = new DetectionBox(minX: -2, maxX: 120, minY: -10, maxY: 0);
@@ -268,9 +261,7 @@ namespace BackendLibrary
             foreach (Page page in pages)
             {
                 IEnumerable<Word> words = page.GetWords();
-                List<Word> pieceWords = (from Word word in words
-                                         where word.Text.Equals("PIECE", StringComparison.OrdinalIgnoreCase)
-                                         select word).ToList();
+                List<Word> pieceWords = GetWordsEqualTo("PIECE", words);
                 foreach (Word word in pieceWords)
                 {
                     DetectionBox pieceWordDetectionBox = new DetectionBox(minX: 5, maxX: 15, minY: -1, maxY: 1);
@@ -307,9 +298,7 @@ namespace BackendLibrary
             {
                 IEnumerable<Word> words = page.GetWords();
                 List<String> searchTerms = new List<String> { "CONTROL", "CTRL" };
-                List<Word> controlWords = (from Word word in words
-                                           where searchTerms.Any(searchTerm => searchTerm.Equals(word.Text, StringComparison.OrdinalIgnoreCase))
-                                           select word).ToList();
+                List<Word> controlWords = GetWordsEqualTo(searchTerms, words);
                 foreach (Word word in controlWords)
                 {
                     DetectionBox controlWordDetectionBox = new DetectionBox(minX: 5, maxX: 35, minY: -1, maxY: 1);
@@ -389,9 +378,7 @@ namespace BackendLibrary
             foreach (Page page in pages)
             {
                 IEnumerable<Word> words = page.GetWords();
-                List<Word> piecesWords = (from Word word in words
-                                          where word.Text.Equals("PIECES", StringComparison.OrdinalIgnoreCase)
-                                          select word).ToList();
+                List<Word> piecesWords = GetWordsEqualTo("PIECES", words);
                 foreach (Word word in piecesWords)
                 {
                     DetectionBox piecesWordDetectionBox = new DetectionBox(minX: 5, maxX: 15, minY: -1, maxY: 1);
@@ -423,9 +410,7 @@ namespace BackendLibrary
             foreach (Page page in pages)
             {
                 IEnumerable<Word> words = page.GetWords();
-                List<Word> weightWords = (from Word word in words
-                                          where word.Text.Contains("WEIGHT", StringComparison.OrdinalIgnoreCase)
-                                          select word).ToList();
+                List<Word> weightWords = GetWordsContaining("WEIGHT", words);
                 foreach (Word word in weightWords)
                 {
                     DetectionBox weightWordDetectionBox = new DetectionBox(minX: -10, maxX: 30, minY: -20, maxY: -1);
@@ -449,9 +434,7 @@ namespace BackendLibrary
             foreach (Page page in pages)
             {
                 IEnumerable<Word> words = page.GetWords();
-                List<Word> designWords = (from Word word in words
-                                          where word.Text.Equals("DESIGN:", StringComparison.OrdinalIgnoreCase)
-                                          select word).ToList();
+                List<Word> designWords = GetWordsEqualTo("DESIGN:", words);
                 foreach (Word word in designWords)
                 {
                     DetectionBox designWordDetectionBox = new DetectionBox(minX: -2, maxX: 30, minY: -40, maxY: -4);
@@ -464,6 +447,36 @@ namespace BackendLibrary
                 }
             }
             throw new ExtractionException($"Failed to get DesignNumber");
+        }
+
+        /// <summary>
+        /// Gets all words equal to the searchText from IEnumerable&lt;Word&gt; words
+        /// </summary>
+        private static List<Word> GetWordsEqualTo(string searchText, IEnumerable<Word> words)
+        {
+            return (from Word word in words
+                    where word.Text.Equals(searchText, StringComparison.OrdinalIgnoreCase)
+                    select word).ToList();
+        }
+
+        /// <summary>
+        /// Gets all words equal to any of the searchTexts from IEnumerable&lt;Word&gt; words
+        /// </summary>
+        private static List<Word> GetWordsEqualTo(List<string> searchTexts, IEnumerable<Word> words)
+        {
+            return (from Word word in words
+                    where searchTexts.Any(searchText => word.Text.Equals(searchText, StringComparison.OrdinalIgnoreCase))
+                    select word).ToList();
+        }
+
+        /// <summary>
+        /// Gets all words containing the searchText from IEnumerable&lt;Word&gt; words
+        /// </summary>
+        private static List<Word> GetWordsContaining(string searchText, IEnumerable<Word> words)
+        {
+            return (from Word word in words
+                    where word.Text.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+                    select word).ToList();
         }
 
         /// <summary>
