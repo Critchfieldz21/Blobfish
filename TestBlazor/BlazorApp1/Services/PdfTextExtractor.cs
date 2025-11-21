@@ -24,6 +24,24 @@ namespace BackendLibrary
             List<Page> pages = pdf.GetPages().ToList();
             logger.LogDebug("List<Page> created");
 
+            if (pages.Count == 0)
+            {
+                throw new ExtractionException("No pages found in PDF document.");
+            }
+
+            // Check if PDF has text
+            for (int i = 0; i < pages.Count; i++)
+            {
+                if (pages[i].GetWords().Count() > 0)
+                {
+                    break;
+                }
+                if (i == pages.Count - 1)
+                {
+                    throw new ExtractionException("No text found in PDF document.");
+                }
+            }
+
             TextGroup textGroup = new TextGroup();
 
             var cts = new CancellationTokenSource();
@@ -207,13 +225,13 @@ namespace BackendLibrary
                         Word? piecesreqdWord = FindWordNextTo(word, words, numberWordDetectionBox);
                         if (piecesreqdWord is null)
                         {
-                            throw new ExtractionException($"Failed to get ProjectNumber");
+                            throw new ExtractionException($"Failed to get ProjectNumber.");
                         }
                         return piecesreqdWord.Text;
                     }
                 }
             }
-            throw new ExtractionException($"Failed to get ProjectNumber");
+            throw new ExtractionException($"Failed to get ProjectNumber.");
         }
 
         /// <summary>
@@ -231,14 +249,14 @@ namespace BackendLibrary
                     List<Word> projectNameWords = FindWordsNextTo(word, words, projectWordDetectionBox);
                     if (projectNameWords.Count == 0)
                     {
-                        throw new ExtractionException($"Failed to get ProjectName");
+                        throw new ExtractionException($"Failed to get ProjectName.");
                     }
 
                     List<String> projectNameStrList = projectNameWords.Select(w => w.Text).ToList();
                     return string.Join(" ", projectNameStrList);
                 }
             }
-            throw new ExtractionException($"Failed to get ProjectName");
+            throw new ExtractionException($"Failed to get ProjectName.");
         }
 
         /// <summary>
@@ -264,13 +282,13 @@ namespace BackendLibrary
                         Word? piecemarkWord = FindWordNextTo(word, words, markWordDetectionBox);
                         if (piecemarkWord is null)
                         {
-                            throw new ExtractionException($"Failed to get FileContentPieceMark");
+                            throw new ExtractionException($"Failed to get FileContentPieceMark.");
                         }
                         return piecemarkWord.Text;
                     }
                 }
             }
-            throw new ExtractionException($"Failed to get FileContentPieceMark");
+            throw new ExtractionException($"Failed to get FileContentPieceMark.");
         }
 
         /// <summary>
@@ -381,13 +399,13 @@ namespace BackendLibrary
                         Word? piecesreqdWord = FindWordNextTo(word, words, reqWordDetectionBox);
                         if (piecesreqdWord is null)
                         {
-                            throw new ExtractionException($"Failed to get PiecesRequired");
+                            throw new ExtractionException($"Failed to get PiecesRequired.");
                         }
                         return int.Parse(piecesreqdWord.Text);
                     }
                 }
             }
-            throw new ExtractionException($"Failed to get PiecesRequired");
+            throw new ExtractionException($"Failed to get PiecesRequired.");
         }
 
         /// <summary>
@@ -411,7 +429,7 @@ namespace BackendLibrary
                     return decimal.Parse(weightStr);
                 }
             }
-            throw new ExtractionException($"Failed to get Weight");
+            throw new ExtractionException($"Failed to get Weight.");
         }
 
         /// <summary>
@@ -429,12 +447,12 @@ namespace BackendLibrary
                     Word? foundWord = FindWordNextTo(word, words, designWordDetectionBox);
                     if (foundWord is null)
                     {
-                        throw new ExtractionException($"Failed to get DesignNumber");
+                        throw new ExtractionException($"Failed to get DesignNumber.");
                     }
                     return foundWord.Text;
                 }
             }
-            throw new ExtractionException($"Failed to get DesignNumber");
+            throw new ExtractionException($"Failed to get DesignNumber.");
         }
 
         /// <summary>
