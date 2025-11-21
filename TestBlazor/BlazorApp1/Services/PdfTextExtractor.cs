@@ -73,10 +73,10 @@ namespace BackendLibrary
         private static string[] ExtractPageNames(List<Page> pages)
         {
             List<String> resultList = new List<String>();
-            List<String> annotationStrings = new List<String>();
             foreach (Page page in pages)
             {
                 IEnumerable<Annotation> annotations = page.GetAnnotations();
+                List<String> annotationStrings = new List<String>();
 
                 // PDFs can either have AutoCAD annotations to signify view labels or no annotations
                 // Move on to word search if there are no annotations
@@ -86,7 +86,6 @@ namespace BackendLibrary
                     continue;
                 }
 
-                annotationStrings.Clear();
                 foreach (Annotation annotation in annotations)
                 {
                     // Annotation must be underlined to be considered
@@ -95,21 +94,20 @@ namespace BackendLibrary
                         continue;
                     }
 
-                    String content = annotation.Content.Replace("%%U", "").Trim().ToUpper();
+                    String content = annotation.Content.Replace("%%U", "").Trim().ToLower();
                     annotationStrings.Add(content);
                 }
+                List<String> validPageNames = new List<String> { "FORM VIEW", "FOAM DRAWING", "REVEAL DRAWING" };
 
-                if (annotationStrings.Contains("FORM VIEW"))
+                if (annotationStrings.Intersect(validPageNames, StringComparer.OrdinalIgnoreCase).Any())
                 {
-                    resultList.Add("FormView");
-                }
-                else if (annotationStrings.Contains("FOAM DRAWING"))
-                {
-                    resultList.Add("FoamDrawing");
-                }
-                else if (annotationStrings.Contains("REVEAL DRAWING"))
-                {
-                    resultList.Add("RevealDrawing");
+                    string pageNameStr = annotationStrings.Intersect(validPageNames, StringComparer.OrdinalIgnoreCase).First();
+
+                    // Capitalize first letter of each word and remove space
+                    IEnumerable<string> pageNameList = pageNameStr.Split(' ').Select(s => char.ToUpper(s[0]) + s.Substring(1));
+                    pageNameStr = string.Join("", pageNameList);
+
+                    resultList.Add(pageNameStr);
                 }
                 else // Move on to word search if annotations are invalid
                 {
@@ -157,6 +155,7 @@ namespace BackendLibrary
                     return "FormView";
                 }
             }
+
             foreach (Word word in drawingWords)
             {
                 DetectionBox drawingWordDetectionBox = new DetectionBox(minX: -80, maxX: -20, minY: -1, maxY: 1);
