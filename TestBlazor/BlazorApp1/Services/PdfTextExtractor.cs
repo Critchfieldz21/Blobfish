@@ -6,8 +6,15 @@ using System.Text.RegularExpressions;
 
 namespace BackendLibrary
 {
+    /// <summary>
+    /// Utility class for ShopTicket.cs to extract text from ShopTicket PDFs using PdfPig.
+    /// </summary>
     internal class PdfTextExtractor
     {
+        /// <summary>
+        /// Extracts relevant text elements from a ShopTicket PDF. The TextGroup it extracts includes PageNames, 
+        /// ProjectNumber, ProjectName, FileContentPieceMark, ControlNumbers, PiecesRequired, Weight, and DesignNumber.
+        /// </summary>
         public static TextGroup GetExtractedText(ILogger<PdfTextExtractor> logger, byte[] pdfBytes)
         {
             logger.LogDebug("Start PdfPig PdfDocument initialization");
@@ -60,6 +67,9 @@ namespace BackendLibrary
             return textGroup;
         }
 
+        /// <summary>
+        /// Utility method to extract page names from PDF pages based on AutoCAD annotations or view labels.
+        /// </summary>
         private static string[] ExtractPageNames(List<Page> pages)
         {
             List<String> resultList = new List<String>();
@@ -109,6 +119,9 @@ namespace BackendLibrary
             return resultList.ToArray();
         }
 
+        /// <summary>
+        /// Utility method to extract page name from a PDF page without annotations by searching for specific words.
+        /// </summary>
         private static string ExtractPageNameNoAnnotations(Page page)
         {
             IEnumerable<Word> words = page.GetWords();
@@ -172,6 +185,10 @@ namespace BackendLibrary
 
             return "OtherPage";
         }
+
+        /// <summary>
+        /// Utility method to extract project number from PDF pages by searching for "JOB NO." keywords and its context.
+        /// </summary>
         private static string ExtractProjectNumber(List<Page> pages)
         {
             foreach (Page page in pages)
@@ -205,6 +222,9 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get ProjectNumber");
         }
 
+        /// <summary>
+        /// Utility method to extract project name from PDF pages by searching for "PROJECT" keyword and its context.
+        /// </summary>
         private static string ExtractProjectName(List<Page> pages)
         {
             foreach (Page page in pages)
@@ -241,6 +261,9 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get ProjectName");
         }
 
+        /// <summary>
+        /// Utility method to extract file content piece mark from PDF pages by searching for "PIECE MARK" keywords and its context.
+        /// </summary>
         private static string ExtractFileContentPieceMark(List<Page> pages)
         {
             foreach (Page page in pages)
@@ -272,6 +295,9 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get FileContentPieceMark");
         }
 
+        /// <summary>
+        /// Utility method to extract control numbers from PDF pages by searching for "CONTROL NO." keywords and its context.
+        /// </summary>
         private static string[]? ExtractControlNumbers(List<Page> pages)
         {
             List<Word> controlnumWords = new List<Word>();
@@ -356,6 +382,9 @@ namespace BackendLibrary
             return null;
         }
 
+        /// <summary>
+        /// Utility method to extract pieces required from PDF pages by searching for "PIECES REQ'D" keywords and its context.
+        /// </summary>
         private static int ExtractPiecesRequired(List<Page> pages)
         {
             foreach (Page page in pages)
@@ -387,6 +416,9 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get PiecesRequired");
         }
 
+        /// <summary>
+        /// Utility method to extract weight from PDF pages by searching for "WEIGHT" keyword and its context.
+        /// </summary>
         private static decimal ExtractWeight(List<Page> pages)
         {
             foreach (Page page in pages)
@@ -410,6 +442,9 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get Weight");
         }
 
+        /// <summary>
+        /// Utility method to extract design number from PDF pages by searching for "DESIGN" keyword and its context.
+        /// </summary>
         private static string ExtractDesignNumber(List<Page> pages)
         {
             foreach (Page page in pages)
@@ -432,10 +467,14 @@ namespace BackendLibrary
             throw new ExtractionException($"Failed to get DesignNumber");
         }
 
-        // Holds the detection boundary values for find word(s) methods
+        /// <summary>
+        /// Holds the detection boundary values for find word(s) methods
+        /// </summary>
         private record DetectionBox(int minX, int maxX, int minY, int maxY);
 
-        // Finds one word among IEnumerable<Word> words relative to an anchorWord given specified bounds
+        /// <summary>
+        /// Finds one word among IEnumerable&lt;Word&gt; words relative to an anchorWord given specified bounds
+        /// </summary>
         private static Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, DetectionBox detectionBox)
         {
             return (from Word word in words
@@ -446,7 +485,9 @@ namespace BackendLibrary
                     select word).FirstOrDefault();
         }
 
-        // Finds all words among IEnumerable<Word> words relative to an anchorWord given specified bounds
+        /// <summary>
+        /// Finds all words among IEnumerable&lt;Word&gt; words relative to an anchorWord given specified bounds
+        /// </summary>
         private static List<Word> FindWordsNextTo(Word anchorWord, IEnumerable<Word> words, DetectionBox detectionBox)
         {
             return (from Word word in words

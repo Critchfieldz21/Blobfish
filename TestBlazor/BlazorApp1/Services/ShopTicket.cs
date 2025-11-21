@@ -4,13 +4,16 @@ using PdfSharp.Pdf.IO;
 
 namespace BackendLibrary
 {
+    /// <summary>
+    /// A holder class representing a shop ticket extracted from a PDF file.
+    /// </summary>
     public class ShopTicket
     {
         private readonly ILogger<ShopTicket> _logger;
         private readonly ILoggerFactory _loggerFactory;
-        public byte[] PdfBytes { get; }                             // Bytearray of PDF file
-        public DateTime dateTimeExtracted { get; }                  // Date and time when ShopTicket was constructed
-        public int NumberOfPages { get; private set; }              // Number of pages in the PDF file.
+        public byte[] PdfBytes { get; }                              // Bytearray of PDF file
+        public DateTime dateTimeExtracted { get; }                   // Date and time when ShopTicket was constructed
+        public int NumberOfPages { get; private set; }               // Number of pages in the PDF file.
         public string[] PageNames { get; private set; }              // Page names extracted from view labels.
         public string FileName { get; private set; }                 // File name of the PDF file.
         public string? FileNamePieceMark { get; private set; }       // Piece Mark extracted from the file name.
@@ -31,6 +34,9 @@ namespace BackendLibrary
         //public double SectionViewRectangleWidth { get; set; }      // Width of the section view rectangle (inches).
         //public double SectionViewRectangleHeight { get; set; }     // Height of the section view rectangle (inches).
 
+        /// <summary>
+        /// ShopTicket constructor initializing from a PDF file path.
+        /// </summary>
         public ShopTicket(ILoggerFactory loggerFactory, String pdfPath)
         {
             try
@@ -51,6 +57,9 @@ namespace BackendLibrary
             }
         }
 
+        /// <summary>
+        /// ShopTicket constructor initializing from PDF byte array.
+        /// </summary>>
         public ShopTicket(ILoggerFactory loggerFactory, String fileName, byte[] pdfBytes)
         {
             try
@@ -72,6 +81,9 @@ namespace BackendLibrary
             }
         }
 
+        /// <summary>
+        /// ShopTicket constructor initializing from PDF byte array with form view rectangle detection.
+        /// </summary>
         public ShopTicket(ILoggerFactory loggerFactory, String fileName, byte[] pdfBytes, string modelPath)
         {
             try
@@ -105,7 +117,9 @@ namespace BackendLibrary
             }
         }
 
-        // Combine shared logic between constructors
+        /// <summary>
+        /// Combine shared construction logic.
+        /// </summary>
         private void InitializeFromPdf(PdfDocument pdf)
         {
             // OwnerPassword property needs a password to set SecuritySettings
@@ -145,6 +159,9 @@ namespace BackendLibrary
             }
         }
 
+        /// <summary>
+        /// Override ToString to provide a readable representation of the ShopTicket.
+        /// </summary>
         public override string ToString()
         {
             String str =
@@ -166,10 +183,12 @@ namespace BackendLibrary
                 "FormViewRectangleWidth: " + FormViewRectangleWidth + "\n" +
                 "FormViewRectangleHeight: " + FormViewRectangleHeight + "\n";
 
-
             return str;
         }
 
+        /// <summary>
+        /// Export the ShopTicket data to a JSON string.
+        /// </summary>
         public string ToJson()
         {
             return JsonSerializer.Serialize(ToExportDictionary(), new JsonSerializerOptions
@@ -178,6 +197,9 @@ namespace BackendLibrary
             });
         }
 
+        /// <summary>
+        /// Export the ShopTicket data to a CSV string.
+        /// </summary>
         public string ToCsv()
         {
             var dict = ToExportDictionary();
@@ -199,7 +221,9 @@ namespace BackendLibrary
             return $"{header}\n{row}";
         }
 
-
+        /// <summary>
+        /// Helper method to convert ShopTicket data to a dictionary for export.
+        /// </summary>
         private Dictionary<string, object> ToExportDictionary()
         {
             return new Dictionary<string, object>
@@ -223,7 +247,6 @@ namespace BackendLibrary
                 { "FormViewRectangleHeight", FormViewRectangleHeight }
             };
         }
-
 
         public void Info()
         {

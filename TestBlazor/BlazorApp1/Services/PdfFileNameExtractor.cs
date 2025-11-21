@@ -2,6 +2,9 @@ using System.Text.RegularExpressions;
 
 namespace BackendLibrary
 {
+    /// <summary>
+    /// Utility class for ShopTicket.cs to extract FileName and FileNamePieceMark from PDF files.
+    /// </summary>
     internal class PdfFileNameExtractor
     {
         public static string GetFileName(string pdfPath)

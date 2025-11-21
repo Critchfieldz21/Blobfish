@@ -1,5 +1,8 @@
 ﻿namespace BackendLibrary
 {
+    /// <summary>
+    /// Represents extracted text from ShopTicket PDF content.
+    /// </summary>
     public struct TextGroup
     {
         public string[] PageNames;
