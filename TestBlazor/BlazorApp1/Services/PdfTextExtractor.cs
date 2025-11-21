@@ -234,20 +234,8 @@ namespace BackendLibrary
                         throw new ExtractionException($"Failed to get ProjectName");
                     }
 
-                    // Concatenate projectNameWords into a single string
-                    String projectName = "";
-                    foreach (Word w in projectNameWords)
-                    {
-                        if (projectName == "")
-                        {
-                            projectName = w.Text;
-                        }
-                        else
-                        {
-                            projectName += " " + w.Text;
-                        }
-                    }
-                    return projectName;
+                    List<String> projectNameStrList = projectNameWords.Select(w => w.Text).ToList();
+                    return string.Join(" ", projectNameStrList);
                 }
             }
             throw new ExtractionException($"Failed to get ProjectName");
