@@ -247,27 +247,5 @@ namespace BackendLibrary
                 { "FormViewRectangleHeight", FormViewRectangleHeight }
             };
         }
-
-        public void Info()
-        {
-            string str = NumberOfPages.ToString() + " | " + FileName + " | " + FileNamePieceMark + " | " + ProjectNumber +
-                         " | " + ProjectName + " | " + FileContentPieceMark + " | " + PiecesRequired.ToString() +
-                         " | " + Weight.ToString() + " lb | " + DesignNumber;
-
-            String filepath = "/Users/zacharycritchfield/Documents/GitHub/Blobfish/SQL3cs/ShopTicketInfo.txt";
-
-            List<String> lines = new List<String>();
-            if (File.Exists(filepath))
-            {
-                File.Delete(filepath);
-                lines.Add(str);
-                File.WriteAllLines(filepath, lines);
-            }
-            else
-            {
-                lines.Add(str);
-                File.WriteAllLines(filepath, lines);
-            }
-        }
     }
 }
