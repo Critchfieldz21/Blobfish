@@ -406,6 +406,7 @@
                     {
                         status = "Error";
                         message = ex.Message;
+						Logger.LogError(ex.Message);
                         if (ex.InnerException is ExtractionException)
                         {
                             message += "<br /><br />Suggestion: Double-check if this file is a valid shop ticket PDF";
