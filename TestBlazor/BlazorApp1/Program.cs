@@ -94,7 +94,6 @@ app.MapGet("/export/batch/{val}", (bool val, string? ids, ShopTicketService sTSe
     }
 });
 
-
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -102,6 +101,11 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+// Preload packages to reduce first-use latency
+var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+var preloadLogger = loggerFactory.CreateLogger<PreloadService>();
+PreloadService.PreloadPdfPig(preloadLogger);
 
 app.UseHttpsRedirection();
 
