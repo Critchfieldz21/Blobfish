@@ -154,7 +154,7 @@
         public string Message { get; set; } = string.Empty;
         public string DurationHuman => Duration == TimeSpan.Zero ? "< 1s" : string.Format("{0}s", Math.Round(Duration.TotalSeconds, 2));
         public string StatusClass => Status switch { "Done" => "done", "Error" => "error", "Cancelled" => "cancelled", _ => "unknown" };
-        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public DateTime Timestamp { get; set; } = DateTime.Now;
         public int HistoryIndex { get; set; } = -1;
         // for serialization compatibility
         public ProcessingResult() { }
@@ -441,7 +441,7 @@
                     Duration = sw.Elapsed,
                     Status = status,
                     Message = message,
-                    Timestamp = DateTime.UtcNow,
+                    Timestamp = DateTime.Now,
                     HistoryIndex = status == "Done" ? sTService.History.Count - 1 : -1
                 };
                 // add the processing card for this file
