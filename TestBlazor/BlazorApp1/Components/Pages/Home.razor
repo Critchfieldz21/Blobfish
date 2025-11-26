@@ -11,6 +11,7 @@
 @inject IJSRuntime JS
 @inject ILogger<Home> Logger
 @inject ILoggerFactory loggerFactory;
+@inject SQL3cs.CustomerData Db
 
 <PageTitle>Home</PageTitle>
 
@@ -282,11 +283,14 @@
     private string modalErrorMessage = "An error occurred during PDF processing.";
 
     private List<ShopTicket> tempList = new List<ShopTicket>();
+    private bool canSaveToDb => tempList != null && tempList.Count > 0;
 
     private void GoToHistory()
     {
         Navigation.NavigateTo("/history");
     }
+
+    
 
     private async Task OnPrimary()
     {
@@ -332,7 +336,7 @@
 
                 if (!cancelRequested)
                 {
-                    sTService.SetCurrentTicket(tempList);
+                    sTService.SetCurrentTicket(tempList.Cast<ShopTicket?>().ToList());
                     Navigation.NavigateTo("/processing");
                 }
             }
@@ -352,6 +356,8 @@
     }
 
     private void OnSecondary() => isDropdownOpen = !isDropdownOpen;
+
+    
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
@@ -399,8 +405,11 @@
                     try
                     {
 						Logger.LogInformation("Processing file: {FileName}", file.Name);
-                        tempList.Add(new ShopTicket(loggerFactory, file.Name, pdfBytes, "Services/best.onnx"));
-						Logger.LogInformation("Successfully processed file: {FileName}", file.Name);
+                        var ticket = new ShopTicket(loggerFactory, file.Name, pdfBytes, "Services/best.onnx");
+                        tempList.Add(ticket);
+                        // auto-persist to DB
+                        Db.AddDataToTables(ticket);
+                        Logger.LogInformation("Successfully processed and saved file: {FileName}", file.Name);
                     }
                     catch (Exception ex)
                     {

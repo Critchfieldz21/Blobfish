@@ -1,7 +1,10 @@
 using BackendLibrary;
 using BlazorApp1.Components;
+using SQL3cs;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<ShopTicketService>();
+// Use existing SQLite helper in Services/database.cs
+builder.Services.AddSingleton<SQL3cs.CustomerData>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -18,6 +21,21 @@ builder.Logging.AddSimpleConsole(options =>
 });
 
 var app = builder.Build();
+
+// Ensure SQLite tables exist at startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<SQL3cs.CustomerData>();
+    db.CreateTables();
+    // Preload history from DB so it persists across restarts
+    var stService = scope.ServiceProvider.GetRequiredService<ShopTicketService>();
+    var loggerFactory2 = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+    var existing = db.LoadTickets(loggerFactory2);
+    if (existing.Count > 0)
+    {
+        stService.History = existing.Cast<ShopTicket?>().ToList();
+    }
+}
 
 app.MapGet("/export/{val}/{index}", (String val, int index, ShopTicketService sTService) =>
 {

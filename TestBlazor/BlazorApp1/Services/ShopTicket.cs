@@ -118,6 +118,53 @@ namespace BackendLibrary
         }
 
         /// <summary>
+        /// ShopTicket constructor initializing directly from stored database fields (no PDF bytes).
+        /// PdfBytes will be an empty array and the PDF viewer will not render.
+        /// </summary>
+        public ShopTicket(
+            ILoggerFactory loggerFactory,
+            string fileName,
+            int numberOfPages,
+            string[] pageNames,
+            string? fileNamePieceMark,
+            string projectNumber,
+            string projectName,
+            string fileContentPieceMark,
+            string[]? controlNumbers,
+            int piecesRequired,
+            decimal weight,
+            string designNumber,
+            int rectanglePage,
+            double formViewRectangleX,
+            double formViewRectangleY,
+            double formViewRectangleWidth,
+            double formViewRectangleHeight,
+            DateTime processedDate)
+        {
+            _loggerFactory = loggerFactory;
+            _logger = _loggerFactory.CreateLogger<ShopTicket>();
+
+            PdfBytes = Array.Empty<byte>();
+            FileName = fileName;
+            NumberOfPages = numberOfPages;
+            PageNames = pageNames;
+            FileNamePieceMark = fileNamePieceMark;
+            ProjectNumber = projectNumber;
+            ProjectName = projectName;
+            FileContentPieceMark = fileContentPieceMark;
+            ControlNumbers = controlNumbers;
+            PiecesRequired = piecesRequired;
+            Weight = weight;
+            DesignNumber = designNumber;
+            RectanglePage = rectanglePage;
+            FormViewRectangleX = formViewRectangleX;
+            FormViewRectangleY = formViewRectangleY;
+            FormViewRectangleWidth = formViewRectangleWidth;
+            FormViewRectangleHeight = formViewRectangleHeight;
+            dateTimeExtracted = processedDate;
+        }
+
+        /// <summary>
         /// Combine shared construction logic.
         /// </summary>
         private void InitializeFromPdf(PdfDocument pdf)
@@ -232,11 +279,11 @@ namespace BackendLibrary
                 { "ProcessedDate", dateTimeExtracted },
                 { "NumberOfPages", NumberOfPages },
                 { "PageNames", PageNames },
-                { "FileNamePieceMark", FileNamePieceMark },
+                { "FileNamePieceMark", FileNamePieceMark ?? string.Empty },
                 { "ProjectNumber", ProjectNumber },
                 { "ProjectName", ProjectName },
                 { "FileContentPieceMark", FileContentPieceMark },
-                { "ControlNumbers", ControlNumbers },
+                { "ControlNumbers", ControlNumbers ?? Array.Empty<string>() },
                 { "PiecesRequired", PiecesRequired },
                 { "Weight", Weight },
                 { "DesignNumber", DesignNumber },

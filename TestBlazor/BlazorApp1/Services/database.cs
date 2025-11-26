@@ -13,12 +13,19 @@ namespace SQL3cs
 
     public class CustomerData
     {
-        private const string DbFile = "ShopTicket.db";
-        private static readonly string connectionString = $"Data Source={DbFile}";
+        private readonly string _dbPath;
+        private readonly string _connectionString;
+
+        public CustomerData(Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
+        {
+            // Ensure DB lives under the content root so it's predictable
+            _dbPath = Path.Combine(env.ContentRootPath, "ShopTicket.db");
+            _connectionString = $"Data Source={_dbPath}";
+        }
 
         public void CreateTables()
         {
-            using (var connection = new SqliteConnection(connectionString))
+            using (var connection = new SqliteConnection(_connectionString))
             {
                 connection.Open();
                 var command = connection.CreateCommand();
@@ -81,7 +88,7 @@ namespace SQL3cs
         {
             try
             {
-                using (var connection = new SqliteConnection(connectionString))
+                using (var connection = new SqliteConnection(_connectionString))
                 {
                     connection.Open();
 
@@ -102,7 +109,7 @@ namespace SQL3cs
                     commandSelectRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandSelectRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
 
-                    object existingRecIDResult = commandSelectRect.ExecuteScalar();
+                    object? existingRecIDResult = commandSelectRect.ExecuteScalar();
 
                     if (existingRecIDResult != null)
                     {
@@ -126,7 +133,9 @@ namespace SQL3cs
                         commandInsertRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                         commandInsertRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
 
-                        newRecID = (long)commandInsertRect.ExecuteScalar();
+                        var insRectRes = commandInsertRect.ExecuteScalar();
+                        if (insRectRes == null) throw new InvalidOperationException("Failed to retrieve new RecID.");
+                        newRecID = Convert.ToInt64(insRectRes);
                     }
 
                     // 2. Insert data into the Child table (ShopTicket) using newRecID (FK)
@@ -137,8 +146,7 @@ namespace SQL3cs
                     ProjectName, ProjectNumber, DesignNumber, PiecesRequired, ControlNumbers,PageNames, 
                     Weight, FileContentPieceMark, FileName, FileNamePieceMark, NumberOfPages, RecID
                 ) VALUES ($pn, $prnu, $dn, $pire, $cn, $pnames, $we, $fcpm, $fn, $fnpm, $nop, $recid);
-                
-                SELECT last_insert_rowid(); -- Get the PK of the newly inserted ShopTicket
+                SELECT last_insert_rowid();
                 ";
                     commandShop.Parameters.AddWithValue("$pn", pdf.ProjectName);
                     commandShop.Parameters.AddWithValue("$prnu", pdf.ProjectNumber);
@@ -149,12 +157,14 @@ namespace SQL3cs
                     commandShop.Parameters.AddWithValue("$we", pdf.Weight);
                     commandShop.Parameters.AddWithValue("$fcpm", pdf.FileContentPieceMark);
                     commandShop.Parameters.AddWithValue("$fn", pdf.FileName);
-                    commandShop.Parameters.AddWithValue("$fnpm", (object)pdf.FileNamePieceMark ?? DBNull.Value);
+                    commandShop.Parameters.AddWithValue("$fnpm", (object?)pdf.FileNamePieceMark ?? DBNull.Value);
                     commandShop.Parameters.AddWithValue("$nop", pdf.NumberOfPages);
                     commandShop.Parameters.AddWithValue("$recid", newRecID);
 
 
-                    long newShopTicketID = (long)commandShop.ExecuteScalar();
+                    var insShopRes = commandShop.ExecuteScalar();
+                    if (insShopRes == null) throw new InvalidOperationException("Failed to retrieve new ShopTicketID.");
+                    long newShopTicketID = Convert.ToInt64(insShopRes);
 
 
                     // 3. Insert data into the Project table using newShopTicketID (FK)
@@ -178,10 +188,87 @@ namespace SQL3cs
               
             }
             // General catch for any other unforeseen errors
-            catch (Exception ex)
+            catch (Exception)
             {
                 
             }
+        }
+
+        public List<ShopTicket> LoadTickets(ILoggerFactory loggerFactory)
+        {
+            var result = new List<ShopTicket>();
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText = @"
+                SELECT s.FileName, s.NumberOfPages, s.PageNames, s.FileNamePieceMark, s.ProjectNumber,
+                       s.ProjectName, s.FileContentPieceMark, s.ControlNumbers, s.PiecesRequired,
+                       s.Weight, s.DesignNumber,
+                       r.FormViewRectangleX, r.FormViewRectangleY, r.FormViewRectangleWidth, r.FormViewRectangleHeight,
+                       p.DateCreated
+                FROM ShopTicket s
+                LEFT JOIN Rectangle r ON s.RecID = r.RecID
+                LEFT JOIN Project p ON p.ShopTicketID = s.ShopTicketID
+                ORDER BY s.ShopTicketID ASC;";
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                string fileName = reader.IsDBNull(0) ? string.Empty : reader.GetString(0);
+                int numberOfPages = reader.IsDBNull(1) ? 0 : reader.GetInt32(1);
+                string pageNamesRaw = reader.IsDBNull(2) ? string.Empty : reader.GetString(2);
+                string? fileNamePieceMark = reader.IsDBNull(3) ? null : reader.GetString(3);
+                string projectNumber = reader.IsDBNull(4) ? string.Empty : reader.GetString(4);
+                string projectName = reader.IsDBNull(5) ? string.Empty : reader.GetString(5);
+                string fileContentPieceMark = reader.IsDBNull(6) ? string.Empty : reader.GetString(6);
+                string controlNumbersRaw = reader.IsDBNull(7) ? string.Empty : reader.GetString(7);
+                int piecesRequired = reader.IsDBNull(8) ? 0 : reader.GetInt32(8);
+                decimal weight = reader.IsDBNull(9) ? 0 : reader.GetDecimal(9);
+                string designNumber = reader.IsDBNull(10) ? string.Empty : reader.GetString(10);
+                double rectX = reader.IsDBNull(11) ? 0 : reader.GetDouble(11);
+                double rectY = reader.IsDBNull(12) ? 0 : reader.GetDouble(12);
+                double rectW = reader.IsDBNull(13) ? 0 : reader.GetDouble(13);
+                double rectH = reader.IsDBNull(14) ? 0 : reader.GetDouble(14);
+                string dateCreatedRaw = reader.IsDBNull(15) ? string.Empty : reader.GetString(15);
+
+                // Split helpers: values were joined with triple-spaces
+                string[] pageNames = string.IsNullOrWhiteSpace(pageNamesRaw)
+                    ? Array.Empty<string>()
+                    : pageNamesRaw.Split(new[] { "   " }, StringSplitOptions.RemoveEmptyEntries);
+
+                string[]? controlNumbers = string.IsNullOrWhiteSpace(controlNumbersRaw)
+                    ? null
+                    : controlNumbersRaw.Split(new[] { "   " }, StringSplitOptions.RemoveEmptyEntries);
+
+                DateTime processed = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(dateCreatedRaw))
+                {
+                    DateTime.TryParse(dateCreatedRaw, out processed);
+                }
+
+                var ticket = new ShopTicket(
+                    loggerFactory,
+                    fileName,
+                    numberOfPages,
+                    pageNames,
+                    fileNamePieceMark,
+                    projectNumber,
+                    projectName,
+                    fileContentPieceMark,
+                    controlNumbers,
+                    piecesRequired,
+                    weight,
+                    designNumber,
+                    0,
+                    rectX,
+                    rectY,
+                    rectW,
+                    rectH,
+                    processed
+                );
+
+                result.Add(ticket);
+            }
+            return result;
         }
 
         // public void OpenExcelFile(string filePath)
@@ -208,7 +295,7 @@ namespace SQL3cs
         {
             try
             {
-                using (var connection = new SqliteConnection(connectionString))
+                using (var connection = new SqliteConnection(_connectionString))
                 {
                     connection.Open();
                     var command = connection.CreateCommand();
@@ -256,7 +343,7 @@ namespace SQL3cs
         {
             try
             {
-                using (var connection = new SqliteConnection(connectionString))
+                using (var connection = new SqliteConnection(_connectionString))
                 {
                     connection.Open();
                     var command = connection.CreateCommand();
@@ -295,7 +382,7 @@ namespace SQL3cs
         {
             try
             {
-                using (var connection = new SqliteConnection(connectionString))
+                using (var connection = new SqliteConnection(_connectionString))
                 {
                     connection.Open();
                     var command = connection.CreateCommand();
@@ -333,7 +420,7 @@ namespace SQL3cs
         public void RemoveRowByProjectID(int projectID)
 
         {
-            using (var connection = new SqliteConnection(connectionString))
+            using (var connection = new SqliteConnection(_connectionString))
             {
                 connection.Open();
 
@@ -442,7 +529,7 @@ namespace SQL3cs
         public int GetProjectIdFromUser()
         {
             Console.Write("Please enter the Project ID you wish to delete: ");
-            string input = Console.ReadLine();
+            string? input = Console.ReadLine();
 
             if (int.TryParse(input, out int projectId))
             {
