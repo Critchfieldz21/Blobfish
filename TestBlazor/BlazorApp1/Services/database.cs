@@ -92,6 +92,17 @@ namespace SQL3cs
                 {
                     connection.Open();
 
+                    // Prevent duplicate ShopTicket rows by FileName
+                    var dupCheck = connection.CreateCommand();
+                    dupCheck.CommandText = @"SELECT ShopTicketID FROM ShopTicket WHERE FileName = $fn LIMIT 1;";
+                    dupCheck.Parameters.AddWithValue("$fn", pdf.FileName);
+                    var existingTicket = dupCheck.ExecuteScalar();
+                    if (existingTicket != null)
+                    {
+                        // Already inserted; skip all further inserts
+                        return;
+                    }
+
                     long newRecID;
 
                     // First, try to find an existing matching rectangle
