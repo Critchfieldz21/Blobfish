@@ -41,7 +41,7 @@ namespace SQL3cs
                     
                                
                      );
-            ";
+                ";
                 command.ExecuteNonQuery();
 
                 command.CommandText =
@@ -67,27 +67,6 @@ namespace SQL3cs
                 ";
                 command.ExecuteNonQuery();
 
-                // Ensure optional columns exist (PdfBlob)
-                command.CommandText = @"PRAGMA table_info(ShopTicket);";
-                bool hasPdfBlob = false;
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var name = reader.GetString(1);
-                        if (string.Equals(name, "PdfBlob", StringComparison.OrdinalIgnoreCase))
-                        {
-                            hasPdfBlob = true;
-                            break;
-                        }
-                    }
-                }
-                if (!hasPdfBlob)
-                {
-                    command.CommandText = "ALTER TABLE ShopTicket ADD COLUMN PdfBlob BLOB";
-                    try { command.ExecuteNonQuery(); } catch { }
-                }
-
                 command.CommandText =
                 @"
                 CREATE TABLE IF NOT EXISTS Project (
@@ -98,13 +77,11 @@ namespace SQL3cs
                    Foreign KEY (ShopTicketID) REFERENCES ShopTicket(ShopTicketID)
 
                      );
-            ";
+                ";
 
                 command.ExecuteNonQuery();
             }
         }
-        private const string ModelPath = "../../../../BackendLibrary/best.onnx";
-        // private const string ModelPath = "C:/Users/critc/OneDrive/Desktop/Blobfish/Blobfish/BackendLibrary/best.onnx";
 
         public void AddDataToTables(ShopTicket pdf)
         {
@@ -192,7 +169,7 @@ namespace SQL3cs
                     commandShop.Parameters.AddWithValue("$fn", pdf.FileName);
                     commandShop.Parameters.AddWithValue("$fnpm", (object?)pdf.FileNamePieceMark ?? DBNull.Value);
                     commandShop.Parameters.AddWithValue("$nop", pdf.NumberOfPages);
-                    commandShop.Parameters.AddWithValue("$blob", (object?)pdf.PdfBytes ?? DBNull.Value);
+                    commandShop.Parameters.AddWithValue("$blob", (object?)pdf.PdfBytes);
                     commandShop.Parameters.AddWithValue("$recid", newRecID);
 
 
@@ -235,49 +212,18 @@ namespace SQL3cs
             connection.Open();
             using var cmd = connection.CreateCommand();
 
-            // Build SELECT dynamically depending on whether PdfBlob column exists
-            bool pdfBlobExists = false;
-            using (var check = connection.CreateCommand())
-            {
-                check.CommandText = @"PRAGMA table_info(ShopTicket);";
-                using var r = check.ExecuteReader();
-                while (r.Read())
-                {
-                    var name = r.GetString(1);
-                    if (string.Equals(name, "PdfBlob", StringComparison.OrdinalIgnoreCase))
-                    {
-                        pdfBlobExists = true;
-                        break;
-                    }
-                }
-            }
+            cmd.CommandText = @"
+                SELECT s.FileName, s.NumberOfPages, s.PageNames, s.FileNamePieceMark, s.ProjectNumber,
+                        s.ProjectName, s.FileContentPieceMark, s.ControlNumbers, s.PiecesRequired,
+                        s.Weight, s.DesignNumber, s.PdfBlob,
+                        r.FormViewRectangleX, r.FormViewRectangleY, r.FormViewRectangleWidth, r.FormViewRectangleHeight,
+                        p.DateCreated
+                FROM ShopTicket s
+                LEFT JOIN Rectangle r ON s.RecID = r.RecID
+                LEFT JOIN Project p ON p.ShopTicketID = s.ShopTicketID
+                ORDER BY s.ShopTicketID ASC;";
 
-            if (pdfBlobExists)
-            {
-                cmd.CommandText = @"
-                    SELECT s.FileName, s.NumberOfPages, s.PageNames, s.FileNamePieceMark, s.ProjectNumber,
-                           s.ProjectName, s.FileContentPieceMark, s.ControlNumbers, s.PiecesRequired,
-                           s.Weight, s.DesignNumber, s.PdfBlob,
-                           r.FormViewRectangleX, r.FormViewRectangleY, r.FormViewRectangleWidth, r.FormViewRectangleHeight,
-                           p.DateCreated
-                    FROM ShopTicket s
-                    LEFT JOIN Rectangle r ON s.RecID = r.RecID
-                    LEFT JOIN Project p ON p.ShopTicketID = s.ShopTicketID
-                    ORDER BY s.ShopTicketID ASC;";
-            }
-            else
-            {
-                cmd.CommandText = @"
-                    SELECT s.FileName, s.NumberOfPages, s.PageNames, s.FileNamePieceMark, s.ProjectNumber,
-                           s.ProjectName, s.FileContentPieceMark, s.ControlNumbers, s.PiecesRequired,
-                           s.Weight, s.DesignNumber,
-                           r.FormViewRectangleX, r.FormViewRectangleY, r.FormViewRectangleWidth, r.FormViewRectangleHeight,
-                           p.DateCreated
-                    FROM ShopTicket s
-                    LEFT JOIN Rectangle r ON s.RecID = r.RecID
-                    LEFT JOIN Project p ON p.ShopTicketID = s.ShopTicketID
-                    ORDER BY s.ShopTicketID ASC;";
-            }
+
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
@@ -292,18 +238,12 @@ namespace SQL3cs
                 int piecesRequired = reader.IsDBNull(8) ? 0 : reader.GetInt32(8);
                 decimal weight = reader.IsDBNull(9) ? 0 : reader.GetDecimal(9);
                 string designNumber = reader.IsDBNull(10) ? string.Empty : reader.GetString(10);
-                byte[] pdfBlob = Array.Empty<byte>();
-                int baseIndex = 11;
-                if (pdfBlobExists)
-                {
-                    pdfBlob = reader.IsDBNull(11) ? Array.Empty<byte>() : (byte[])reader.GetValue(11);
-                    baseIndex = 12;
-                }
-                double rectX = reader.IsDBNull(baseIndex + 0) ? 0 : reader.GetDouble(baseIndex + 0);
-                double rectY = reader.IsDBNull(baseIndex + 1) ? 0 : reader.GetDouble(baseIndex + 1);
-                double rectW = reader.IsDBNull(baseIndex + 2) ? 0 : reader.GetDouble(baseIndex + 2);
-                double rectH = reader.IsDBNull(baseIndex + 3) ? 0 : reader.GetDouble(baseIndex + 3);
-                string dateCreatedRaw = reader.IsDBNull(baseIndex + 4) ? string.Empty : reader.GetString(baseIndex + 4);
+                byte[] pdfBlob = pdfBlob = reader.IsDBNull(11) ? Array.Empty<byte>() : (byte[])reader.GetValue(11);
+                double rectX = reader.IsDBNull(12) ? 0 : reader.GetDouble(12);
+                double rectY = reader.IsDBNull(13) ? 0 : reader.GetDouble(13);
+                double rectW = reader.IsDBNull(14) ? 0 : reader.GetDouble(14);
+                double rectH = reader.IsDBNull(15) ? 0 : reader.GetDouble(15);
+                string dateCreatedRaw = reader.IsDBNull(16) ? string.Empty : reader.GetString(16);
 
                 // Split helpers: values were joined with triple-spaces
                 string[] pageNames = string.IsNullOrWhiteSpace(pageNamesRaw)
@@ -320,53 +260,32 @@ namespace SQL3cs
                     DateTime.TryParse(dateCreatedRaw, out processed);
                 }
 
-                ShopTicket ticket = (pdfBlob.Length > 0)
-                    ? new ShopTicket(loggerFactory, fileName, pdfBlob)
-                    : new ShopTicket(
-                        loggerFactory,
-                        fileName,
-                        numberOfPages,
-                        pageNames,
-                        fileNamePieceMark,
-                        projectNumber,
-                        projectName,
-                        fileContentPieceMark,
-                        controlNumbers,
-                        piecesRequired,
-                        weight,
-                        designNumber,
-                        0,
-                        rectX,
-                        rectY,
-                        rectW,
-                        rectH,
-                        processed
-                    );
+                ShopTicket ticket = new ShopTicket(
+                    loggerFactory,
+                    pdfBlob,
+                    fileName,
+                    numberOfPages,
+                    pageNames,
+                    fileNamePieceMark,
+                    projectNumber,
+                    projectName,
+                    fileContentPieceMark,
+                    controlNumbers,
+                    piecesRequired,
+                    weight,
+                    designNumber,
+                    0,
+                    rectX,
+                    rectY,
+                    rectW,
+                    rectH,
+                    processed
+                );
 
                 result.Add(ticket);
             }
             return result;
         }
-
-        // public void OpenExcelFile(string filePath)
-        // {
-        //     if (!File.Exists(filePath))
-        //     {
-        //         Console.WriteLine($"Error: Excel file not found at {filePath}");
-        //         return;
-        //     }
-
-        //     try
-        //     {
-        //         Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
-        //         Console.WriteLine($"Opening {filePath}...");
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Console.WriteLine($"An error occurred while trying to open the file: {ex.Message}");
-        //     }
-        // }
-
 
         public void ExportToCsvShopTicket(string csvFilePath)
         {

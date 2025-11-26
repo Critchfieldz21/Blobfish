@@ -118,11 +118,11 @@ namespace BackendLibrary
         }
 
         /// <summary>
-        /// ShopTicket constructor initializing directly from stored database fields (no PDF bytes).
-        /// PdfBytes will be an empty array and the PDF viewer will not render.
+        /// ShopTicket constructor initializing directly from stored database fields
         /// </summary>
         public ShopTicket(
             ILoggerFactory loggerFactory,
+            byte[] pdfBytes,
             string fileName,
             int numberOfPages,
             string[] pageNames,
@@ -144,7 +144,7 @@ namespace BackendLibrary
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger<ShopTicket>();
 
-            PdfBytes = Array.Empty<byte>();
+            PdfBytes = pdfBytes;
             FileName = fileName;
             NumberOfPages = numberOfPages;
             PageNames = pageNames;
@@ -162,6 +162,8 @@ namespace BackendLibrary
             FormViewRectangleWidth = formViewRectangleWidth;
             FormViewRectangleHeight = formViewRectangleHeight;
             dateTimeExtracted = processedDate;
+
+            _logger.LogDebug("ShopTicket loaded for {FileName}", fileName);
         }
 
         /// <summary>
