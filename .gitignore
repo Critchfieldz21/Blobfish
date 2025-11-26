@@ -489,3 +489,5 @@ TestBlazor/BlazorApp1/temp/*.jpg
 
 # Unit test pdf files
 BackendLibraryUnitTest/test_pdfs/*.pdf
+/TestBlazor/BlazorApp1/ShopTicket.db
+/TestBlazor/BlazorApp1/ShopTicket.db
