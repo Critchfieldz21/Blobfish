@@ -120,10 +120,10 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// Preload packages to reduce first-use latency
+// Preload packages to reduce first-use latency of PDF extraction
 var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 var preloadLogger = loggerFactory.CreateLogger<PreloadService>();
-PreloadService.PreloadPdfPig(preloadLogger);
+PreloadService.PreloadPackages(preloadLogger);
 
 app.UseHttpsRedirection();
 

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using PdfSharp.Pdf.Annotations;
 
 namespace BackendLibrary
 {
@@ -22,7 +23,13 @@ namespace BackendLibrary
                 %%EOF"
             );
 
-        public static void PreloadPdfPig(ILogger<PreloadService> logger)
+        public static void PreloadPackages(ILogger<PreloadService> logger)
+        {
+            PreloadPdfPig(logger);
+            PreloadPdfiumViewer(logger);
+        }
+
+        private static void PreloadPdfPig(ILogger<PreloadService> logger)
         {     
             try
             {
@@ -35,6 +42,22 @@ namespace BackendLibrary
             catch
             {
                 logger.LogError("Failed to load PdfPig.");
+            }
+        }
+
+        private static void PreloadPdfiumViewer(ILogger<PreloadService> logger)
+        {
+            try
+            {
+                MemoryStream stream = new MemoryStream(_tinyPdf);
+                using var document = PdfiumViewer.PdfDocument.Load(stream);
+                int pageCount = document.PageCount;
+                using var image = document.Render(0, 72, 72, true);
+                logger.LogInformation("Preloaded PdfiumViewer successfully.");
+            }
+            catch
+            {
+                logger.LogError("Failed to load PdfiumViewer.");
             }
         }
     }
