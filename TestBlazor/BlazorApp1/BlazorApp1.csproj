@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blazor.Bootstrap" Version="3.4.0" />
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0" />
+    <PackageReference Include="PdfPig" Version="0.1.11" />
+    <PackageReference Include="PDFsharp" Version="6.2.2" />
+	<PackageReference Include="PdfiumViewer" Version="2.13.0" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+	<PackageReference Include="PdfiumViewer.Native.x86_64.v8-xfa" Version="2018.4.8.256" />
+	<PackageReference Include="YoloDotNet" Version="3.1.1" />
+	<PackageReference Include="SkiaSharp" Version="3.119.1" />
+  </ItemGroup>
+	
+</Project>

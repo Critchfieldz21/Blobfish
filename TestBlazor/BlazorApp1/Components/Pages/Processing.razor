@@ -1,0 +1,180 @@
+﻿@page "/processing"
+@using BackendLibrary
+@using BlazorBootstrap
+@using Microsoft.AspNetCore.WebUtilities
+@using System.Linq
+@rendermode InteractiveServer
+@inject ShopTicketService sTService
+@inject NavigationManager Navigation
+<link href="_content/Blazor.Bootstrap/blazor.bootstrap.css" rel="stylesheet" />
+<script src="_content/Blazor.Bootstrap/blazor.bootstrap.js"></script>
+
+<PageTitle>PDF Info</PageTitle>
+
+<section class="topbar">
+    <button class="homeButt" type="button" @onclick="GoHome">Back to Home</button>
+    <button class="historyButt" type="button" @onclick="GoHistory">History</button>
+    <button class="navbtn" type="button" @onclick="GoLeft">←</button>
+    <button class="navbtn" type="button" @onclick="GoRight">→</button>
+</section>
+
+<section>
+    <div class="titleName">
+        <h1>PDF Info: <span class="pdf-name" title="@setName()">@setName()</span></h1>
+    </div>
+</section>
+
+<section class="pdf-processing-container">
+    <!-- PDF Viewer -->
+    <div class="pdfVisBox">
+        @if (!string.IsNullOrEmpty(base64Url))
+        {
+            <PdfViewer @key="base64Url" Class="pdfViewer" Url="@base64Url" OnDocumentLoaded="OnDocumentLoaded"
+                OnPageChanged="OnPageChanged" />
+        }
+        else
+        {
+            <p><em>No PDF data available to display.</em></p>
+        }
+    </div>
+    <!-- PDF Info -->
+    <div class="pdfinfo">
+        <div class="pdfinfo-content">
+        <table class="info-table">
+            <tr><th>File Name</th><td>@(ticket?.FileName ?? "(no file)")</td></tr>
+            <tr><th>Pages</th><td>@(ticket?.NumberOfPages.ToString() ?? "")</td></tr>
+            <tr><th>Processed</th><td>@(ticket != null ? ticket.dateTimeExtracted : "")</td></tr>
+            <tr><th>Project #</th><td>@(ticket?.ProjectNumber ?? "")</td></tr>
+            <tr><th>Project</th><td>@(ticket?.ProjectName ?? "")</td></tr>
+            <tr><th>File Name Piece Mark</th><td>@(ticket?.FileNamePieceMark ?? "")</td></tr>
+            <tr><th>File Content Piece Mark</th><td>@(ticket?.FileContentPieceMark ?? "")</td></tr>
+            <tr><th>Control Numbers</th><td>@(ticket?.ControlNumbers != null ? string.Join(", ", ticket.ControlNumbers) : "null")</td></tr>
+            <tr><th>Pieces Req'd</th><td>@(ticket?.PiecesRequired.ToString() ?? "")</td></tr>
+            <tr><th>Weight</th><td>@(ticket != null ? ticket.Weight + " lb" : "")</td></tr>
+            <tr><th>Design #</th><td>@(ticket?.DesignNumber ?? "")</td></tr>
+            <tr><th>Page Names</th><td>@(ticket?.PageNames != null ? string.Join(", ", ticket.PageNames) : "")</td></tr>
+            <tr><th>Rectangle Page</th><td>@((ticket != null ? ticket.RectanglePage : ""))</td></tr>
+            <tr><th>Form View Rectangle X</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleX, 4) : ""))</td></tr>
+            <tr><th>Form View Rectangle Y</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleY, 4) : ""))</td></tr>
+            <tr><th>Form View Rectangle Width</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleWidth, 4) : ""))</td></tr>
+            <tr><th>Form View Rectangle Height</th><td>@((ticket != null ? Math.Round(ticket.FormViewRectangleHeight, 4) : ""))</td></tr>
+        </table>
+        <img src="../NortheastPrecast.webp" />
+        </div>
+    </div>
+</section>
+
+@code {
+    private string? base64Url;
+    private int currTicketIndex = 0;
+    private ShopTicket? ticket;
+    private bool viewingHistory = false;
+
+    protected override void OnInitialized()
+    {
+        // detect if a historyIndex query param was supplied and load from history
+        try
+        {
+            var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+            var qp = QueryHelpers.ParseQuery(uri.Query);
+            if (qp.TryGetValue("historyIndex", out var val))
+            {
+                if (int.TryParse(val.ToString(), out var idx) && idx >= 0)
+                {
+                    viewingHistory = true;
+                    currTicketIndex = idx;
+                }
+            }
+        }
+        catch
+        {
+            // ignore parse errors and default to current tickets
+        }
+
+        // load the ticket from the appropriate source
+        LoadTicket();
+    }
+
+    private void GoRight()
+    {
+        if (viewingHistory)
+        {
+            if (currTicketIndex < sTService.HistorySize() - 1)
+            {
+                currTicketIndex++;
+                LoadTicket();
+            }
+        }
+        else
+        {
+            if (currTicketIndex < sTService.Size - 1)
+            {
+                currTicketIndex++;
+                LoadTicket();
+            }
+        }
+    }
+
+    private void GoLeft()
+    {
+         if (currTicketIndex > 0)
+        {
+            currTicketIndex--;
+            LoadTicket();
+        }
+    }
+
+    private string GetPDFInfo()
+    {
+        if (viewingHistory)
+        {
+            var t = sTService.GetHistoryTicket(currTicketIndex + 1);
+            return (t != null ? t.ToString() : "").Replace("\n", "<br />");
+        }
+        var ct = sTService.GetTicket(currTicketIndex + 1);
+        return (ct != null ? ct.ToString() : "").Replace("\n", "<br />");
+    }
+
+    private void LoadTicket(){
+        if (viewingHistory)
+        {
+            ticket = sTService.GetHistoryTicket(currTicketIndex + 1);
+        }
+        else
+        {
+            ticket = sTService.GetTicket(currTicketIndex + 1);
+        }
+
+        if (ticket?.PdfBytes != null && ticket.PdfBytes.Length > 0)
+        {
+            string pdfBase64 = Convert.ToBase64String(ticket.PdfBytes);
+            base64Url = $"data:application/pdf;base64,{pdfBase64}";
+        }
+        else
+        {
+            base64Url = null;
+        }
+    }
+
+    private string? setName(){
+        if (viewingHistory)
+        {
+            var t = sTService.GetHistoryTicket(currTicketIndex + 1);
+            return t?.FileName ?? "(no file)";
+        }
+        return ticket?.FileName ?? "(no file)";
+    }
+
+    private void OnDocumentLoaded(PdfViewerEventArgs args) { }
+
+    private void OnPageChanged(PdfViewerEventArgs args) { }
+
+    private void GoHome(){
+        currTicketIndex = 0;
+        Navigation.NavigateTo("/");
+    }
+    private void GoHistory(){
+        currTicketIndex = 0;
+        Navigation.NavigateTo("/history");
+    }
+}

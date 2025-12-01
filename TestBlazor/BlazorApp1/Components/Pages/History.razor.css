@@ -1,0 +1,203 @@
+
+.page-wrapper {
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-top: 1.5rem;
+    overflow-x: auto;
+    font-family: "Inter", sans-serif;
+}
+
+.history-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 1rem;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.Home.Button {
+    padding: 0.55rem 1.1rem;
+    background: #f8f9fa;
+    border: 1px solid #d7d7d7;
+    color: #333;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.Home.Button:hover {
+    background: #e9ecef;
+    border-color: #c3c3c3;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 260px;
+    padding: 0.55rem .9rem;
+    border-radius: 8px;
+    border: 1px solid #d7d7d7;
+    transition: 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #4c8bf5;
+    box-shadow: 0 0 0 3px rgba(76,139,245,0.15);
+}
+
+
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 6px;
+}
+
+.table thead th {
+    background: #f5f7fa;
+    padding: 0.75rem;
+    font-weight: 600;
+    color: #444;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.table tbody tr {
+    background: #ffffff;
+    transition: 0.15s;
+}
+
+.table tbody tr:hover {
+    background: #f8fbff;
+}
+
+.table td {
+    padding: 0.78rem;
+    border-bottom: 1px solid #f1f1f1;
+    color: #333;
+    vertical-align: middle;
+}
+
+
+.ViewButton {
+    background: #4c8bf5;
+    border: none;
+    padding: 0.40rem 0.9rem;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.18s;
+}
+
+.ViewButton:hover {
+    background: #3a78e4;
+}
+
+.ViewButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+.export-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.export-dropdown.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.export-toggle {
+    background: #6c757d;
+    color: #fff;
+    border-radius: 6px;
+    border: none;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.88rem;
+}
+
+.export-toggle:hover {
+    background: #5a646b;
+}
+
+.export-list {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background: #ffffff;
+    padding: 0.4rem 0;
+    border-radius: 10px;
+    min-width: 180px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    display: none;
+    z-index: 20;
+}
+
+.export-dropdown:hover .export-list {
+    display: block;
+}
+
+.dropdown-item {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0.55rem 1rem;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    transition: 0.18s;
+}
+
+.dropdown-item:hover {
+    background: #f3f7ff;
+}
+
+.hint {
+    opacity: 0.5;
+    margin-left: 6px;
+    font-size: 0.8rem;
+}
+
+
+input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    accent-color: #4c8bf5;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    .table thead {
+        display: none;
+    }
+    .table, .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+    .table tr {
+        margin-bottom: 12px;
+        border-radius: 10px;
+        border: 1px solid #e7e7e7;
+        padding: 0.6rem;
+    }
+    .table td {
+        border: none;
+        padding: 0.55rem 0;
+    }
+    .table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #666;
+        display: block;
+        margin-bottom: 3px;
+    }
+}

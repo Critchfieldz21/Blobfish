@@ -1,0 +1,681 @@
+.pdf-processing-container {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  height: 80vh;
+  padding: 1rem;
+  box-sizing: border-box;
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pdfVisBox {
+  flex: 3;
+  height: 100%;
+  padding: 20px;
+  overflow: scroll;
+  overflow-x: hidden;
+  border: 1px solid rgba(24, 57, 115, 0.2);
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 40px rgba(24, 57, 115, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow-y: auto;
+}
+
+.pdfVisBox::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(24, 57, 115, 0.4) 50%, transparent);
+  opacity: 0.5;
+}
+
+.pdfVisBox:hover {
+  border-color: rgba(20, 84, 163, 0.4);
+  border-width: 2px;
+  box-shadow: 0 20px 60px rgba(24, 57, 115, 0.15), 0 8px 16px rgba(0, 0, 0, 0.08), inset 0 1px 0
+    rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+}
+
+.pdfVisBox .pdfViewer {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Adding pulse animation for loading states */
+.pdfVisBox:empty::after {
+  content: "Loading PDF...";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #1454a3;
+  font-size: 1.2rem;
+  font-weight: 600;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Complete redesign of pdfinfo with bold geometric dark aesthetic */
+.pdfinfo {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 24px;
+  background: #0a0e1a;
+  padding: 0;
+  /* keep scrolling inside the content wrapper only */
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+/* Animated gradient mesh background */
+.pdfinfo::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 20% 30%, rgba(24, 57, 115, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(20, 84, 163, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(74, 144, 226, 0.2) 0%, transparent 70%);
+  animation: meshRotate 20s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes meshRotate {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate(20%, -20%) rotate(120deg);
+  }
+  66% {
+    transform: translate(-20%, 20%) rotate(240deg);
+  }
+}
+
+/* Geometric line pattern overlay */
+.pdfinfo::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(0deg, rgba(24, 57, 115, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 57, 115, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Inner scrollable content wrapper */
+.pdfinfo > * {
+  position: relative;
+  z-index: 1;
+}
+
+.pdfinfo-title {
+  font-size: 4rem;
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  margin: 0 0 1rem 0;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ffffff 0%, rgba(74, 144, 226, 0.8) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleGlow 3s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+  0%,
+  100% {
+    text-shadow: 0 0 20px rgba(24, 57, 115, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 40px rgba(74, 144, 226, 0.6);
+  }
+}
+
+.pdfinfo-subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin: 0;
+}
+
+/* Scrollable content area with custom styling */
+.pdfinfo-content {
+  padding: 1.25rem 1.5rem;
+  /* allow flex layout to size the content area and enable scrolling when needed */
+  flex: 1 1 auto;
+  min-height: 0; /* important for children to be able to scroll inside flex containers */
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ultra-modern paragraph cards with neon accents */
+.pdfinfo p {
+  margin: 0 0 1.5rem 0;
+  padding: 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  background: none;
+  border: none;
+  box-shadow: none;
+  position: relative;
+  padding-left: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+/* Neon left border accent */
+.pdfinfo p::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #1454a3, #4a90e2);
+  box-shadow: 0 0 10px rgba(20, 84, 163, 0.6), 0 0 20px rgba(74, 144, 226, 0.4);
+  transition: all 0.3s ease;
+}
+
+.pdfinfo p:hover {
+  color: #ffffff;
+  transform: translateX(8px);
+}
+
+.pdfinfo p:hover::before {
+  width: 5px;
+  box-shadow: 0 0 15px rgba(20, 84, 163, 0.8), 0 0 30px rgba(74, 144, 226, 0.6);
+}
+
+/* Glowing empty state with pulsing icon */
+.pdfinfo em {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  height: 300px;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  font-size: 1.2rem;
+  animation: fadeInScale 0.6s ease-out;
+}
+
+.pdfinfo em::before {
+  content: "📄";
+  font-size: 5rem;
+  filter: drop-shadow(0 0 20px rgba(74, 144, 226, 0.5));
+  animation: floatGlow 3s ease-in-out infinite;
+}
+
+@keyframes floatGlow {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 20px rgba(74, 144, 226, 0.5));
+  }
+  50% {
+    transform: translateY(-15px) scale(1.05);
+    filter: drop-shadow(0 0 40px rgba(74, 144, 226, 0.8));
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Bold highlighted keywords */
+.pdfinfo strong {
+  color: #4a90e2;
+  font-weight: 800;
+  background: linear-gradient(135deg, rgba(24, 57, 115, 0.3), rgba(20, 84, 163, 0.2));
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(74, 144, 226, 0.3);
+  box-shadow: 0 0 10px rgba(74, 144, 226, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.9em;
+}
+
+/* Oversized gradient headings */
+.pdfinfo h3,
+.pdfinfo h4 {
+  color: #ffffff;
+  font-weight: 900;
+  margin: 2.5rem 0 1.5rem 0;
+  padding: 0;
+  border: none;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 0%, #4a90e2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.pdfinfo h3::after,
+.pdfinfo h4::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #1454a3, transparent);
+  box-shadow: 0 0 10px rgba(20, 84, 163, 0.6);
+}
+
+.pdfinfo h3 {
+  font-size: 2rem;
+}
+
+.pdfinfo h4 {
+  font-size: 1.5rem;
+}
+
+/* Minimalist list styling */
+.pdfinfo ul,
+.pdfinfo ol {
+  margin: 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.pdfinfo li {
+  margin: 0.75rem 0;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.7;
+  position: relative;
+}
+
+.pdfinfo li::marker {
+  color: #4a90e2;
+  font-weight: 800;
+}
+
+/* Custom scrollbar consolidated for both PDF viewer and info panel */
+.pdfVisBox::-webkit-scrollbar,
+.pdfinfo-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pdfVisBox::-webkit-scrollbar-track,
+.pdfinfo-content::-webkit-scrollbar-track {
+  background: rgba(24, 57, 115, 0.05);
+  border-radius: 10px;
+}
+
+.pdfVisBox::-webkit-scrollbar-thumb,
+.pdfinfo-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #1454a3, #4a90e2);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+}
+
+.pdfVisBox::-webkit-scrollbar-thumb:hover,
+.pdfinfo-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4a90e2, #6bb6ff);
+  box-shadow: 0 0 15px rgba(74, 144, 226, 0.8);
+}
+
+/* Logo/Spinner styling */
+.pdfinfo .spinner {
+  display: block;
+  width: 200px;
+  height: auto;
+  margin: 2rem auto 0 auto;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 20px rgba(74, 144, 226, 0.4));
+  transition: all 0.4s ease;
+  animation: logoFloat 4s ease-in-out infinite;
+}
+
+.pdfinfo .spinner:hover {
+  opacity: 1;
+  filter: drop-shadow(0 0 30px rgba(74, 144, 226, 0.6)) brightness(1.1);
+  transform: scale(1.05);
+}
+
+@keyframes logoFloat {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Logo image styling - targets img directly in pdfinfo */
+.pdfinfo img {
+  display: block;
+  width: 240px;
+  max-width: 90%;
+  height: auto;
+  /* smaller top margin so it sits closer to the info table */
+  margin: 1.25rem auto 1rem auto;
+  align-self: center;
+  opacity: 0.95;
+  filter: drop-shadow(0 6px 24px rgba(74, 144, 226, 0.5)) brightness(1.05);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: logoFloat 4s ease-in-out infinite;
+  position: relative;
+  z-index: 2;
+}
+
+.pdfinfo img:hover {
+  opacity: 1;
+  filter: drop-shadow(0 8px 30px rgba(74, 144, 226, 0.7)) brightness(1.2);
+  transform: scale(1.08) translateY(-5px);
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #e6f0ff;
+  margin: 1rem 0;
+}
+.info-table th {
+  text-align: left;
+  width: 40%;
+  padding: 0.5rem 1rem;
+  color: #9fc8ff;
+  font-weight: 700;
+  vertical-align: top;
+}
+.info-table td {
+  padding: 0.5rem 1rem;
+  color: #ffffff;
+}
+.info-table tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+
+/* (consolidated above) */
+
+.homeButt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #183973 0%, #1454a3 100%);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(24, 57, 115, 0.3), 0 4px 12px rgba(20, 84, 163, 0.2), inset 0 1px 0
+    rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.homeButt::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.homeButt:hover::before {
+  left: 100%;
+}
+
+.homeButt:hover {
+  background: linear-gradient(135deg, #0f2447 0%, #183973 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(24, 57, 115, 0.4), 0 6px 16px rgba(20, 84, 163, 0.3), inset 0 1px 0
+    rgba(255, 255, 255, 0.3);
+}
+
+.homeButt:active {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(24, 57, 115, 0.3), 0 3px 8px rgba(20, 84, 163, 0.2);
+}
+
+.historyButt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #183973 0%, #1454a3 100%);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(24, 57, 115, 0.3), 0 4px 12px rgba(20, 84, 163, 0.2), inset 0 1px 0
+    rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.historyButt::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.historyButt:hover::before {
+  left: 100%;
+}
+
+.historyButt:hover {
+  background: linear-gradient(135deg, #0f2447 0%, #183973 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(24, 57, 115, 0.4), 0 6px 16px rgba(20, 84, 163, 0.3), inset 0 1px 0
+    rgba(255, 255, 255, 0.3);
+}
+
+.historyButt:active {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(24, 57, 115, 0.3), 0 3px 8px rgba(20, 84, 163, 0.2);
+}
+
+
+.titleName {
+  /* Make gradient text reliable inside the Processing panel. Use a more
+     specific selector so this rule overrides any global `.home-root h1` rules.
+     `display:inline-block` is required in some browsers for background-clip:text
+     to render correctly. */
+  display: center;
+  text-align: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, #183973 0%, #1454a3 50%, #4a90e2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent !important;
+  /* fallback color if clipping not supported */
+  color: transparent;
+  letter-spacing: -0.02em;
+}
+
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, rgba(24, 57, 115, 0.95) 0%, rgba(20, 84, 163, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(24, 57, 115, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.navbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.navbtn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.navbtn:hover::before {
+  width: 120%;
+  height: 120%;
+}
+
+.navbtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.navbtn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.navbtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 900px) {
+  .pdf-processing-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .pdfVisBox,
+  .pdfinfo {
+    width: 100%;
+    height: auto;
+    min-height: 400px;
+  }
+
+  .titleName {
+    font-size: 2rem;
+  }
+
+  .pdfinfo-title {
+    font-size: 2.5rem;
+  }
+}
