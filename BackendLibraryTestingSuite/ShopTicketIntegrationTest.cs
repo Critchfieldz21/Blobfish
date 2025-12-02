@@ -4,7 +4,7 @@ using Microsoft.VisualBasic.FileIO;
 using System;
 using Xunit.Abstractions;
 
-namespace BackendLibraryUnitTest
+namespace BackendLibraryTestingSuite
 {
     public class ShopTicketIntegrationTest
     { 
