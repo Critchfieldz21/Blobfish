@@ -487,7 +487,5 @@ $RECYCLE.BIN/
 TestBlazor/BlazorApp1/wwwroot/uploads/*.pdf
 TestBlazor/BlazorApp1/temp/*.jpg
 
-# test pdf files
-BackendLibraryTestingSuite/test_files/*/
-
+# database
 /TestBlazor/BlazorApp1/ShopTicket.db
