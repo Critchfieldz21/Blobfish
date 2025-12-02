@@ -7,8 +7,8 @@ using Xunit.Abstractions;
 namespace BackendLibraryTestingSuite
 {
     public class ShopTicketIntegrationTest
-    { 
-        private static List<object[]> GetPdfTestDataFromCSV()
+    {
+        public static List<object[]> GetPdfTestDataFromCSV()
         {
             string testPdfsPath = "../../../test_files/test_pdf/";
             string testCsvPath = testPdfsPath + "test_pdf_data.csv";
@@ -49,7 +49,7 @@ namespace BackendLibraryTestingSuite
             return testData;
         }
 
-        private static List<object[]> GetPdfExceptionTestDataFromCSV()
+        public static List<object[]> GetPdfExceptionTestDataFromCSV()
         {
             string testPdfsPath = "../../../test_files/test_pdf_exceptions/";
             string testCsvPath = testPdfsPath + "test_pdf_exception_data.csv";
@@ -80,9 +80,7 @@ namespace BackendLibraryTestingSuite
             return testData;
         }
 
-        public static IEnumerable<object[]> PdfTestData => GetPdfTestDataFromCSV();
-        public static IEnumerable<object[]> PdfExceptionTestData => GetPdfExceptionTestDataFromCSV();
-        public static ILoggerFactory _loggerFactory => LoggerFactory.Create(builder => builder.AddConsole());
+        private static ILoggerFactory _loggerFactory => LoggerFactory.Create(builder => builder.AddConsole());
         private readonly ITestOutputHelper _output;
 
         public ShopTicketIntegrationTest(ITestOutputHelper output)
@@ -91,7 +89,7 @@ namespace BackendLibraryTestingSuite
         }
 
         [Theory]
-        [MemberData(nameof(PdfTestData))]
+        [MemberData(nameof(GetPdfTestDataFromCSV))]
         public void CheckPdf(
             String filePath, 
             int expectedNumberOfPages,
@@ -140,7 +138,7 @@ namespace BackendLibraryTestingSuite
         }
 
         [Theory]
-        [MemberData(nameof(PdfExceptionTestData))]
+        [MemberData(nameof(GetPdfExceptionTestDataFromCSV))]
         public void CheckPdfException(string filePath, string expectedException)
         {
             byte[] pdfBytes = File.ReadAllBytes(filePath);
