@@ -488,6 +488,6 @@ TestBlazor/BlazorApp1/wwwroot/uploads/*.pdf
 TestBlazor/BlazorApp1/temp/*.jpg
 
 # test pdf files
-BackendLibraryTestingSuite/test_files/*
+BackendLibraryTestingSuite/test_files/*/
 
 /TestBlazor/BlazorApp1/ShopTicket.db
