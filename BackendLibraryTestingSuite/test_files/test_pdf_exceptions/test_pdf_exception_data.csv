@@ -1,0 +1,17 @@
+fileName,expectedException
+20-NE0881-W001_P2_WrongFileType.txt,Error with 20-NE0881-W001_P2_WrongFileType: The file is not a valid PDF document.
+20-NE0881-W001_P2_EmptyPDF.pdf,Error with 20-NE0881-W001_P2_EmptyPDF: 20-NE0881-W001_P2_EmptyPDF has an extraction error: No text found in PDF document.
+20-NE0881-W001_P2_MissingProjectNumber.pdf,Error with 20-NE0881-W001_P2_MissingProjectNumber: 20-NE0881-W001_P2_MissingProjectNumber has an extraction error: Failed to get ProjectNumber.
+20-NE0881-W001_P2_MissingProjectNumberData.pdf,Error with 20-NE0881-W001_P2_MissingProjectNumberData: 20-NE0881-W001_P2_MissingProjectNumberData has an extraction error: Missing data under ProjectNumber field.
+20-NE0881-W001_P2_MissingProjectName.pdf,Error with 20-NE0881-W001_P2_MissingProjectName: 20-NE0881-W001_P2_MissingProjectName has an extraction error: Failed to get ProjectName.
+20-NE0881-W001_P2_MissingProjectNameData.pdf,Error with 20-NE0881-W001_P2_MissingProjectNameData: 20-NE0881-W001_P2_MissingProjectNameData has an extraction error: Missing data under ProjectName field.
+20-NE0881-W001_P2_MissingFileContentPieceMark.pdf,Error with 20-NE0881-W001_P2_MissingFileContentPieceMark: 20-NE0881-W001_P2_MissingFileContentPieceMark has an extraction error: Failed to get FileContentPieceMark.
+20-NE0881-W001_P2_MissingFileContentPieceMarkData.pdf,Error with 20-NE0881-W001_P2_MissingFileContentPieceMarkData: 20-NE0881-W001_P2_MissingFileContentPieceMarkData has an extraction error: Missing data under FileContentPieceMark field.
+25-NE1203.01-W033_P2_MissingControlNumbersData.pdf,Error with 25-NE1203.01-W033_P2_MissingControlNumbersData: 25-NE1203.01-W033_P2_MissingControlNumbersData has an extraction error: Missing data under ControlNumbers field.
+20-NE0881-W001_P2_MissingPiecesRequired.pdf,Error with 20-NE0881-W001_P2_MissingPiecesRequired: 20-NE0881-W001_P2_MissingPiecesRequired has an extraction error: Failed to get PiecesRequired.
+20-NE0881-W001_P2_MissingPiecesRequiredData.pdf,Error with 20-NE0881-W001_P2_MissingPiecesRequiredData: 20-NE0881-W001_P2_MissingPiecesRequiredData has an extraction error: Missing data under PiecesRequired field.
+20-NE0881-W001_P2_MissingWeight.pdf,Error with 20-NE0881-W001_P2_MissingWeight: 20-NE0881-W001_P2_MissingWeight has an extraction error: Failed to get Weight.
+20-NE0881-W001_P2_MissingWeightData.pdf,Error with 20-NE0881-W001_P2_MissingWeightData: 20-NE0881-W001_P2_MissingWeightData has an extraction error: Missing data under Weight field.
+20-NE0881-W001_P2_MissingDesignNumber.pdf,Error with 20-NE0881-W001_P2_MissingDesignNumber: 20-NE0881-W001_P2_MissingDesignNumber has an extraction error: Failed to get DesignNumber.
+20-NE0881-W001_P2_MissingDesignNumberData.pdf,Error with 20-NE0881-W001_P2_MissingDesignNumberData: 20-NE0881-W001_P2_MissingDesignNumberData has an extraction error: Missing data under DesignNumber field.
+WrongFileNamingScheme.pdf,Error with WrongFileNamingScheme: WrongFileNamingScheme has an extraction error: Failed to get FileNamePieceMark.
