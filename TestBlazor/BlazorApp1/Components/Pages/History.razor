@@ -112,6 +112,7 @@
 
     protected override void OnInitialized()
     {
+        sTService.ClearCurrentTickets();
         history = sTService.History?.Where(t => t != null).Select(t => t!).ToList() ?? new List<ShopTicket>();
     }
 
