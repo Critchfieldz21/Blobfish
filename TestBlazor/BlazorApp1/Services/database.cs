@@ -32,15 +32,15 @@ namespace SQL3cs
 
                 command.CommandText =
                 @"
-                CREATE TABLE IF NOT EXISTS Rectangle (
-                    RecID INTEGER PRIMARY KEY AUTOINCREMENT,
-                    FormViewRectangleX REAL,
-                    FormViewRectangleY REAL,
-                    FormViewRectangleWidth REAL,
-                    FormViewRectangleHeight REAL
-                    
-                               
-                     );
+                    CREATE TABLE IF NOT EXISTS Rectangle (
+                        RecID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        RectanglePage INTEGER,
+                        FormViewRectangleX REAL,
+                        FormViewRectangleY REAL,
+                        FormViewRectangleWidth REAL,
+                        FormViewRectangleHeight REAL
+                             
+                        );
                 ";
                 command.ExecuteNonQuery();
 
@@ -69,14 +69,14 @@ namespace SQL3cs
 
                 command.CommandText =
                 @"
-                CREATE TABLE IF NOT EXISTS Project (
-                   ProjectID INTEGER PRIMARY KEY AUTOINCREMENT,
-                   ProjectName TEXT,
-                   DateCreated TEXT,
-                   ShopTicketID INTEGER UNIQUE,      
-                   Foreign KEY (ShopTicketID) REFERENCES ShopTicket(ShopTicketID)
+                    CREATE TABLE IF NOT EXISTS Project (
+                        ProjectID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ProjectName TEXT,
+                        DateCreated TEXT,
+                        ShopTicketID INTEGER UNIQUE,      
+                        Foreign KEY (ShopTicketID) REFERENCES ShopTicket(ShopTicketID)
 
-                     );
+                        );
                 ";
 
                 command.ExecuteNonQuery();
@@ -109,11 +109,13 @@ namespace SQL3cs
                     commandSelectRect.CommandText =
                     @"
                     SELECT RecID FROM Rectangle
-                    WHERE FormViewRectangleX = $fvrx
+                    WHERE RectanglePage = $page
+                      AND FormViewRectangleX = $fvrx
                       AND FormViewRectangleY = $fvry
                       AND FormViewRectangleWidth = $fvrw
                       AND FormViewRectangleHeight = $fvrh;
                     ";
+                    commandSelectRect.Parameters.AddWithValue("$page", pdf.RectanglePage);
                     commandSelectRect.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
                     commandSelectRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandSelectRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
@@ -133,11 +135,12 @@ namespace SQL3cs
                         commandInsertRect.CommandText =
                         @"
                         INSERT INTO Rectangle (
-                            FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight       
-                        ) VALUES ($fvrx, $fvry, $fvrw, $fvrh);
+                            RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight       
+                        ) VALUES ($page, $fvrx, $fvry, $fvrw, $fvrh);
                         SELECT last_insert_rowid();
                         ";
                         // Reuse the parameters defined above
+                        commandInsertRect.Parameters.AddWithValue("$page", pdf.RectanglePage);
                         commandInsertRect.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
                         commandInsertRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                         commandInsertRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
@@ -152,12 +155,12 @@ namespace SQL3cs
                     var commandShop = connection.CreateCommand();
                     commandShop.CommandText =
                     @"
-                INSERT INTO ShopTicket (
-                    ProjectName, ProjectNumber, DesignNumber, PiecesRequired, ControlNumbers,PageNames, 
-                    Weight, FileContentPieceMark, FileName, FileNamePieceMark, NumberOfPages, PdfBlob, RecID
-                ) VALUES ($pn, $prnu, $dn, $pire, $cn, $pnames, $we, $fcpm, $fn, $fnpm, $nop, $blob, $recid);
-                SELECT last_insert_rowid();
-                ";
+                    INSERT INTO ShopTicket (
+                        ProjectName, ProjectNumber, DesignNumber, PiecesRequired, ControlNumbers,PageNames, 
+                        Weight, FileContentPieceMark, FileName, FileNamePieceMark, NumberOfPages, PdfBlob, RecID
+                    ) VALUES ($pn, $prnu, $dn, $pire, $cn, $pnames, $we, $fcpm, $fn, $fnpm, $nop, $blob, $recid);
+                    SELECT last_insert_rowid();
+                    ";
                     commandShop.Parameters.AddWithValue("$pn", pdf.ProjectName);
                     commandShop.Parameters.AddWithValue("$prnu", pdf.ProjectNumber);
                     commandShop.Parameters.AddWithValue("$dn", pdf.DesignNumber);
@@ -215,7 +218,7 @@ namespace SQL3cs
             cmd.CommandText = @"
                 SELECT s.FileName, s.NumberOfPages, s.PageNames, s.FileNamePieceMark, s.ProjectNumber,
                         s.ProjectName, s.FileContentPieceMark, s.ControlNumbers, s.PiecesRequired,
-                        s.Weight, s.DesignNumber, s.PdfBlob,
+                        s.Weight, s.DesignNumber, s.PdfBlob, r.RectanglePage,
                         r.FormViewRectangleX, r.FormViewRectangleY, r.FormViewRectangleWidth, r.FormViewRectangleHeight,
                         p.DateCreated
                 FROM ShopTicket s
@@ -239,11 +242,12 @@ namespace SQL3cs
                 decimal weight = reader.IsDBNull(9) ? 0 : reader.GetDecimal(9);
                 string designNumber = reader.IsDBNull(10) ? string.Empty : reader.GetString(10);
                 byte[] pdfBlob = pdfBlob = reader.IsDBNull(11) ? Array.Empty<byte>() : (byte[])reader.GetValue(11);
-                double rectX = reader.IsDBNull(12) ? 0 : reader.GetDouble(12);
-                double rectY = reader.IsDBNull(13) ? 0 : reader.GetDouble(13);
-                double rectW = reader.IsDBNull(14) ? 0 : reader.GetDouble(14);
-                double rectH = reader.IsDBNull(15) ? 0 : reader.GetDouble(15);
-                string dateCreatedRaw = reader.IsDBNull(16) ? string.Empty : reader.GetString(16);
+                int rectanglePage = reader.IsDBNull(12) ? 0 : reader.GetInt32(12);
+                double rectX = reader.IsDBNull(13) ? 0 : reader.GetDouble(13);
+                double rectY = reader.IsDBNull(14) ? 0 : reader.GetDouble(14);
+                double rectW = reader.IsDBNull(15) ? 0 : reader.GetDouble(15);
+                double rectH = reader.IsDBNull(16) ? 0 : reader.GetDouble(16);
+                string dateCreatedRaw = reader.IsDBNull(17) ? string.Empty : reader.GetString(17);
 
                 // Split helpers: values were joined with triple-spaces
                 string[] pageNames = string.IsNullOrWhiteSpace(pageNamesRaw)
@@ -274,7 +278,7 @@ namespace SQL3cs
                     piecesRequired,
                     weight,
                     designNumber,
-                    0,
+                    rectanglePage,
                     rectX,
                     rectY,
                     rectW,
@@ -301,7 +305,7 @@ namespace SQL3cs
                     using (var writer = new StreamWriter(csvFilePath))
                     {
 
-                        writer.WriteLine("ShopTicketID,ProjectName,ProjectNumber,DesignNumber,PiecesRequired,ContorlNumbers,PageNames,Weight,FileContentPieceMark,FileName,FileNamePieceMark,NumberOfPages,RecID");
+                        writer.WriteLine("ShopTicketID,ProjectName,ProjectNumber,DesignNumber,PiecesRequired,ControlNumbers,PageNames,Weight,FileContentPieceMark,FileName,FileNamePieceMark,NumberOfPages,RecID");
 
 
                         while (reader.Read())
@@ -349,7 +353,7 @@ namespace SQL3cs
                     using (var writer = new StreamWriter(csvFilePath))
                     {
 
-                        writer.WriteLine("RecID,FormViewRectangleX,FormViewRectangleY,FormViewRectangleWidth,FormViewRectangleHeight");
+                        writer.WriteLine("RecID,RectanglePage,FormViewRectangleX,FormViewRectangleY,FormViewRectangleWidth,FormViewRectangleHeight");
 
 
                         while (reader.Read())
@@ -359,7 +363,8 @@ namespace SQL3cs
                                 reader.GetValue(1).ToString(),
                                 reader.GetValue(2).ToString(),
                                 reader.GetValue(3).ToString(),
-                                reader.GetValue(4).ToString()
+                                reader.GetValue(4).ToString(),
+                                reader.GetValue(5).ToString()
 
                             );
                             writer.WriteLine(row);
