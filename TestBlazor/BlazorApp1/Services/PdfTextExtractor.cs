@@ -213,19 +213,19 @@ namespace BackendLibrary
                 {
                     DetectionBox jobWordDetectionBox = new DetectionBox(minX: 5, maxX: 15, minY: -1, maxY: 1);
                     Word? foundWord = FindWordNextTo(word, words, jobWordDetectionBox);
-                    List<String> searchTerms = new List<String> { "NO.", "NO:", "NUMBER", "NUMBER:", "NUM", "NUM:" };
+                    List<String> searchTerms = new List<String> { "NO.", "NO.:", "NUMBER", "NUMBER:", "NUM", "NUM:", "#", "#:" };
                     if (foundWord is null)
                     {
                         continue;
                     }
-                    // If the word next to "JOB" is "NUMBER" or a variation of it
+                    // If the word next to "JOB" is "NO." or a variation of it
                     if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                     {
                         DetectionBox numberWordDetectionBox = new DetectionBox(minX: -4, maxX: 8, minY: -12, maxY: -4);
                         Word? piecesreqdWord = FindWordNextTo(word, words, numberWordDetectionBox);
                         if (piecesreqdWord is null)
                         {
-                            throw new ExtractionException($"Failed to get ProjectNumber.");
+                            throw new ExtractionException($"Missing data under ProjectNumber field.");
                         }
                         return piecesreqdWord.Text;
                     }
@@ -249,7 +249,7 @@ namespace BackendLibrary
                     List<Word> projectNameWords = FindWordsNextTo(word, words, projectWordDetectionBox);
                     if (projectNameWords.Count == 0)
                     {
-                        throw new ExtractionException($"Failed to get ProjectName.");
+                        throw new ExtractionException($"Missing data under ProjectName field.");
                     }
 
                     List<String> projectNameStrList = projectNameWords.Select(w => w.Text).ToList();
@@ -282,7 +282,7 @@ namespace BackendLibrary
                         Word? piecemarkWord = FindWordNextTo(word, words, markWordDetectionBox);
                         if (piecemarkWord is null)
                         {
-                            throw new ExtractionException($"Failed to get FileContentPieceMark.");
+                            throw new ExtractionException($"Missing data under FileContentPieceMark field.");
                         }
                         return piecemarkWord.Text;
                     }
@@ -322,7 +322,7 @@ namespace BackendLibrary
                         controlnumWords = FindWordsNextTo(word, words, numberWordDetectionBox);
                         if (controlnumWords.Count == 0)
                         {
-                            return null;
+                            throw new ExtractionException($"Missing data under ControlNumbers field.");
                         }
                     }
 
@@ -342,7 +342,7 @@ namespace BackendLibrary
                         }
                         if (controlnumWords.Count == 0)
                         {
-                            return null;
+                            throw new ExtractionException($"Missing data under ControlNumbers field.");
                         }
                     }
 
@@ -399,7 +399,7 @@ namespace BackendLibrary
                         Word? piecesreqdWord = FindWordNextTo(word, words, reqWordDetectionBox);
                         if (piecesreqdWord is null)
                         {
-                            throw new ExtractionException($"Failed to get PiecesRequired.");
+                            throw new ExtractionException($"Missing data under PiecesRequired field.");
                         }
                         return int.Parse(piecesreqdWord.Text);
                     }
@@ -421,7 +421,12 @@ namespace BackendLibrary
                 {
                     DetectionBox weightWordDetectionBox = new DetectionBox(minX: -10, maxX: 30, minY: -20, maxY: -1);
                     Word? weightWord = FindWordNextTo(word, words, weightWordDetectionBox);
-                    
+
+                    if (weightWord is null)
+                    {
+                        throw new ExtractionException($"Missing data under Weight field.");
+                    }
+
                     // Remove any non-numeric characters except for decimal points and commas
                     string pattern = "[^0-9,.]";
                     string weightStr = Regex.Replace(weightWord.Text, pattern, "");
@@ -443,11 +448,11 @@ namespace BackendLibrary
                 List<Word> designWords = GetWordsEqualTo("DESIGN:", words);
                 foreach (Word word in designWords)
                 {
-                    DetectionBox designWordDetectionBox = new DetectionBox(minX: -2, maxX: 30, minY: -40, maxY: -4);
+                    DetectionBox designWordDetectionBox = new DetectionBox(minX: -2, maxX: 30, minY: -20, maxY: -4);
                     Word? foundWord = FindWordNextTo(word, words, designWordDetectionBox);
                     if (foundWord is null)
                     {
-                        throw new ExtractionException($"Failed to get DesignNumber.");
+                        throw new ExtractionException($"Missing data under DesignNumber field.");
                     }
                     return foundWord.Text;
                 }
