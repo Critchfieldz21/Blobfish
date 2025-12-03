@@ -147,6 +147,22 @@
 @code {
     private string? pdfName = "No PDF Selected";
     private List<ProcessingResult> processingCards = new();
+    private string loadingMessage = "";
+    private int totalFiles = 0;
+    private int completedCount = 0;
+    private const int fileLimit = 200;
+    private InputFileChangeEventArgs? selectedFiles;
+    private bool isProcessing = false;
+    private bool cancelRequested = false;
+    private string buttonLabel = "Process";
+    private string processButtonClass => isProcessing ? "cancelbtn" : "processbtn";
+    private bool isDropdownOpen = false;
+    private Modal? modalError;
+    private string modalErrorMessage = "An error occurred during PDF processing.";
+    private List<ShopTicket> tempList = new List<ShopTicket>();
+    private bool canSaveToDb => tempList != null && tempList.Count > 0;
+    private bool wavesInitialized = false;
+    private bool skipHeadingAnimation = false;
     private class ProcessingResult
     {
         public string FileName { get; set; } = string.Empty;
@@ -161,8 +177,12 @@
         public ProcessingResult() { }
     }
 
-    private bool wavesInitialized = false;
-    private bool skipHeadingAnimation = false;
+    /// <summary>
+    /// Runs after the component has rendered. Handles initialization of processing cards,
+    /// heading animation state, and JavaScript interop for drag-and-drop and waves effects.
+    /// </summary>
+    /// <param name="firstRender">True if this is the first render of the component.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -223,6 +243,11 @@
         }
     }
 
+    /// <summary>
+    /// Marks the heading animation as completed after a delay, storing the state in sessionStorage.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+
     private async Task MarkHeadingAnimatedAfterDelayAsync()
     {
         try
@@ -237,6 +262,10 @@
         }
     }
 
+    /// <summary>
+    /// Saves the current list of processing cards to sessionStorage for persistence across reloads.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task SaveProcessingCardsAsync()
     {
         try
@@ -250,6 +279,10 @@
         }
     }
 
+    /// <summary>
+    /// Loads processing cards from sessionStorage if available, restoring the previous state.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task LoadProcessingCardsAsync()
     {
         try
@@ -269,22 +302,10 @@
             // ignore
         }
     }
-    private string loadingMessage = "";
-    private int totalFiles = 0;
-    private int completedCount = 0;
-    private const int fileLimit = 200;
-    private InputFileChangeEventArgs? selectedFiles;
-    private bool isProcessing = false;
-    private bool cancelRequested = false;
-    private string buttonLabel = "Process";
-    private string processButtonClass => isProcessing ? "cancelbtn" : "processbtn";
-    private bool isDropdownOpen = false;
-    private Modal? modalError;
-    private string modalErrorMessage = "An error occurred during PDF processing.";
 
-    private List<ShopTicket> tempList = new List<ShopTicket>();
-    private bool canSaveToDb => tempList != null && tempList.Count > 0;
-
+    /// <summary>
+    /// Navigates the user to the history page.
+    /// </summary>
     private void GoToHistory()
     {
         Navigation.NavigateTo("/history");
@@ -292,6 +313,11 @@
 
     
 
+    /// <summary>
+    /// Handles the primary button click. Starts PDF processing if idle,
+    /// or cancels processing if already running.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task OnPrimary()
     {
         if (sTService.Size > 0)
@@ -355,10 +381,14 @@
         }
     }
 
-    private void OnSecondary() => isDropdownOpen = !isDropdownOpen;
-
     
-
+    /// <summary>
+    /// Handles file selection and batch processing of uploaded PDFs.
+    /// Delegates work to helper methods for validation, reading, processing,
+    /// error handling, and finalization.
+    /// </summary>
+    /// <param name="e">The file change event containing selected files.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
         var files = e.GetMultipleFiles(fileLimit);
@@ -531,20 +561,20 @@
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Hides the error modal dialog.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task OnHideModalClick()
     {
         await (modalError?.HideAsync() ?? Task.CompletedTask);
     }
 
-    private void OpenHistory(int historyIndex)
-    {
-        if (historyIndex >= 0 && historyIndex < sTService.History.Count)
-        {
-            sTService.SetCurrentHistoryIndex(historyIndex);
-            Navigation.NavigateTo($"/processing?historyIndex={historyIndex}");
-        }
-    }
-
+    /// <summary>
+    /// Attempts to open a processed file from history. If not found, shows an error modal.
+    /// </summary>
+    /// <param name="pr">The processing result representing the file.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task TryOpenHistory(ProcessingResult pr)
     {
         int idx = pr.HistoryIndex;
