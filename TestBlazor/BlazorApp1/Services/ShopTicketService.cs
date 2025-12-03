@@ -74,18 +74,39 @@ namespace BackendLibrary
 
         public void ClearCurrentTickets()
         {
-            if(dupe)
+            // Move CurrentTicket items into History without creating duplicates.
+            // If a ticket with the same piece mark exists, replace it; otherwise add.
+            if (CurrentTicket != null && CurrentTicket.Count > 0)
             {
-                CurrentTicket.Clear();
-                dupe = false;
-                Size = 0;
+                foreach (var t in CurrentTicket)
+                {
+                    if (t == null) continue;
+
+                    int existingIdx = -1;
+                    // Prefer matching by FileNamePieceMark when available; fallback to FileName
+                    if (!string.IsNullOrWhiteSpace(t.FileNamePieceMark))
+                    {
+                        existingIdx = History.FindIndex(h => h != null && h.FileNamePieceMark == t.FileNamePieceMark);
+                    }
+                    if (existingIdx < 0 && !string.IsNullOrWhiteSpace(t.FileName))
+                    {
+                        existingIdx = History.FindIndex(h => h != null && h.FileName == t.FileName);
+                    }
+
+                    if (existingIdx >= 0)
+                    {
+                        History[existingIdx] = t;
+                    }
+                    else
+                    {
+                        History.Add(t);
+                    }
+                }
             }
-            else
-            {
-                History.AddRange(CurrentTicket.Where(ticket => ticket != null)!);
-                CurrentTicket.Clear();
-                Size = 0;
-            }
+
+            CurrentTicket.Clear();
+            dupe = false;
+            Size = 0;
         }
     }
 }

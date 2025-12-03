@@ -91,15 +91,92 @@ namespace SQL3cs
                 {
                     connection.Open();
 
-                    // Prevent duplicate ShopTicket rows by FileName
-                    var dupCheck = connection.CreateCommand();
-                    dupCheck.CommandText = @"SELECT ShopTicketID FROM ShopTicket WHERE FileName = $fn LIMIT 1;";
-                    dupCheck.Parameters.AddWithValue("$fn", pdf.FileName);
-                    var existingTicket = dupCheck.ExecuteScalar();
-                    if (existingTicket != null)
+                    // If a ticket with the same piece mark exists, remove the old and keep the new
+                    if (!string.IsNullOrWhiteSpace(pdf.FileNamePieceMark))
                     {
-                        // Already inserted; skip all further inserts
-                        return;
+                        var findByPm = connection.CreateCommand();
+                        findByPm.CommandText = @"SELECT ShopTicketID, RecID FROM ShopTicket WHERE FileNamePieceMark = $pm LIMIT 1;";
+                        findByPm.Parameters.AddWithValue("$pm", pdf.FileNamePieceMark);
+                        using var pmReader = findByPm.ExecuteReader();
+                        int existingShopId = 0; long existingRecId = 0;
+                        if (pmReader.Read())
+                        {
+                            existingShopId = pmReader.IsDBNull(0) ? 0 : pmReader.GetInt32(0);
+                            existingRecId = pmReader.IsDBNull(1) ? 0 : pmReader.GetInt64(1);
+                        }
+                        pmReader.Close();
+                        if (existingShopId > 0)
+                        {
+                            // Delete dependent Project row(s)
+                            var delProj = connection.CreateCommand();
+                            delProj.CommandText = @"DELETE FROM Project WHERE ShopTicketID = $stid";
+                            delProj.Parameters.AddWithValue("$stid", existingShopId);
+                            delProj.ExecuteNonQuery();
+
+                            // Delete the old ShopTicket
+                            var delTicket = connection.CreateCommand();
+                            delTicket.CommandText = @"DELETE FROM ShopTicket WHERE ShopTicketID = $stid";
+                            delTicket.Parameters.AddWithValue("$stid", existingShopId);
+                            delTicket.ExecuteNonQuery();
+
+                            // Remove orphaned Rectangle if not referenced by any ShopTicket
+                            if (existingRecId > 0)
+                            {
+                                var rectStillUsed = connection.CreateCommand();
+                                rectStillUsed.CommandText = @"SELECT 1 FROM ShopTicket WHERE RecID = $rec LIMIT 1";
+                                rectStillUsed.Parameters.AddWithValue("$rec", existingRecId);
+                                var used = rectStillUsed.ExecuteScalar();
+                                if (used == null)
+                                {
+                                    var delRect = connection.CreateCommand();
+                                    delRect.CommandText = @"DELETE FROM Rectangle WHERE RecID = $rec";
+                                    delRect.Parameters.AddWithValue("$rec", existingRecId);
+                                    delRect.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    }
+
+                    // Prevent duplicate ShopTicket rows by FileName (if same exact file uploaded again, prefer replacing)
+                    var dupCheck = connection.CreateCommand();
+                    dupCheck.CommandText = @"SELECT ShopTicketID, RecID FROM ShopTicket WHERE FileName = $fn LIMIT 1;";
+                    dupCheck.Parameters.AddWithValue("$fn", pdf.FileName);
+                    using (var r = dupCheck.ExecuteReader())
+                    {
+                        int existingShopId = 0; long existingRecId = 0;
+                        if (r.Read())
+                        {
+                            existingShopId = r.IsDBNull(0) ? 0 : r.GetInt32(0);
+                            existingRecId = r.IsDBNull(1) ? 0 : r.GetInt64(1);
+                        }
+                        r.Close();
+                        if (existingShopId > 0)
+                        {
+                            var delProj = connection.CreateCommand();
+                            delProj.CommandText = @"DELETE FROM Project WHERE ShopTicketID = $stid";
+                            delProj.Parameters.AddWithValue("$stid", existingShopId);
+                            delProj.ExecuteNonQuery();
+
+                            var delTicket = connection.CreateCommand();
+                            delTicket.CommandText = @"DELETE FROM ShopTicket WHERE ShopTicketID = $stid";
+                            delTicket.Parameters.AddWithValue("$stid", existingShopId);
+                            delTicket.ExecuteNonQuery();
+
+                            if (existingRecId > 0)
+                            {
+                                var rectStillUsed = connection.CreateCommand();
+                                rectStillUsed.CommandText = @"SELECT 1 FROM ShopTicket WHERE RecID = $rec LIMIT 1";
+                                rectStillUsed.Parameters.AddWithValue("$rec", existingRecId);
+                                var used = rectStillUsed.ExecuteScalar();
+                                if (used == null)
+                                {
+                                    var delRect = connection.CreateCommand();
+                                    delRect.CommandText = @"DELETE FROM Rectangle WHERE RecID = $rec";
+                                    delRect.Parameters.AddWithValue("$rec", existingRecId);
+                                    delRect.ExecuteNonQuery();
+                                }
+                            }
+                        }
                     }
 
                     long newRecID;
@@ -548,6 +625,103 @@ namespace SQL3cs
             {
                 Console.WriteLine("Error: Invalid input. Please enter a numerical ID.");
                 return -1;
+            }
+        }
+
+        /// <summary>
+        /// Deduplicate ShopTicket rows by FileNamePieceMark, keeping one per piece mark.
+        /// Deletes dependent Project rows first, then duplicate ShopTickets, and finally
+        /// removes orphan Rectangle rows no longer referenced. By default keeps the oldest
+        /// ShopTicket (smallest ShopTicketID); set keepLatest=true to keep the newest.
+        /// Returns the number of ShopTicket rows deleted.
+        /// </summary>
+        public int DeduplicateByPieceMark(bool keepLatest = false)
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                // Create a temp table listing duplicate ShopTicketIDs to delete
+                using (var createTemp = connection.CreateCommand())
+                {
+                    createTemp.Transaction = transaction;
+                    createTemp.CommandText = @"
+                        CREATE TEMP TABLE dup_tickets AS
+                        SELECT ShopTicketID FROM (
+                            SELECT ShopTicketID, FileNamePieceMark,
+                                   ROW_NUMBER() OVER (
+                                       PARTITION BY FileNamePieceMark
+                                       ORDER BY " + (keepLatest ? "ShopTicketID DESC" : "ShopTicketID ASC") + @"
+                                   ) AS rn
+                            FROM ShopTicket
+                            WHERE FileNamePieceMark IS NOT NULL AND FileNamePieceMark <> ''
+                        ) WHERE rn > 1;
+                    ";
+                    createTemp.ExecuteNonQuery();
+                }
+
+                // Delete dependent Project rows referencing duplicate tickets
+                using (var delProjects = connection.CreateCommand())
+                {
+                    delProjects.Transaction = transaction;
+                    delProjects.CommandText = @"
+                        DELETE FROM Project
+                        WHERE ShopTicketID IN (SELECT ShopTicketID FROM dup_tickets);
+                    ";
+                    delProjects.ExecuteNonQuery();
+                }
+
+                // Count duplicates prior to deletion
+                int dupCount = 0;
+                using (var countDup = connection.CreateCommand())
+                {
+                    countDup.Transaction = transaction;
+                    countDup.CommandText = @"SELECT COUNT(*) FROM dup_tickets";
+                    var o = countDup.ExecuteScalar();
+                    dupCount = (o == null || o == DBNull.Value) ? 0 : Convert.ToInt32(o);
+                }
+
+                // Delete duplicate ShopTicket rows
+                using (var delTickets = connection.CreateCommand())
+                {
+                    delTickets.Transaction = transaction;
+                    delTickets.CommandText = @"
+                        DELETE FROM ShopTicket
+                        WHERE ShopTicketID IN (SELECT ShopTicketID FROM dup_tickets);
+                    ";
+                    delTickets.ExecuteNonQuery();
+                }
+
+                // Remove orphan Rectangle rows (no longer referenced by any ShopTicket)
+                using (var delRects = connection.CreateCommand())
+                {
+                    delRects.Transaction = transaction;
+                    delRects.CommandText = @"
+                        DELETE FROM Rectangle
+                        WHERE RecID NOT IN (
+                            SELECT RecID FROM ShopTicket WHERE RecID IS NOT NULL
+                        );
+                    ";
+                    delRects.ExecuteNonQuery();
+                }
+
+                // Drop temp table
+                using (var dropTemp = connection.CreateCommand())
+                {
+                    dropTemp.Transaction = transaction;
+                    dropTemp.CommandText = @"DROP TABLE dup_tickets";
+                    dropTemp.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
+                return dupCount;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
             }
         }
     }
