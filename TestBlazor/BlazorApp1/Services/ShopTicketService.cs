@@ -3,6 +3,9 @@ using System.Data;
 
 namespace BackendLibrary
 {
+    /// <summary>
+    /// This class is used to link Shop Tickets to the front end.
+    /// </summary>
     public class ShopTicketService
     {
     
@@ -65,11 +68,6 @@ namespace BackendLibrary
             {
                 // Ignore exceptions from event handlers
             }
-        }
-
-        public ShopTicket GetCurrentHistoryTicket()
-        {
-            return History[CurrentIndex - 1];
         }
 
         public void ClearCurrentTickets()

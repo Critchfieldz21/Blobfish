@@ -4,6 +4,7 @@
 @using System.Linq
 @inject ShopTicketService sTService
 @inject NavigationManager Navigation
+@inject SQL3cs.CustomerData Db
 @rendermode InteractiveServer
 
 
@@ -68,6 +69,7 @@
                                         </ul>
                                     </div>
                                 </div>
+                            <button class = "RemoveButton" @onclick="() => DeleteTicket(item.displayIndex)">Delete</button>
                         </td>
                     </tr>
                 }
@@ -131,6 +133,21 @@
             Navigation.NavigateTo("/processing");
         }
     }
+
+    private void DeleteTicket(int index)
+    {
+        // Remove the selected history ticket
+        if (index >= 0 && index < history.Count)
+        {
+            //removes from database first and then from the history list
+            Db.RemoveRowByFileName(history[index].FileName);
+            String fileName = history[index].FileName;
+            history.RemoveAt(index);
+            sTService.History.RemoveAt(index);
+            StateHasChanged();
+        }
+    }
+
     private void HandleExportClick(bool val, int index){
         var valString = val.ToString().ToLower();
         Navigation.NavigateTo($"/export/{valString}/{index}", forceLoad: true);

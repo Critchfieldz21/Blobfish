@@ -104,6 +104,27 @@
     cursor: not-allowed;
 }
 
+.RemoveButton {
+    background: #e53b3b;
+    border: none;
+    padding: 0.40rem 0.9rem;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.18s;
+}
+
+.RemoveButton:hover {
+    background: #f87171;
+}
+
+.RemoveButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 
 .export-dropdown {
     position: relative;

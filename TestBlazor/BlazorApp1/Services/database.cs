@@ -197,36 +197,25 @@ namespace SQL3cs
                     commandSelectRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandSelectRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandSelectRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
+                    // No matching rectangle found, insert a new one
+                    var commandInsertRect = connection.CreateCommand();
+                    commandInsertRect.CommandText =
+                    @"
+                    INSERT INTO Rectangle (
+                        RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight       
+                    ) VALUES ($page, $fvrx, $fvry, $fvrw, $fvrh);
+                    SELECT last_insert_rowid();
+                    ";
+                    // Reuse the parameters defined above
+                    commandInsertRect.Parameters.AddWithValue("$page", pdf.RectanglePage);
+                    commandInsertRect.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
+                    commandInsertRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
+                    commandInsertRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
+                    commandInsertRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
 
-                    object? existingRecIDResult = commandSelectRect.ExecuteScalar();
-
-                    if (existingRecIDResult != null)
-                    {
-                        // A matching rectangle already exists, use its ID
-                        newRecID = (long)existingRecIDResult;
-                    }
-                    else
-                    {
-                        // No matching rectangle found, insert a new one
-                        var commandInsertRect = connection.CreateCommand();
-                        commandInsertRect.CommandText =
-                        @"
-                        INSERT INTO Rectangle (
-                            RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight       
-                        ) VALUES ($page, $fvrx, $fvry, $fvrw, $fvrh);
-                        SELECT last_insert_rowid();
-                        ";
-                        // Reuse the parameters defined above
-                        commandInsertRect.Parameters.AddWithValue("$page", pdf.RectanglePage);
-                        commandInsertRect.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
-                        commandInsertRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
-                        commandInsertRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
-                        commandInsertRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
-
-                        var insRectRes = commandInsertRect.ExecuteScalar();
-                        if (insRectRes == null) throw new InvalidOperationException("Failed to retrieve new RecID.");
-                        newRecID = Convert.ToInt64(insRectRes);
-                    }
+                    var insRectRes = commandInsertRect.ExecuteScalar();
+                    if (insRectRes == null) throw new InvalidOperationException("Failed to retrieve new RecID.");
+                    newRecID = Convert.ToInt64(insRectRes);
 
                     // 2. Insert data into the Child table (ShopTicket) using newRecID (FK)
                     var commandShop = connection.CreateCommand();
@@ -495,8 +484,7 @@ namespace SQL3cs
             }
         }
 
-        public void RemoveRowByProjectID(int projectID)
-
+        public void RemoveRowByFileName(string fileName)
         {
             using (var connection = new SqliteConnection(_connectionString))
             {
@@ -509,11 +497,11 @@ namespace SQL3cs
                         int shopTicketID = 0;
                         int recID = 0;
 
-                        // 1. Find the associated ShopTicketID from the Project table
+                        // 1. Find the ShopTicketID by FileName
                         using (var commandFindShopTicketId = connection.CreateCommand())
                         {
-                            commandFindShopTicketId.CommandText = "SELECT ShopTicketID FROM Project WHERE ProjectID = $projectID";
-                            commandFindShopTicketId.Parameters.AddWithValue("$projectID", projectID);
+                            commandFindShopTicketId.CommandText = "SELECT ShopTicketID FROM ShopTicket WHERE FileName = $fileName";
+                            commandFindShopTicketId.Parameters.AddWithValue("$fileName", fileName);
                             var result = commandFindShopTicketId.ExecuteScalar();
 
                             if (result is long longShopTicketId)
@@ -526,21 +514,20 @@ namespace SQL3cs
                             }
                             else
                             {
-                                Console.WriteLine($"ProjectID {projectID} not found. Cannot proceed with deletion.");
+                                Console.WriteLine($"FileName '{fileName}' not found. Cannot proceed with deletion.");
                                 transaction.Rollback();
                                 return;
                             }
                         }
 
-                        // 2. Delete the Project record itself (since we have the FK value now)
+                        // 2. Delete the Project record(s) linked to this ShopTicketID
                         using (var commandDeleteProject = connection.CreateCommand())
                         {
-                            commandDeleteProject.CommandText = "DELETE FROM Project WHERE ProjectID = $projectID";
-                            commandDeleteProject.Parameters.AddWithValue("$projectID", projectID);
+                            commandDeleteProject.CommandText = "DELETE FROM Project WHERE ShopTicketID = $shopTicketID";
+                            commandDeleteProject.Parameters.AddWithValue("$shopTicketID", shopTicketID);
                             commandDeleteProject.ExecuteNonQuery();
-                            Console.WriteLine($"Deleted Project record with ID {projectID}.");
+                            Console.WriteLine($"Deleted Project records linked to ShopTicketID {shopTicketID}.");
                         }
-
 
                         // 3. Find the associated RecID from the ShopTicket table
                         using (var commandFindRecId = connection.CreateCommand())
@@ -557,11 +544,9 @@ namespace SQL3cs
                             {
                                 recID = intRecId;
                             }
-                            // If recID is not found here, we can proceed but log a warning.
                         }
 
-
-                        // 4. Delete the main record in the ShopTicket table
+                        // 4. Delete the ShopTicket record itself
                         using (var commandDeleteShopTicket = connection.CreateCommand())
                         {
                             commandDeleteShopTicket.CommandText = "DELETE FROM ShopTicket WHERE ShopTicketID = $shopTicketID";
@@ -574,7 +559,7 @@ namespace SQL3cs
                             }
                         }
 
-                        // 5. Delete the related record in the Rectangle table
+                        // 5. Delete the related Rectangle record if RecID exists
                         if (recID > 0)
                         {
                             using (var commandDeleteRectangle = connection.CreateCommand())
@@ -586,9 +571,9 @@ namespace SQL3cs
                             }
                         }
 
-                        // Commit the transaction if all operations succeed
+                        // Commit transaction
                         transaction.Commit();
-                        Console.WriteLine($"Successfully removed all associated data starting from ProjectID {projectID}.");
+                        Console.WriteLine($"Successfully removed all associated data starting from FileName '{fileName}'.");
                     }
                     catch (SqliteException ex)
                     {
