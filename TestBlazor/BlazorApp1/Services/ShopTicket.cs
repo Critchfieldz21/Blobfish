@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 
@@ -169,6 +170,8 @@ namespace BackendLibrary
         /// <summary>
         /// Combine shared construction logic.
         /// </summary>
+        // Supress warnings about nullable properties being uninitialized
+        [MemberNotNull(nameof(PageNames), nameof(ProjectNumber), nameof(ProjectName), nameof(FileContentPieceMark), nameof(DesignNumber))]
         private void InitializeFromPdf(PdfDocument pdf)
         {
             // OwnerPassword property needs a password to set SecuritySettings
