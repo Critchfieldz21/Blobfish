@@ -81,16 +81,15 @@ namespace BackendLibrary
 
                 InitializeFromPdf(pdf);
 
-                try{
-                    (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(modelPath, fileName, stream);
-                    MemoryStream mStream = PdfEditor.AddRect(pdf, RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight, 72, 72);
-                    Console.WriteLine("pdtbyte" + PdfBytes.Length);
-                    annotatedPdfBytes = mStream.ToArray();
-                    Console.WriteLine("pdtbyte" + PdfBytes.Length);
-                }
-                catch(Exception ex){
-                    Console.WriteLine("Rectangle detection failed: " + ex.Message);
-                }
+                
+                (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(modelPath, fileName, stream);
+                MemoryStream mStream = PdfEditor.AddRect(pdf, RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight, 72, 72);
+                Console.WriteLine("pdtbyte" + PdfBytes.Length);
+                annotatedPdfBytes = mStream.ToArray();
+                Console.WriteLine("pdtbyte" + PdfBytes.Length);
+            
+                Console.WriteLine("Rectangle detection failed: " + ex.Message);
+                
 
                 dateTimeExtracted = DateTime.Now;
             }
