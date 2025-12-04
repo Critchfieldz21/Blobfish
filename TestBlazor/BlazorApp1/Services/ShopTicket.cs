@@ -7,6 +7,8 @@ namespace BackendLibrary
     public class ShopTicket
     {
         public byte[] PdfBytes { get; }                             // Bytearray of PDF file
+
+        public byte[] annotatedPdfBytes { get; set; }                 // Bytearray of annotated PDF file with rectangles drawn
         public DateTime dateTimeExtracted { get; }                  // Date and time when ShopTicket was constructed
         public int NumberOfPages { get; set; }                      // Number of pages in the PDF file.
         public string[] PageNames { get; set; }                     // Page names extracted from view labels.
@@ -79,7 +81,17 @@ namespace BackendLibrary
 
                 InitializeFromPdf(pdf);
 
-                (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(modelPath, fileName, stream);
+                try{
+                    (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(modelPath, fileName, stream);
+                    MemoryStream mStream = PdfEditor.AddRect(pdf, RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight, 72, 72);
+                    Console.WriteLine("pdtbyte" + PdfBytes.Length);
+                    annotatedPdfBytes = mStream.ToArray();
+                    Console.WriteLine("pdtbyte" + PdfBytes.Length);
+                }
+                catch(Exception ex){
+                    Console.WriteLine("Rectangle detection failed: " + ex.Message);
+                }
+
                 dateTimeExtracted = DateTime.Now;
             }
             catch (Exception ex)
