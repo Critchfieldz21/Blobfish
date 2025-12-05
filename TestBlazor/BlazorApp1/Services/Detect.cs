@@ -140,9 +140,6 @@ namespace BackendLibrary
             var results = yolo.RunObjectDetection(image, confidence: 0.20, iou: 0.7);
             
 
-            image.Draw(results, options);         // Draw boxes and labels
-            image.Save(outputPath);    // Save to file – boom, done!
-
             if (results.Count == 0)
             {
                 //Custom exception can be thrown here
