@@ -10,6 +10,9 @@ namespace BackendLibrary
     /// </summary>
     public class ShopTicket
     {
+        private ILoggerFactory _loggerFactory;
+        private ILogger<ShopTicket> _logger;
+
         public byte[] PdfBytes { get; }                             // Bytearray of PDF file
 
         public byte[] annotatedPdfBytes { get; set; }                 // Bytearray of annotated PDF file with rectangles drawn
@@ -106,20 +109,18 @@ namespace BackendLibrary
                 InitializeFromPdf(pdf);
 
                 
-                (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(modelPath, fileName, stream);
+                (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(_loggerFactory.CreateLogger<Detect>(), modelPath, fileName, stream);
                 MemoryStream mStream = PdfEditor.AddRect(pdf, RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight, 72, 72);
                 Console.WriteLine("pdtbyte" + PdfBytes.Length);
                 annotatedPdfBytes = mStream.ToArray();
                 Console.WriteLine("pdtbyte" + PdfBytes.Length);
-            
-                Console.WriteLine("Rectangle detection failed: " + ex.Message);
-                
 
                 dateTimeExtracted = DateTime.Now;
                 _logger.LogDebug("Ending ShopTicket construction for {FileName}", fileName);
             }
             catch (Exception ex)
             {
+                _logger.LogError("Rectangle detection failed: {ErrorMessage}", ex.Message);
                 throw new Exception($"Error with {fileName}: {ex.Message}", ex);
             }
         }
