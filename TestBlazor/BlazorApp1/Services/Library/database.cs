@@ -185,7 +185,7 @@ namespace SQL3cs
 
                     long newRecID;
 
-                    // // First, try to find an existing matching rectangle
+                    // First, try to find an existing matching rectangle
                     var commandSelectRect = connection.CreateCommand();
                     commandSelectRect.CommandText =
                     @"
@@ -205,10 +205,10 @@ namespace SQL3cs
                     commandSelectRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandSelectRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandSelectRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
-                    commandSelectRect.Parameters.AddWithValue("$svrx", 0.000);
-                    commandSelectRect.Parameters.AddWithValue("$svry", 0.000);
-                    commandSelectRect.Parameters.AddWithValue("$svrw", 0.000);
-                    commandSelectRect.Parameters.AddWithValue("$svrh", 0.000);
+                    commandSelectRect.Parameters.AddWithValue("$svrx", 0);
+                    commandSelectRect.Parameters.AddWithValue("$svry", 0);
+                    commandSelectRect.Parameters.AddWithValue("$svrw", 0);
+                    commandSelectRect.Parameters.AddWithValue("$svrh", 0);
                    
                     // No matching rectangle found, insert a new one
                     var commandInsertRect = connection.CreateCommand();
@@ -219,16 +219,16 @@ namespace SQL3cs
                     ) VALUES ($page, $fvrx, $fvry, $fvrw, $fvrh, $svrx, $svry, $svrw, $svrh);
                     SELECT last_insert_rowid();
                     ";
-                   
+                    // Reuse the parameters defined above
                     commandInsertRect.Parameters.AddWithValue("$page", pdf.RectanglePage);
                     commandInsertRect.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
                     commandInsertRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandInsertRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandInsertRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
-                    commandInsertRect.Parameters.AddWithValue("$svrx", 0.000);
-                    commandInsertRect.Parameters.AddWithValue("$svry", 0.000);
-                    commandInsertRect.Parameters.AddWithValue("$svrw", 0.000);
-                    commandInsertRect.Parameters.AddWithValue("$svrh", 0.000);
+                    commandInsertRect.Parameters.AddWithValue("$svrx", 0);
+                    commandInsertRect.Parameters.AddWithValue("$svry", 0);
+                    commandInsertRect.Parameters.AddWithValue("$svrw", 0);
+                    commandInsertRect.Parameters.AddWithValue("$svrh", 0);
 
                     var insRectRes = commandInsertRect.ExecuteScalar();
                     if (insRectRes == null) throw new InvalidOperationException("Failed to retrieve new RecID.");
@@ -366,10 +366,10 @@ namespace SQL3cs
                     rectY,
                     rectW,
                     rectH,
-                    null, // place hodler for FormView Section rectangle X
-                    null, // place hodler for FormView Section rectangle Y
-                    null, // place hodler for FormView Section rectangle Width
-                    null, // place hodler for FormView Section rectangle Height
+                    null,
+                    null,
+                    null,
+                    null,
                     processed
                 );
 
