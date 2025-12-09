@@ -4,7 +4,7 @@ using System;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
-using  BackendLibrary;
+using BackendLibrary;
 using System.ComponentModel.Design;
 
 
@@ -39,6 +39,10 @@ namespace SQL3cs
                         FormViewRectangleY REAL,
                         FormViewRectangleWidth REAL,
                         FormViewRectangleHeight REAL
+                        SectionViewRectangleX REAL,
+                        SectionViewRectangleY REAL,
+                        SectioniewRectangleWidth REAL,
+                        SectionViewRectangleHeight REAL
                              
                         );
                 ";
@@ -197,13 +201,14 @@ namespace SQL3cs
                     commandSelectRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandSelectRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandSelectRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
+                   
                     // No matching rectangle found, insert a new one
                     var commandInsertRect = connection.CreateCommand();
                     commandInsertRect.CommandText =
                     @"
                     INSERT INTO Rectangle (
-                        RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight       
-                    ) VALUES ($page, $fvrx, $fvry, $fvrw, $fvrh);
+                        RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight, SectoinViewRectangleX, SectionViewRectangleY, SectioniewRectangleWidth, SectionViewRectangleHeight       
+                    ) VALUES ($page, $fvrx, $fvry, $fvrw, $fvrh, $svrx, $svry, $svrw, $svrh);
                     SELECT last_insert_rowid();
                     ";
                     // Reuse the parameters defined above
@@ -212,6 +217,10 @@ namespace SQL3cs
                     commandInsertRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandInsertRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandInsertRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
+                    commandInsertRect.Parameters.AddWithValue("$svrx", 0);
+                    commandInsertRect.Parameters.AddWithValue("$svry", 0);
+                    commandInsertRect.Parameters.AddWithValue("$svrw", 0);
+                    commandInsertRect.Parameters.AddWithValue("$svrh", 0);
 
                     var insRectRes = commandInsertRect.ExecuteScalar();
                     if (insRectRes == null) throw new InvalidOperationException("Failed to retrieve new RecID.");
@@ -361,133 +370,6 @@ namespace SQL3cs
             return result;
         }
 
-        public void ExportToCsvShopTicket(string csvFilePath)
-        {
-            try
-            {
-                using (var connection = new SqliteConnection(_connectionString))
-                {
-                    connection.Open();
-                    var command = connection.CreateCommand();
-                    command.CommandText = "SELECT ShopTicket.* FROM ShopTicket LEFT JOIN Rectangle ON ShopTicket.RecID = Rectangle.RecID";
-
-                    using (var reader = command.ExecuteReader())
-                    using (var writer = new StreamWriter(csvFilePath))
-                    {
-
-                        writer.WriteLine("ShopTicketID,ProjectName,ProjectNumber,DesignNumber,PiecesRequired,ControlNumbers,PageNames,Weight,FileContentPieceMark,FileName,FileNamePieceMark,NumberOfPages,RecID");
-
-
-                        while (reader.Read())
-                        {
-                            var row = string.Join(",",
-
-                                reader.GetValue(0)?.ToString(),
-                                reader.GetValue(1)?.ToString(),
-                                reader.GetValue(2)?.ToString(),
-                                reader.GetValue(3)?.ToString(),
-                                reader.GetValue(4)?.ToString(),
-                                reader.GetValue(5)?.ToString(),
-                                reader.GetValue(6)?.ToString(),
-                                reader.GetValue(7)?.ToString(),
-                                reader.GetValue(8)?.ToString(),
-                                reader.GetValue(9)?.ToString(),
-                                reader.GetValue(10)?.ToString(),
-                                reader.GetValue(11)?.ToString(),
-                                reader.GetValue(12)?.ToString()
-                            );
-                            writer.WriteLine(row);
-                        }
-                    }
-
-                    Console.WriteLine($"Data successfully exported to {csvFilePath}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred during export: {ex.Message}");
-            }
-        }
-
-        public void ExportToCsvRectangle(string csvFilePath)
-        {
-            try
-            {
-                using (var connection = new SqliteConnection(_connectionString))
-                {
-                    connection.Open();
-                    var command = connection.CreateCommand();
-                    command.CommandText = "SELECT Rectangle.* FROM Rectangle";
-
-                    using (var reader = command.ExecuteReader())
-                    using (var writer = new StreamWriter(csvFilePath))
-                    {
-
-                        writer.WriteLine("RecID,RectanglePage,FormViewRectangleX,FormViewRectangleY,FormViewRectangleWidth,FormViewRectangleHeight");
-
-
-                        while (reader.Read())
-                        {
-                            var row = string.Join(",",
-                                reader.GetValue(0).ToString(),
-                                reader.GetValue(1).ToString(),
-                                reader.GetValue(2).ToString(),
-                                reader.GetValue(3).ToString(),
-                                reader.GetValue(4).ToString(),
-                                reader.GetValue(5).ToString()
-
-                            );
-                            writer.WriteLine(row);
-                        }
-                    }
-
-                    Console.WriteLine($"Data successfully exported to {csvFilePath}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while exporting data: {ex.Message}");
-            }
-        }
-        public void ExportToCsvProject(string csvFilePath)
-        {
-            try
-            {
-                using (var connection = new SqliteConnection(_connectionString))
-                {
-                    connection.Open();
-                    var command = connection.CreateCommand();
-                    command.CommandText = "SELECT Project.* FROM Project";
-
-                    using (var reader = command.ExecuteReader())
-                    using (var writer = new StreamWriter(csvFilePath))
-                    {
-
-                        writer.WriteLine("ProjectID,ProjectName,DateCreated,ShopTicketID");
-
-
-                        while (reader.Read())
-                        {
-                            var row = string.Join(",",
-                                reader.GetValue(0).ToString(),
-                                reader.GetValue(1).ToString(),
-                                reader.GetValue(2).ToString(),
-                                reader.GetValue(3).ToString()
-
-
-                            );
-                            writer.WriteLine(row);
-                        }
-                    }
-                }
-                Console.WriteLine($"Data successfully exported to {csvFilePath}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while exporting data: {ex.Message}");
-            }
-        }
-
         public void RemoveRowByFileName(string fileName)
         {
             using (var connection = new SqliteConnection(_connectionString))
@@ -617,13 +499,7 @@ namespace SQL3cs
             }
         }
 
-        /// <summary>
-        /// Deduplicate ShopTicket rows by FileNamePieceMark, keeping one per piece mark.
-        /// Deletes dependent Project rows first, then duplicate ShopTickets, and finally
-        /// removes orphan Rectangle rows no longer referenced. By default keeps the oldest
-        /// ShopTicket (smallest ShopTicketID); set keepLatest=true to keep the newest.
-        /// Returns the number of ShopTicket rows deleted.
-        /// </summary>
+       
         public int DeduplicateByPieceMark(bool keepLatest = false)
         {
             using var connection = new SqliteConnection(_connectionString);
