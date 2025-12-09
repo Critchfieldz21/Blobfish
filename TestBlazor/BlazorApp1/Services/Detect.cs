@@ -13,20 +13,20 @@ namespace BackendLibrary
         // Make sure to read the README section "Accuracy Depends on Configuration":
         // https://github.com/NickSwardh/YoloDotNet/tree/master#%EF%B8%8F-accuracy-depends-on-configuration
 
-        public static Rectangle GetRectInfo(ILogger<Detect> logger, string modelPath, string filePath)
+        public static Rectangle GetRectInfo(ILogger<Detect> logger, Yolo model, string filePath)
         {
             System.IO.Directory.CreateDirectory(".\\temp\\");
-            return ProcessImage(logger, modelPath, filePath, ".\\temp\\", 72, 72);
+            return ProcessImage(logger, model, filePath, ".\\temp\\", 72, 72);
         }
 
-        public static Rectangle GetRectInfo(ILogger<Detect> logger, string modelPath, string filePath, Stream pdffile)
+        public static Rectangle GetRectInfo(ILogger<Detect> logger, Yolo model, string filePath, Stream pdffile)
         {
             System.IO.Directory.CreateDirectory(".\\temp\\");
             logger.LogDebug("Start processing image");
-            return ProcessImage(logger, modelPath, filePath, pdffile, ".\\temp\\", 72, 72);
+            return ProcessImage(logger, model, filePath, pdffile, ".\\temp\\", 72, 72);
         }
 
-        public static Rectangle ProcessImage(ILogger<Detect> logger, string modelPath, string imagePath, Stream pdffile, string outputFolder, float dpiX = 72, float dpiY = 72)
+        public static Rectangle ProcessImage(ILogger<Detect> logger, Yolo model, string imagePath, Stream pdffile, string outputFolder, float dpiX = 72, float dpiY = 72)
         {
             string input = Path.GetFileName(imagePath);
             string pattern = @"(?:_P)(\d+)";
@@ -47,7 +47,7 @@ namespace BackendLibrary
                 image.Save(savedFilePath, System.Drawing.Imaging.ImageFormat.Jpeg);
                 logger.LogDebug("Saved rendered image to {savedFilePath}", savedFilePath);
                 //Console.WriteLine("Image dimensions: " + document.PageSizes[pageNumber]);
-                var detectedBoundingBox = Detect.Detection(logger, modelPath, savedFilePath, savedFilePath);
+                var detectedBoundingBox = Detect.Detection(logger, model, savedFilePath, savedFilePath);
                 boxWidth = detectedBoundingBox.Width / dpiX;
                 boxHeight = detectedBoundingBox.Height / dpiY;
                 boxX = detectedBoundingBox.Left / dpiX;
@@ -64,7 +64,7 @@ namespace BackendLibrary
             return new Rectangle(pageNumber, boxX, boxY, boxWidth, boxHeight);
         }
 
-        public static Rectangle ProcessImage(ILogger<Detect> logger, string modelPath, string imagePath, string outputFolder, float dpiX = 72, float dpiY = 72)
+        public static Rectangle ProcessImage(ILogger<Detect> logger, Yolo model, string imagePath, string outputFolder, float dpiX = 72, float dpiY = 72)
         {
             string input = Path.GetFileName(imagePath);
             string pattern = @"(?:_P)(\d+)";
@@ -82,7 +82,7 @@ namespace BackendLibrary
                 image.Save(savedFilePath, System.Drawing.Imaging.ImageFormat.Jpeg);
                 Console.WriteLine("Image processed and saved successfully.");
                 Console.WriteLine("Image dimensions: " + document.PageSizes[pageNumber]);
-                var detectedBoundingBox = Detect.Detection(logger, modelPath, savedFilePath, savedFilePath);
+                var detectedBoundingBox = Detect.Detection(logger, model, savedFilePath, savedFilePath);
                 boxWidth = detectedBoundingBox.Width / dpiX;
                 boxHeight = detectedBoundingBox.Height / dpiY;
                 boxX = detectedBoundingBox.Left / dpiX;
@@ -99,35 +99,8 @@ namespace BackendLibrary
             return new Rectangle(pageNumber, boxX, boxY, boxWidth, boxHeight);
         }
         
-        private static SKRectI Detection(ILogger<Detect> logger, string modelPath, string filePath, string outputPath)
+        private static SKRectI Detection(ILogger<Detect> logger, Yolo model, string filePath, string outputPath)
         {
-
-            //Console.WriteLine("Model Path: " + modelPath);
-            using var yolo = new Yolo(new YoloOptions
-            {
-                OnnxModel = modelPath,
-
-                //ExecutionProvider = new CudaExecutionProvider(GpuId: 0, PrimeGpu: true),
-
-                //using CPU for this case, so no need to download anything extra
-                //   - CpuExecutionProvider         → CPU-only (no GPU required) 
-                //   - CudaExecutionProvider        → GPU via CUDA (NVIDIA required)
-                //   - TensorRtExecutionProvider    → GPU via NVIDIA TensorRT for maximum performance
-
-                ImageResize = ImageResize.Proportional,
-
-                // Proportional = the dataset images were not distorted; their aspect ratio was preserved.
-                // Stretched = the dataset images were resized directly to the model's input size, ignoring aspect ratio.
-
-                SamplingOptions = new SKSamplingOptions(SKFilterMode.Nearest, SKMipmapMode.None)
-
-                // The choice of sampling method can directly affect detection accuracy, 
-                // as different resampling methods (Nearest, Bilinear, Cubic, etc.) slightly alter object shapes and edges.
-                // Check the benchmarks for examples and guidance: 
-                // https://github.com/NickSwardh/YoloDotNet/tree/master/test/YoloDotNet.Benchmarks
-            });
-            logger.LogDebug("Loaded YOLO model");
-
             // Load image using SkiaSharp
             using var image = SKBitmap.Decode(filePath);
             logger.LogDebug("Loaded image for object detection");
@@ -137,9 +110,14 @@ namespace BackendLibrary
             options.DrawLabels = false;
 
             logger.LogDebug("Start detection");
-            var results = yolo.RunObjectDetection(image, confidence: 0.20, iou: 0.7);
-            
 
+            if (model == null)
+            {
+                throw new Exception("YOLO model is not loaded.");
+            }
+
+            var results = model.RunObjectDetection(image, confidence: 0.20, iou: 0.7);
+            
             if (results.Count == 0)
             {
                 //Custom exception can be thrown here

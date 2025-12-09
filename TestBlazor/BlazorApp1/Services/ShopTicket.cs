@@ -87,7 +87,7 @@ namespace BackendLibrary
         /// <summary>
         /// ShopTicket constructor initializing from PDF byte array with form view rectangle detection.
         /// </summary>
-        public ShopTicket(ILoggerFactory loggerFactory, String fileName, byte[] byteArray, string modelPath)
+        public ShopTicket(ILoggerFactory loggerFactory, String fileName, byte[] byteArray, DetectModelService dMService)
         {
             try
             {
@@ -107,13 +107,14 @@ namespace BackendLibrary
 
                 InitializeFromPdf(pdf);
 
-                Rectangle FormViewRectangle = Detect.GetRectInfo(_loggerFactory.CreateLogger<Detect>(), modelPath, fileName, stream);
+                Rectangle FormViewRectangle = Detect.GetRectInfo(_loggerFactory.CreateLogger<Detect>(), dMService.formViewModel, fileName, stream);
                 RectanglePage = FormViewRectangle.pageNumber;
                 FormViewRectangleX = FormViewRectangle.boxX;
                 FormViewRectangleY = FormViewRectangle.boxY;
                 FormViewRectangleWidth = FormViewRectangle.boxWidth;
                 FormViewRectangleHeight = FormViewRectangle.boxHeight;
                 _logger.LogDebug("FormViewRectangle extracted");
+
                 MemoryStream mStream = PdfEditor.AddRect(pdf, RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight, 72, 72);
                 annotatedPdfBytes = mStream.ToArray();
                 _logger.LogDebug("Added form view rectangle to PDF page {RectanglePage}", RectanglePage);

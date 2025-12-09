@@ -8,6 +8,7 @@
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
 @inject ShopTicketService sTService
+@inject DetectModelService dMService
 @inject IJSRuntime JS
 @inject ILogger<Home> Logger
 @inject ILoggerFactory loggerFactory;
@@ -435,7 +436,7 @@
                     try
                     {
 						Logger.LogInformation("Processing file: {FileName}", file.Name);
-                        var ticket = new ShopTicket(loggerFactory, file.Name, pdfBytes, "Services/best.onnx");
+                        var ticket = new ShopTicket(loggerFactory, file.Name, pdfBytes, dMService);
                         tempList.Add(ticket);
                         // auto-persist to DB
                         Db.AddDataToTables(ticket);
