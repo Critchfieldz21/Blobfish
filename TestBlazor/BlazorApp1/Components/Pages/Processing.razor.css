@@ -20,7 +20,7 @@
 }
 
 .pdfVisBox {
-  flex: 3;
+  flex: 3; /* full-screen: keep original viewer size */
   height: 100%;
   padding: 20px;
   overflow: scroll;
@@ -77,7 +77,7 @@
 
 /* Complete redesign of pdfinfo with bold geometric dark aesthetic */
 .pdfinfo {
-  flex: 1;
+  flex: 1.5; /* full-screen: keep original info size */
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -181,10 +181,14 @@
   flex: 1 1 auto;
   min-height: 0; /* important for children to be able to scroll inside flex containers */
   overflow-y: auto;
+  overflow-x: hidden; /* prevent horizontal scrollbar from the info table */
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
+  /* ensure inner content wraps at half-screen widths */
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Ultra-modern paragraph cards with neon accents */
@@ -421,18 +425,23 @@
   border-collapse: collapse;
   color: #e6f0ff;
   margin: 1rem 0;
+  table-layout: fixed; /* avoid long content forcing horizontal scroll */
 }
 .info-table th {
   text-align: left;
-  width: 40%;
-  padding: 0.5rem 1rem;
-  color: #9fc8ff;
+  padding: 0.75rem 1rem;
   font-weight: 700;
-  vertical-align: top;
+  color: #ffffff;
+  background: rgba(20, 84, 163, 0.2);
+  white-space: normal; /* allow header text to wrap */
+  overflow-wrap: anywhere;
 }
 .info-table td {
   padding: 0.5rem 1rem;
   color: #ffffff;
+  word-wrap: break-word; /* wrap long text within fixed table layout */
+  white-space: normal; /* allow cell text to wrap */
+  overflow-wrap: anywhere; /* break very long tokens like long numbers or paths */
 }
 .info-table tr {
   border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -664,11 +673,11 @@
     height: auto;
   }
 
-  .pdfVisBox,
-  .pdfinfo {
+  .pdfVisBox{
+    flex : 2; /* half-screen: smaller viewer */
     width: 100%;
     height: auto;
-    min-height: 400px;
+    flex: 2; /* half-screen: larger info panel */
   }
 
   .titleName {
