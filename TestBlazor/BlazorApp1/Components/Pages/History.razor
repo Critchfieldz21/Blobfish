@@ -17,7 +17,7 @@
         <input class="search-input" placeholder="Search by file name, piece mark, or project (you can also type a date like 12/11/2025)..." @bind="searchTerm" @bind:event="oninput" />
         <button class="btn btn-sm btn-secondary" type="button" @onclick="ClearSearch">Clear</button>
         <div class="export-dropdown @(IsAnySelected ? "" : "disabled")" style="margin-left:8px;">
-            <button type="button" class="ViewButton export-toggle" aria-haspopup="menu" disabled="@(!IsAnySelected)" aria-disabled="@(!IsAnySelected)">Export Selected ▾</button>
+            <button type="button" class="ViewButton export-toggle" aria-haspopup="menu" disabled="@(!IsAnySelected)" aria-disabled="@(!IsAnySelected)">Export Selected </button>
             <div class="export-list" role="menu">
                 <ul>
                     <li role="none"><button role="menuitem" class="dropdown-item" type="button" @onclick="() => BatchExport(true)">Export Selected JSON</button></li>
@@ -60,8 +60,9 @@
                         <td>@item.ticket.dateTimeExtracted</td>
                         <td>
                             <button class = "ViewButton" @onclick="() => OpenTicket(item.historyIndex)">View</button>
+                            <button  class = "ViewAnnotation" @onclick="() => OpenTicket(item.historyIndex)">View Annotation</button>
                                 <div class="export-dropdown">
-                                    <button type="button" class="ViewButton export-toggle" aria-haspopup="menu" aria-expanded="false">Export ▾</button>
+                                    <button type="button" class="ViewButton export-toggle" aria-haspopup="menu" aria-expanded="false">Export </button>
                                     <div class="export-list" role="menu">
                                         <ul>
                                             <li role="none"><button role="menuitem" class="dropdown-item" type="button" @onclick="() => HandleExportClick(true, item.historyIndex)">Export JSON <span class="hint">.json</span></button></li>
