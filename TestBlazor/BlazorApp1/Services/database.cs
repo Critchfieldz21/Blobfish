@@ -349,6 +349,10 @@ namespace SQL3cs
                     rectY,
                     rectW,
                     rectH,
+                    null,
+                    null,
+                    null,
+                    null,
                     processed
                 );
 

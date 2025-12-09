@@ -150,6 +150,10 @@ namespace BackendLibrary
             double formViewRectangleY,
             double formViewRectangleWidth,
             double formViewRectangleHeight,
+            double? sectionViewRectangleX,
+            double? sectionViewRectangleY,
+            double? sectionViewRectangleWidth,
+            double? sectionViewRectangleHeight,
             DateTime processedDate)
         {
             _loggerFactory = loggerFactory;
@@ -172,6 +176,10 @@ namespace BackendLibrary
             FormViewRectangleY = formViewRectangleY;
             FormViewRectangleWidth = formViewRectangleWidth;
             FormViewRectangleHeight = formViewRectangleHeight;
+            SectionViewRectangleX = formViewRectangleX;
+            SectionViewRectangleY = formViewRectangleY;
+            SectionViewRectangleWidth = formViewRectangleWidth;
+            SectionViewRectangleHeight = formViewRectangleHeight;
             dateTimeExtracted = processedDate;
 
             _logger.LogDebug("ShopTicket loaded for {FileName}", fileName);
