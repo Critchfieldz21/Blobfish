@@ -38,7 +38,11 @@ namespace SQL3cs
                         FormViewRectangleX REAL,
                         FormViewRectangleY REAL,
                         FormViewRectangleWidth REAL,
-                        FormViewRectangleHeight REAL
+                        FormViewRectangleHeight REAL,
+                        SectionViewRectangleX REAL,
+                        SectionViewRectangleY REAL,
+                        SectionViewRectangleWidth REAL,
+                        SectionViewRectangleHeight REAL
                              
                         );
                 ";
@@ -190,20 +194,29 @@ namespace SQL3cs
                       AND FormViewRectangleX = $fvrx
                       AND FormViewRectangleY = $fvry
                       AND FormViewRectangleWidth = $fvrw
-                      AND FormViewRectangleHeight = $fvrh;
+                      AND FormViewRectangleHeight = $fvrh
+                      And SectionViewRectangleX = $svrx
+                      And SectionViewRectangleY = $svry
+                      And SectionViewRectangleWidth = $svrw
+                      And SectionViewRectangleHeight = $svrh
                     ";
                     commandSelectRect.Parameters.AddWithValue("$page", pdf.RectanglePage);
                     commandSelectRect.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
                     commandSelectRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandSelectRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandSelectRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
+                    commandSelectRect.Parameters.AddWithValue("$svrx", 0);
+                    commandSelectRect.Parameters.AddWithValue("$svry", 0);
+                    commandSelectRect.Parameters.AddWithValue("$svrw", 0);
+                    commandSelectRect.Parameters.AddWithValue("$svrh", 0);
+
                     // No matching rectangle found, insert a new one
                     var commandInsertRect = connection.CreateCommand();
                     commandInsertRect.CommandText =
                     @"
                     INSERT INTO Rectangle (
-                        RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight       
-                    ) VALUES ($page, $fvrx, $fvry, $fvrw, $fvrh);
+                        RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight, SectionViewRectangleX, SectionViewRectangleY, SectionViewRectangleWidth, SectionViewRectangleHeight       
+                    ) VALUES ($page, $fvrx, $fvry, $fvrw, $fvrh, $svrx, $svry, $svrw, $svrh);
                     SELECT last_insert_rowid();
                     ";
                     // Reuse the parameters defined above
@@ -212,6 +225,10 @@ namespace SQL3cs
                     commandInsertRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandInsertRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandInsertRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
+                    commandInsertRect.Parameters.AddWithValue("$svrx", 0);
+                    commandInsertRect.Parameters.AddWithValue("$svry", 0);
+                    commandInsertRect.Parameters.AddWithValue("$svrw", 0);
+                    commandInsertRect.Parameters.AddWithValue("$svrh", 0);
 
                     var insRectRes = commandInsertRect.ExecuteScalar();
                     if (insRectRes == null) throw new InvalidOperationException("Failed to retrieve new RecID.");
