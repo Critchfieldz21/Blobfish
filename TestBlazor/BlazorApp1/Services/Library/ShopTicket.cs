@@ -14,7 +14,6 @@ namespace BackendLibrary
         private ILogger<ShopTicket> _logger;
 
         public byte[] PdfBytes { get; }                             // Bytearray of PDF file
-        public byte[] annotatedPdfBytes { get; }                    // Bytearray of annotated PDF file with rectangles drawn
         public DateTime dateTimeExtracted { get; }                  // Date and time when ShopTicket was constructed
         public int NumberOfPages { get; private set; }              // Number of pages in the PDF file.
         public string[] PageNames { get; private set; }             // Page names extracted from view labels.
@@ -116,7 +115,7 @@ namespace BackendLibrary
                 _logger.LogDebug("FormViewRectangle extracted");
 
                 MemoryStream mStream = PdfEditor.AddRect(pdf, RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight, 72, 72);
-                annotatedPdfBytes = mStream.ToArray();
+                PdfBytes = mStream.ToArray();
                 _logger.LogDebug("Added form view rectangle to PDF page {RectanglePage}", RectanglePage);
 
                 dateTimeExtracted = DateTime.Now;

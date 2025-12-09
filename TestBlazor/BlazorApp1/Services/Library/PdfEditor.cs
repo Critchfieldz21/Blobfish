@@ -1,3 +1,4 @@
+using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 
@@ -12,13 +13,12 @@ namespace BackendLibrary
             // Create a new PDF page
 
 
-            // for (int i = 0; i < pdf.PageCount; i++)
-            // {
-                    // newPdf.AddPage(pdf.Pages[i]);
-            // }
-            newPdf.AddPage(pdf.Pages[pageIndex]);
-            
-            PdfPage page = newPdf.Pages[0];
+            for (int i = 0; i < pdf.PageCount; i++)
+            {
+                newPdf.AddPage(pdf.Pages[i]);
+            }
+
+            PdfPage page = newPdf.Pages[pageIndex];
 
             // Create a graphics object for the page
             using (var gfx = PdfSharp.Drawing.XGraphics.FromPdfPage(page))
@@ -26,8 +26,9 @@ namespace BackendLibrary
                 // Create a rectangle
                 // var rect = new PdfSharp.Drawing.XRect(x * dpiX, y * dpiY, width * dpiX, height * dpiY); // Convert inches to points
 
+                XPen pen = new XPen(XColors.Blue, 2);
                 var rect = PdfSharp.Drawing.XRect.FromLTRB(x * dpiX, y * dpiY, (x + width) * dpiX, (y + height) * dpiY);
-                gfx.DrawRectangle(PdfSharp.Drawing.XPens.Pink, rect);
+                gfx.DrawRectangle(pen, rect);
             }
 
             
