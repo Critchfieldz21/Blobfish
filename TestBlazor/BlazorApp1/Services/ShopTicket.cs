@@ -286,19 +286,19 @@ namespace BackendLibrary
         /// <summary>
         /// Helper method to convert ShopTicket data to a dictionary for export.
         /// </summary>
-        private Dictionary<string, object> ToExportDictionary()
+        public Dictionary<string, object> ToExportDictionary()
         {
             return new Dictionary<string, object>
             {
                 { "FileName", FileName },
                 { "ProcessedDate", dateTimeExtracted },
                 { "NumberOfPages", NumberOfPages },
-                { "PageNames", PageNames },
+                { "PageNames", PageNames != null ? string.Join(", ", PageNames) : "" },
                 { "FileNamePieceMark", FileNamePieceMark ?? string.Empty },
                 { "ProjectNumber", ProjectNumber },
                 { "ProjectName", ProjectName },
                 { "FileContentPieceMark", FileContentPieceMark },
-                { "ControlNumbers", ControlNumbers ?? Array.Empty<string>() },
+                { "ControlNumbers", ControlNumbers != null ? string.Join(", ", ControlNumbers) : "" },
                 { "PiecesRequired", PiecesRequired },
                 { "Weight", Weight },
                 { "DesignNumber", DesignNumber },
