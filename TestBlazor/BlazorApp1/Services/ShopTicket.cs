@@ -107,7 +107,13 @@ namespace BackendLibrary
 
                 InitializeFromPdf(pdf);
 
-                (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) = Detect.GetRectInfo(_loggerFactory.CreateLogger<Detect>(), modelPath, fileName, stream);
+                Rectangle FormViewRectangle = Detect.GetRectInfo(_loggerFactory.CreateLogger<Detect>(), modelPath, fileName, stream);
+                RectanglePage = FormViewRectangle.pageNumber;
+                FormViewRectangleX = FormViewRectangle.boxX;
+                FormViewRectangleY = FormViewRectangle.boxY;
+                FormViewRectangleWidth = FormViewRectangle.boxWidth;
+                FormViewRectangleHeight = FormViewRectangle.boxHeight;
+                _logger.LogDebug("FormViewRectangle extracted");
                 MemoryStream mStream = PdfEditor.AddRect(pdf, RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight, 72, 72);
                 annotatedPdfBytes = mStream.ToArray();
                 _logger.LogDebug("Added form view rectangle to PDF page {RectanglePage}", RectanglePage);

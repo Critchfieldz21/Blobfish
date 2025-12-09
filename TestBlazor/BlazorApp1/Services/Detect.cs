@@ -13,20 +13,20 @@ namespace BackendLibrary
         // Make sure to read the README section "Accuracy Depends on Configuration":
         // https://github.com/NickSwardh/YoloDotNet/tree/master#%EF%B8%8F-accuracy-depends-on-configuration
 
-        public static (int pageNumber, float boxX, float boxY, float boxWidth, float boxHeight) GetRectInfo(ILogger<Detect> logger, string modelPath, string filePath)
+        public static Rectangle GetRectInfo(ILogger<Detect> logger, string modelPath, string filePath)
         {
             System.IO.Directory.CreateDirectory(".\\temp\\");
             return ProcessImage(logger, modelPath, filePath, ".\\temp\\", 72, 72);
         }
 
-        public static (int pageNumber, float boxX, float boxY, float boxWidth, float boxHeight) GetRectInfo(ILogger<Detect> logger, string modelPath, string filePath, Stream pdffile)
+        public static Rectangle GetRectInfo(ILogger<Detect> logger, string modelPath, string filePath, Stream pdffile)
         {
             System.IO.Directory.CreateDirectory(".\\temp\\");
             logger.LogDebug("Start processing image");
             return ProcessImage(logger, modelPath, filePath, pdffile, ".\\temp\\", 72, 72);
         }
 
-        public static (int pageNumber, float boxX, float boxY, float boxWidth, float boxHeight) ProcessImage(ILogger<Detect> logger, string modelPath, string imagePath, Stream pdffile, string outputFolder, float dpiX = 72, float dpiY = 72)
+        public static Rectangle ProcessImage(ILogger<Detect> logger, string modelPath, string imagePath, Stream pdffile, string outputFolder, float dpiX = 72, float dpiY = 72)
         {
             string input = Path.GetFileName(imagePath);
             string pattern = @"(?:_P)(\d+)";
@@ -61,10 +61,10 @@ namespace BackendLibrary
                 //custom exception can be handled.
                 Console.WriteLine("An error occurred: " + ex.Message);
             }
-            return (pageNumber, boxX, boxY, boxWidth, boxHeight);
+            return new Rectangle(pageNumber, boxX, boxY, boxWidth, boxHeight);
         }
 
-        public static (int pageNumber, float boxX, float boxY, float boxWidth, float boxHeight) ProcessImage(ILogger<Detect> logger, string modelPath, string imagePath, string outputFolder, float dpiX = 72, float dpiY = 72)
+        public static Rectangle ProcessImage(ILogger<Detect> logger, string modelPath, string imagePath, string outputFolder, float dpiX = 72, float dpiY = 72)
         {
             string input = Path.GetFileName(imagePath);
             string pattern = @"(?:_P)(\d+)";
@@ -96,7 +96,7 @@ namespace BackendLibrary
                 //custom exception can be handled.
                 Console.WriteLine("An error occurred: " + ex.Message);
             }
-            return (pageNumber, boxX, boxY, boxWidth, boxHeight);
+            return new Rectangle(pageNumber, boxX, boxY, boxWidth, boxHeight);
         }
         
         private static SKRectI Detection(ILogger<Detect> logger, string modelPath, string filePath, string outputPath)
