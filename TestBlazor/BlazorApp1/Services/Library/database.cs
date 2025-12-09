@@ -194,21 +194,13 @@ namespace SQL3cs
                       AND FormViewRectangleX = $fvrx
                       AND FormViewRectangleY = $fvry
                       AND FormViewRectangleWidth = $fvrw
-                      AND FormViewRectangleHeight = $fvrh
-                      AND SectionViewRectangleX = $svrx
-                      AND SectionViewRectangleY = $svry
-                      AND SectioniewRectangleWidth = $svrw
-                      AND SectionViewRectangleHeight = $svrh;
+                      AND FormViewRectangleHeight = $fvrh;
                     ";
                     commandSelectRect.Parameters.AddWithValue("$page", pdf.RectanglePage);
                     commandSelectRect.Parameters.AddWithValue("$fvrx", pdf.FormViewRectangleX);
                     commandSelectRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandSelectRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandSelectRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
-                    commandSelectRect.Parameters.AddWithValue("$svrx", 0);
-                    commandSelectRect.Parameters.AddWithValue("$svry", 0);
-                    commandSelectRect.Parameters.AddWithValue("$svrw", 0);
-                    commandSelectRect.Parameters.AddWithValue("$svrh", 0);
                    
                     // No matching rectangle found, insert a new one
                     var commandInsertRect = connection.CreateCommand();
