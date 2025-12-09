@@ -32,10 +32,10 @@ namespace BackendLibrary
         public double FormViewRectangleY { get; private set; }      // Distance from top edge of PDF to top edge of the form view rectangle (inches).
         public double FormViewRectangleWidth { get; private set; }  // Width of the form view rectangle (inches).
         public double FormViewRectangleHeight { get; private set; }  // Height of the form view rectangle (inches).
-        //public double SectionViewRectangleX { get; set; }          // Distance from left edge of PDF to left edge of the section view rectangle (inches).
-        //public double SectionViewRectangleY { get; set; }          // Distance from top edge of PDF to top edge of the section view rectangle (inches).
-        //public double SectionViewRectangleWidth { get; set; }      // Width of the section view rectangle (inches).
-        //public double SectionViewRectangleHeight { get; set; }     // Height of the section view rectangle (inches).
+        public double? SectionViewRectangleX { get; private set; }          // Distance from left edge of PDF to left edge of the section view rectangle (inches).
+        public double? SectionViewRectangleY { get; private set; }          // Distance from top edge of PDF to top edge of the section view rectangle (inches).
+        public double? SectionViewRectangleWidth { get; private set; }      // Width of the section view rectangle (inches).
+        public double? SectionViewRectangleHeight { get; private set; }     // Height of the section view rectangle (inches).
 
         /// <summary>
         /// ShopTicket constructor initializing from a PDF file path.
