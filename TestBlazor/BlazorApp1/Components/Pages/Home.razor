@@ -96,18 +96,6 @@
                                         </div>
                                         <div class="proc-actions">
                                             <span class="status @card.StatusClass">@card.Status</span>
-                                            @if (card.HistoryIndex >= 0)
-                                            {
-                                                <button class="btn-small" @onclick="async () => await TryOpenHistory(card)">View</button>
-                                            }
-                                            else if (card.Status == "Done")
-                                            {
-                                                <button class="btn-small" @onclick="async () => await TryOpenHistory(card)">View</button>
-                                            }
-                                            else
-                                            {
-                                                <button class="btn-small" disabled>View</button>
-                                            }
                                         </div>
                                     </div>
                                     <div class="proc-card-body">
@@ -157,11 +145,9 @@
     private bool cancelRequested = false;
     private string buttonLabel = "Process";
     private string processButtonClass => isProcessing ? "cancelbtn" : "processbtn";
-    private bool isDropdownOpen = false;
     private Modal? modalError;
     private string modalErrorMessage = "An error occurred during PDF processing.";
     private List<ShopTicket> tempList = new List<ShopTicket>();
-    private bool canSaveToDb => tempList != null && tempList.Count > 0;
     private bool wavesInitialized = false;
     private bool skipHeadingAnimation = false;
     private class ProcessingResult
@@ -321,6 +307,7 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task OnPrimary()
     {
+        // clear any existing tickets
         if (sTService.Size > 0)
         {
             sTService.ClearCurrentTickets();
@@ -328,8 +315,9 @@
 
         if (!isProcessing)
         {
+            tempList.Clear();
             if (selectedFiles != null)
-            {
+            {   
                 isProcessing = true;
                 cancelRequested = false;
                 completedCount = 0;
@@ -339,13 +327,14 @@
                 {
                     totalFiles = selectedFiles.GetMultipleFiles(fileLimit).Count;
 
-					Logger.LogInformation("Starting processing of {FileCount} files.", totalFiles);
+                    Logger.LogInformation("Starting processing of {FileCount} files.", totalFiles);
                     loadingMessage = totalFiles > 1
-                    ? $"Processing batch of {totalFiles} PDFs..."
-                    : "Processing PDF...";
+                        ? $"Processing batch of {totalFiles} PDFs..."
+                        : "Processing PDF...";
 
                     StateHasChanged();
                     await HandleFileSelected(selectedFiles);
+
                 }
                 catch (Exception ex)
                 {
@@ -363,6 +352,7 @@
 
                 if (!cancelRequested)
                 {
+                    AddToDatabase();
                     sTService.SetCurrentTicket(tempList.Cast<ShopTicket?>().ToList());
                     Navigation.NavigateTo("/processing");
                 }
@@ -378,6 +368,7 @@
             cancelRequested = true;
             isProcessing = false;
             buttonLabel = "Process";
+            // cancel current token
             StateHasChanged();
         }
     }
@@ -395,7 +386,6 @@
         var files = e.GetMultipleFiles(fileLimit);
         if (files.Count == 0) return;
 
-        // capture state at batch start so we can roll back if any file errors
         var initialProcessingCount = processingCards.Count;
         int initialCurrentTickets = tempList.Count;
 
@@ -403,8 +393,8 @@
         foreach (var file in files)
         {
             var sw = Stopwatch.StartNew();
-            string status = "Done";
             string message = string.Empty;
+
             try
             {
                 using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
@@ -414,62 +404,48 @@
                 int bytesRead;
                 while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                 {
-                    if (cancelRequested)
-                    {
-                        isProcessing = false;
-                        buttonLabel = "Process";
-                        tempList.Clear();
-                        pdfName = "Process cancelled.";
-                        completedCount = 0;
-                        totalFiles = 0;
-                        StateHasChanged();
-                        status = "Cancelled";
-                        break;
-                    }
-
                     await memoryStream.WriteAsync(buffer.AsMemory(0, bytesRead));
                 }
 
-                if (status != "Cancelled")
+                if (!cancelRequested)
                 {
                     byte[] pdfBytes = memoryStream.ToArray();
+
                     try
                     {
-						Logger.LogInformation("Processing file: {FileName}", file.Name);
+                        Logger.LogInformation("Processing file: {FileName}", file.Name);
                         var ticket = new ShopTicket(loggerFactory, file.Name, pdfBytes, dMService);
-                        tempList.Add(ticket);
-                        // auto-persist to DB
-                        Db.AddDataToTables(ticket);
-                        Logger.LogInformation("Successfully processed and saved file: {FileName}", file.Name);
+
+                        // check cancellation before adding
+                        if (cancelRequested)
+                        {
+                            Logger.LogInformation("Process Cancelled While Processing : {FileName}", file.Name);
+                        }
+                        else
+                        {
+                            tempList.Add(ticket);
+                            Logger.LogInformation("Successfully processed and saved file: {FileName}", file.Name);
+                            completedCount++;
+                            pdfName = file.Name;
+                        }
                     }
                     catch (Exception ex)
                     {
-                        status = "Error";
                         message = ex.Message;
-						Logger.LogError(ex.Message);
+                        Logger.LogError(ex.Message);
                         if (ex.InnerException is ExtractionException)
                         {
                             message += "<br /><br />Suggestion: Double-check if this file is a valid shop ticket PDF";
                         }
                     }
-
-                    if (status == "Done")
-                    {
-                        completedCount++;
-                        pdfName = file.Name; // shows the last processed file
-                    }
-                    // if ticket was successfully added, capture its history index
-                    if (status == "Done")
-                    {
-                        var idx = sTService.History.Count - 1;
-                        // assign idx to the last inserted processing card (we'll set after creating the object)
-                        // handled below when inserting ProcessingResult
-                    }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                cancelRequested = true;
             }
             catch (Exception ex)
             {
-                status = "Error";
                 message = ex.Message;
             }
             finally
@@ -479,51 +455,29 @@
                 {
                     FileName = file.Name,
                     Duration = sw.Elapsed,
-                    Status = status,
+                    Status = cancelRequested ? "Cancelled" : string.IsNullOrEmpty(message) ? "Done" : "Error",
                     Message = message,
                     Timestamp = DateTime.Now,
-                    HistoryIndex = status == "Done" ? sTService.History.Count - 1 : -1
+                    HistoryIndex = cancelRequested ? -1 : sTService.History.Count - 1
                 };
-                // add the processing card for this file
                 processingCards.Insert(0, pr);
                 await SaveProcessingCardsAsync();
                 StateHasChanged();
-                // Ensure any newly inserted card gets a waves canvas. Call the module's
-                // initializer which is idempotent and will attach canvases only where missing.
-                try
+                if (cancelRequested)
                 {
-                    var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/waves.js");
-                    await module.InvokeVoidAsync("initCards");
-                }
-                catch
-                {
-                    // ignore
-                }
-
-                // If this file errored, roll back the whole batch: remove processing cards added during this batch,
-                // remove tickets that were added to the service for this batch, stop processing and show the error.
-                if (status == "Error")
-                {
-                    // remove processing cards inserted during this batch (they are at the front)
+                    // rollback
                     var addedCards = processingCards.Count - initialProcessingCount;
-                    if (addedCards > 0)
-                    {
+                    if (addedCards > 0){
                         processingCards.RemoveRange(0, addedCards);
                     }
 
-                    // remove any tickets that were added to CurrentTicket during this batch
-                    if (tempList != null)
-                    {
-                        var addedTickets = tempList.Count - initialCurrentTickets;
-                        if (addedTickets > 0)
-                        {
-                            tempList.Clear();
-                        }
+                    var addedTickets = tempList.Count - initialCurrentTickets;
+                    if (addedTickets > 0){
+                         tempList.Clear();
                     }
 
                     await SaveProcessingCardsAsync();
 
-                    // stop processing and reset UI
                     isProcessing = false;
                     buttonLabel = "Process";
                     loadingMessage = string.Empty;
@@ -531,30 +485,29 @@
                     totalFiles = 0;
                     cancelRequested = true;
                     StateHasChanged();
-
-                    // show modal with the error message
-                    modalErrorMessage = pr.Message ?? "An error occurred during batch processing.";
-                    await (modalError?.ShowAsync() ?? Task.CompletedTask);
-
-                    // terminate the batch early
                     abortBatch = true;
                 }
             }
-            if (abortBatch) break;
+
+            if (abortBatch || cancelRequested) break;
         }
 
-        // Finished batch or single PDF (or aborted)
+        // finalize batch
         isProcessing = false;
         buttonLabel = "Process";
         if (abortBatch)
         {
             pdfName = "Batch processing aborted due to error.";
         }
+        else if (cancelRequested)
+        {
+            pdfName = "Process cancelled.";
+        }
         else
         {
             pdfName = totalFiles > 1
-            ? "Batch processing complete."
-            : $"Processed: {files[0].Name}";
+                ? "Batch processing complete."
+                : $"Processed: {files[0].Name}";
         }
         loadingMessage = "";
         completedCount = 0;
@@ -572,33 +525,17 @@
     }
 
     /// <summary>
-    /// Attempts to open a processed file from history. If not found, shows an error modal.
+    /// Adds the processed tickets in tempList to the database.
     /// </summary>
-    /// <param name="pr">The processing result representing the file.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    private async Task TryOpenHistory(ProcessingResult pr)
+    private void AddToDatabase()
     {
-        int idx = pr.HistoryIndex;
-        if (idx < 0 && pr.Status == "Done")
-        {
-            // try to find matching ticket in history by file name
-            idx = sTService.History.FindIndex(t => t != null && t.FileName == pr.FileName);
-            if (idx >= 0)
+        if(tempList.Count > 0){
+            foreach (var ticket in tempList)
             {
-                pr.HistoryIndex = idx;
-                await SaveProcessingCardsAsync();
+                Db.AddDataToTables(ticket);
+                Logger.LogInformation("Successfully processed and saved file: {FileName}", ticket.FileName);
             }
         }
-
-        if (idx >= 0 && idx < sTService.History.Count)
-        {
-            sTService.SetCurrentHistoryIndex(idx);
-            Navigation.NavigateTo($"/processing?historyIndex={idx}");
-        }
-        else
-        {
-            modalErrorMessage = "This file's processed data is not available in history.";
-            await (modalError?.ShowAsync() ?? Task.CompletedTask);
-        }
     }
+
 }
