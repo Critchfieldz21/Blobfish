@@ -44,7 +44,7 @@ namespace PlaywrightTests
             );
 
             Assert.That(page.Url, Does.EndWith("/processing"));
-
+            await Task.Delay(5000);
             await _browser.CloseAsync();
             _playwright.Dispose();
         }
@@ -88,7 +88,7 @@ namespace PlaywrightTests
             );
 
             Assert.That(page.Url, Does.EndWith("/processing"));
-
+            await Task.Delay(5000);
             await _browser.CloseAsync();
             _playwright.Dispose();
         }
@@ -126,6 +126,7 @@ namespace PlaywrightTests
 
             // Assert it is visible
             Assert.That(await modal.IsVisibleAsync(), Is.True);
+            await Task.Delay(5000);
         }
 
     }
