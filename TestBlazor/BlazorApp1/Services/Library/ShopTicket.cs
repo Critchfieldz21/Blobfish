@@ -407,7 +407,11 @@ namespace BackendLibrary
                 { "FormViewRectangleX", FormViewRectangleX },
                 { "FormViewRectangleY", FormViewRectangleY },
                 { "FormViewRectangleWidth", FormViewRectangleWidth },
-                { "FormViewRectangleHeight", FormViewRectangleHeight }
+                { "FormViewRectangleHeight", FormViewRectangleHeight },
+                { "SectionViewRectangleX", SectionViewRectangleX != null ? SectionViewRectangleX : ""},
+                { "SectionViewRectangleY", SectionViewRectangleY != null ? SectionViewRectangleY : ""},
+                { "SectionViewRectangleWidth", SectionViewRectangleWidth != null ? SectionViewRectangleWidth : ""},
+                { "SectionViewRectangleHeight", SectionViewRectangleHeight != null ? SectionViewRectangleHeight : ""}
             };
         }
     }
