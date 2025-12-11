@@ -40,14 +40,40 @@
     <!-- PDF Info -->
     <div class="pdfinfo">
         <div class="pdfinfo-content">
+        <h4 class="pdfinfo-subtitle">Details</h4>
         <table class="info-table">
-            @foreach (var kvp in ticket.ToExportDictionary())
-                {
-                    <tr>
-                        <th>@kvp.Key</th>
-                        <td>@kvp.Value</td>
-                    </tr>
-                }
+            @foreach (var kvp in ticket.ToExportDictionary().Where(k =>
+                k.Key is "FileName" or "ProcessedDate" or "NumberOfPages" or "PageNames" or "FileNamePieceMark" or "ProjectNumber" or "ProjectName" or "FileContentPieceMark" or "ControlNumbers" or "PiecesRequired" or "Weight" or "DesignNumber"))
+            {
+                <tr>
+                    <th>@kvp.Key</th>
+                    <td>@kvp.Value</td>
+                </tr>
+            }
+        </table>
+
+        <h3 class="pdfinfo-title">Form View</h3>
+        <table class="info-table">
+            @foreach (var kvp in ticket.ToExportDictionary().Where(k =>
+                k.Key is "RectanglePage" or "FormViewRectangleX" or "FormViewRectangleY" or "FormViewRectangleWidth" or "FormViewRectangleHeight"))
+            {
+                <tr>
+                    <th>@kvp.Key</th>
+                    <td>@kvp.Value</td>
+                </tr>
+            }
+        </table>
+
+        <h3 class="pdfinfo-title" >Section View</h3>
+        <table class="info-table">
+            @foreach (var kvp in ticket.ToExportDictionary().Where(k =>
+                k.Key is "SectionViewRectangleX" or "SectionViewRectangleY" or "SectionViewRectangleWidth" or "SectionViewRectangleHeight"))
+            {
+                <tr>
+                    <th>@kvp.Key</th>
+                    <td>@kvp.Value</td>
+                </tr>
+            }
         </table>
         <img src="../NortheastPrecast.webp" />
         </div>
