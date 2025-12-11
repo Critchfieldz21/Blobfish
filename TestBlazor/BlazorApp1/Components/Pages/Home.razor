@@ -388,12 +388,12 @@
 
         var initialProcessingCount = processingCards.Count;
         int initialCurrentTickets = tempList.Count;
+        string message = string.Empty;
 
         bool abortBatch = false;
         foreach (var file in files)
         {
             var sw = Stopwatch.StartNew();
-            string message = string.Empty;
 
             try
             {
@@ -440,13 +440,11 @@
                     }
                 }
             }
-            catch (OperationCanceledException)
-            {
-                cancelRequested = true;
-            }
             catch (Exception ex)
             {
                 message = ex.Message;
+                Logger.LogInformation("Process Cancelled Due To Error: {FileName} - {ErrorMessage}", file.Name, ex.Message);
+                abortBatch = true;
             }
             finally
             {
@@ -460,10 +458,11 @@
                     Timestamp = DateTime.Now,
                     HistoryIndex = cancelRequested ? -1 : sTService.History.Count - 1
                 };
+                abortBatch = pr.Status.CompareTo("Error") == 0 ? true : cancelRequested;
                 processingCards.Insert(0, pr);
                 await SaveProcessingCardsAsync();
                 StateHasChanged();
-                if (cancelRequested)
+                if (cancelRequested || abortBatch)
                 {
                     // rollback
                     var addedCards = processingCards.Count - initialProcessingCount;
@@ -485,7 +484,6 @@
                     totalFiles = 0;
                     cancelRequested = true;
                     StateHasChanged();
-                    abortBatch = true;
                 }
             }
 
@@ -497,17 +495,8 @@
         buttonLabel = "Process";
         if (abortBatch)
         {
-            pdfName = "Batch processing aborted due to error.";
-        }
-        else if (cancelRequested)
-        {
-            pdfName = "Process cancelled.";
-        }
-        else
-        {
-            pdfName = totalFiles > 1
-                ? "Batch processing complete."
-                : $"Processed: {files[0].Name}";
+            modalErrorMessage = message;
+            await (modalError?.ShowAsync() ?? Task.CompletedTask);
         }
         loadingMessage = "";
         completedCount = 0;
