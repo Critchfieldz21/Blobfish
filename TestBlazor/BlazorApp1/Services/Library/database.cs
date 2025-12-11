@@ -218,10 +218,10 @@ namespace SQL3cs
                     commandSelectRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandSelectRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandSelectRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
-                    commandSelectRect.Parameters.AddWithValue("$svrx", 0);
-                    commandSelectRect.Parameters.AddWithValue("$svry", 0);
-                    commandSelectRect.Parameters.AddWithValue("$svrw", 0);
-                    commandSelectRect.Parameters.AddWithValue("$svrh", 0);
+                    commandSelectRect.Parameters.AddWithValue("$svrx", pdf.SectionViewRectangleX);
+                    commandSelectRect.Parameters.AddWithValue("$svry", pdf.SectionViewRectangleY);
+                    commandSelectRect.Parameters.AddWithValue("$svrw", pdf.SectionViewRectangleWidth);
+                    commandSelectRect.Parameters.AddWithValue("$svrh", pdf.SectionViewRectangleHeight);
 
                     // No matching rectangle found, insert a new one
                     var commandInsertRect = connection.CreateCommand();
@@ -238,10 +238,10 @@ namespace SQL3cs
                     commandInsertRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandInsertRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandInsertRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
-                    commandInsertRect.Parameters.AddWithValue("$svrx", 0);
-                    commandInsertRect.Parameters.AddWithValue("$svry", 0);
-                    commandInsertRect.Parameters.AddWithValue("$svrw", 0);
-                    commandInsertRect.Parameters.AddWithValue("$svrh", 0);
+                    commandInsertRect.Parameters.AddWithValue("$svrx", pdf.SectionViewRectangleX);
+                    commandInsertRect.Parameters.AddWithValue("$svry", pdf.SectionViewRectangleY);
+                    commandInsertRect.Parameters.AddWithValue("$svrw", pdf.SectionViewRectangleWidth);
+                    commandInsertRect.Parameters.AddWithValue("$svrh",pdf.SectionViewRectangleHeight);
 
                     var insRectRes = commandInsertRect.ExecuteScalar();
                     if (insRectRes == null) throw new InvalidOperationException("Failed to retrieve new RecID.");
@@ -321,6 +321,7 @@ namespace SQL3cs
                         s.ProjectName, s.FileContentPieceMark, s.ControlNumbers, s.PiecesRequired,
                         s.Weight, s.DesignNumber, s.PdfBlob, r.RectanglePage,
                         r.FormViewRectangleX, r.FormViewRectangleY, r.FormViewRectangleWidth, r.FormViewRectangleHeight,
+                        r.SectionViewRectangleX, r.SectionViewRectangleY, r.SectionViewRectangleWidth, r.SectionViewRectangleHeight,
                         p.DateCreated
                 FROM ShopTicket s
                 LEFT JOIN Rectangle r ON s.RecID = r.RecID
@@ -344,11 +345,15 @@ namespace SQL3cs
                 string designNumber = reader.IsDBNull(10) ? string.Empty : reader.GetString(10);
                 byte[] pdfBlob = pdfBlob = reader.IsDBNull(11) ? Array.Empty<byte>() : (byte[])reader.GetValue(11);
                 int rectanglePage = reader.IsDBNull(12) ? 0 : reader.GetInt32(12);
-                double rectX = reader.IsDBNull(13) ? 0 : reader.GetDouble(13);
-                double rectY = reader.IsDBNull(14) ? 0 : reader.GetDouble(14);
-                double rectW = reader.IsDBNull(15) ? 0 : reader.GetDouble(15);
-                double rectH = reader.IsDBNull(16) ? 0 : reader.GetDouble(16);
-                string dateCreatedRaw = reader.IsDBNull(17) ? string.Empty : reader.GetString(17);
+                double fRectX = reader.IsDBNull(13) ? 0 : reader.GetDouble(13);
+                double fRectY = reader.IsDBNull(14) ? 0 : reader.GetDouble(14);
+                double fRectW = reader.IsDBNull(15) ? 0 : reader.GetDouble(15);
+                double fRectH = reader.IsDBNull(16) ? 0 : reader.GetDouble(16);
+                double sRectX = reader.IsDBNull(17) ? 0 : reader.GetDouble(17);
+                double sRectY = reader.IsDBNull(18) ? 0 : reader.GetDouble(18);
+                double sRectW = reader.IsDBNull(19) ? 0 : reader.GetDouble(19);
+                double sRectH = reader.IsDBNull(20) ? 0 : reader.GetDouble(20);
+                string dateCreatedRaw = reader.IsDBNull(21) ? string.Empty : reader.GetString(17);
 
                 // Split helpers: values were joined with triple-spaces
                 string[] pageNames = string.IsNullOrWhiteSpace(pageNamesRaw)
@@ -380,14 +385,14 @@ namespace SQL3cs
                     weight,
                     designNumber,
                     rectanglePage,
-                    rectX,
-                    rectY,
-                    rectW,
-                    rectH,
-                    null,
-                    null,
-                    null,
-                    null,
+                    fRectX,
+                    fRectY,
+                    fRectW,
+                    fRectH,
+                    sRectX,
+                    sRectY,
+                    sRectW,
+                    sRectH,
                     processed
                 );
 

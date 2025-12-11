@@ -255,10 +255,10 @@ namespace BackendLibrary
             double formViewRectangleY,
             double formViewRectangleWidth,
             double formViewRectangleHeight,
-            double? sectionViewRectangleX,
-            double? sectionViewRectangleY,
-            double? sectionViewRectangleWidth,
-            double? sectionViewRectangleHeight,
+            double sectionViewRectangleX,
+            double sectionViewRectangleY,
+            double sectionViewRectangleWidth,
+            double sectionViewRectangleHeight,
             DateTime processedDate)
         {
             _loggerFactory = loggerFactory;
@@ -281,10 +281,10 @@ namespace BackendLibrary
             FormViewRectangleY = formViewRectangleY;
             FormViewRectangleWidth = formViewRectangleWidth;
             FormViewRectangleHeight = formViewRectangleHeight;
-            SectionViewRectangleX = formViewRectangleX;
-            SectionViewRectangleY = formViewRectangleY;
-            SectionViewRectangleWidth = formViewRectangleWidth;
-            SectionViewRectangleHeight = formViewRectangleHeight;
+            SectionViewRectangleX = sectionViewRectangleX;
+            SectionViewRectangleY = sectionViewRectangleY;
+            SectionViewRectangleWidth = sectionViewRectangleWidth;
+            SectionViewRectangleHeight = sectionViewRectangleHeight;
             dateTimeExtracted = processedDate;
 
             _logger.LogDebug("ShopTicket loaded for {FileName}", fileName);
@@ -420,10 +420,10 @@ namespace BackendLibrary
                 { "FormViewRectangleY", FormViewRectangleY },
                 { "FormViewRectangleWidth", FormViewRectangleWidth },
                 { "FormViewRectangleHeight", FormViewRectangleHeight },
-                { "SectionViewRectangleX", SectionViewRectangleX != null ? SectionViewRectangleX : ""},
-                { "SectionViewRectangleY", SectionViewRectangleY != null ? SectionViewRectangleY : ""},
-                { "SectionViewRectangleWidth", SectionViewRectangleWidth != null ? SectionViewRectangleWidth : ""},
-                { "SectionViewRectangleHeight", SectionViewRectangleHeight != null ? SectionViewRectangleHeight : ""}
+                { "SectionViewRectangleX", SectionViewRectangleX},
+                { "SectionViewRectangleY", SectionViewRectangleY},
+                { "SectionViewRectangleWidth", SectionViewRectangleWidth},
+                { "SectionViewRectangleHeight", SectionViewRectangleHeight}
             };
         }
     }
