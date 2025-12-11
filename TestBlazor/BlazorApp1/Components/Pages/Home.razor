@@ -424,7 +424,7 @@
                         else
                         {
                             tempList.Add(ticket);
-                            Logger.LogInformation("Successfully processed and saved file: {FileName}", file.Name);
+                            Logger.LogInformation("Successfully processed file: {FileName}", file.Name);
                             completedCount++;
                             pdfName = file.Name;
                         }
@@ -533,7 +533,7 @@
             foreach (var ticket in tempList)
             {
                 Db.AddDataToTables(ticket);
-                Logger.LogInformation("Successfully processed and saved file: {FileName}", ticket.FileName);
+                Logger.LogInformation("Successfully saved file in database: {FileName}", ticket.FileName);
             }
         }
     }
