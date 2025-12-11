@@ -353,7 +353,7 @@ namespace SQL3cs
                 double sRectY = reader.IsDBNull(18) ? 0 : reader.GetDouble(18);
                 double sRectW = reader.IsDBNull(19) ? 0 : reader.GetDouble(19);
                 double sRectH = reader.IsDBNull(20) ? 0 : reader.GetDouble(20);
-                string dateCreatedRaw = reader.IsDBNull(21) ? string.Empty : reader.GetString(17);
+                string dateCreatedRaw = reader.IsDBNull(21) ? string.Empty : reader.GetString(21);
 
                 // Split helpers: values were joined with triple-spaces
                 string[] pageNames = string.IsNullOrWhiteSpace(pageNamesRaw)
