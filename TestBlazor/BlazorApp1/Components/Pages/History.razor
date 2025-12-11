@@ -5,6 +5,8 @@
 @inject ShopTicketService sTService
 @inject NavigationManager Navigation
 @inject SQL3cs.CustomerData Db
+@inject ILogger<History> Logger
+@inject ILoggerFactory loggerFactory;
 @rendermode InteractiveServer
 
 
@@ -79,7 +81,7 @@
 </div>
 
 @code {
-   
+
     private List<ShopTicket> history = new List<ShopTicket>();
     private string searchTerm = string.Empty;
 
@@ -121,7 +123,7 @@
     private void ClearSearch()
     {
         searchTerm = string.Empty;
-       
+
     }
 
     private void OpenTicket(int index)
@@ -140,10 +142,11 @@
         if (index >= 0 && index < history.Count)
         {
             //removes from database first and then from the history list
-            Db.RemoveRowByFileName(history[index].FileName);
+            Db.RemoveRowByFileName(loggerFactory, history[index].FileName);
             String fileName = history[index].FileName;
             history.RemoveAt(index);
             sTService.History.RemoveAt(index);
+            Logger.LogInformation("Successfully deleted file in database and history: {fileName}", fileName);
             StateHasChanged();
         }
     }

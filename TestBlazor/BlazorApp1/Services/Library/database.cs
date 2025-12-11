@@ -1,11 +1,12 @@
+using  BackendLibrary;
 using ClosedXML.Excel;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 using System;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
-using  BackendLibrary;
-using System.ComponentModel.Design;
 
 
 namespace SQL3cs
@@ -399,8 +400,9 @@ namespace SQL3cs
         /// Removes a row from the ShopTicket, Project, and Rectangle tables based on the provided fileName.
         /// </summary>
         /// <param name="fileName"></param>
-        public void RemoveRowByFileName(string fileName)
+        public void RemoveRowByFileName(ILoggerFactory loggerFactory, string fileName)
         {
+            var logger = loggerFactory.CreateLogger<CustomerData>();
             using (var connection = new SqliteConnection(_connectionString))
             {
                 connection.Open();
@@ -429,7 +431,7 @@ namespace SQL3cs
                             }
                             else
                             {
-                                Console.WriteLine($"FileName '{fileName}' not found. Cannot proceed with deletion.");
+                                logger.LogError("FileName {FileName} not found. Cannot proceed with deletion.", fileName);
                                 transaction.Rollback();
                                 return;
                             }
@@ -441,7 +443,7 @@ namespace SQL3cs
                             commandDeleteProject.CommandText = "DELETE FROM Project WHERE ShopTicketID = $shopTicketID";
                             commandDeleteProject.Parameters.AddWithValue("$shopTicketID", shopTicketID);
                             commandDeleteProject.ExecuteNonQuery();
-                            Console.WriteLine($"Deleted Project records linked to ShopTicketID {shopTicketID}.");
+                            logger.LogInformation("Deleted Project records linked to ShopTicketID {ShopTicketID}.", shopTicketID);
                         }
 
                         // 3. Find the associated RecID from the ShopTicket table
@@ -470,7 +472,7 @@ namespace SQL3cs
 
                             if (rowsAffected > 0)
                             {
-                                Console.WriteLine($"Deleted ShopTicket record with ID {shopTicketID}.");
+                                logger.LogInformation("Deleted ShopTicket record with ID {ShopTicketID}.", shopTicketID);
                             }
                         }
 
@@ -482,22 +484,22 @@ namespace SQL3cs
                                 commandDeleteRectangle.CommandText = "DELETE FROM Rectangle WHERE RecID = $recID";
                                 commandDeleteRectangle.Parameters.AddWithValue("$recID", recID);
                                 commandDeleteRectangle.ExecuteNonQuery();
-                                Console.WriteLine($"Deleted associated Rectangle record with RecID {recID}.");
+                                logger.LogInformation("Deleted Rectangle record with RecID {RecID}.", recID);
                             }
                         }
 
                         // Commit transaction
                         transaction.Commit();
-                        Console.WriteLine($"Successfully removed all associated data starting from FileName '{fileName}'.");
+                        logger.LogInformation("Successfully removed all associated data starting from FileName {FileName}.", fileName);
                     }
                     catch (SqliteException ex)
                     {
-                        Console.WriteLine($"A database error occurred: {ex.Message}. Rolling back operation.");
+                        logger.LogError(ex, "A database error occurred while removing data for FileName {FileName}. Rolling back operation.", fileName);
                         transaction.Rollback();
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"An unexpected error occurred: {ex.Message}. Rolling back operation.");
+                        logger.LogError(ex, "An unexpected error occurred while removing data for FileName {FileName}. Rolling back operation.", fileName); 
                         transaction.Rollback();
                     }
                 }
