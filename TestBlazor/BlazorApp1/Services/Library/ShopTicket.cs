@@ -328,6 +328,11 @@ namespace BackendLibrary
                 PiecesRequired = textGroup.PiecesRequired;
                 Weight = textGroup.Weight;
                 DesignNumber = textGroup.DesignNumber;
+
+                if (FileNamePieceMark != FileContentPieceMark)
+                {
+                    throw new ExtractionException($"Piece Mark mismatch: FileNamePieceMark '{FileNamePieceMark}' does not match FileContentPieceMark '{FileContentPieceMark}'");
+                }
             }
             catch (Exception ex)
             {
