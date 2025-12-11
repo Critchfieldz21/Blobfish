@@ -10,31 +10,125 @@ namespace BackendLibrary
     /// </summary>
     public class ShopTicket
     {
-        private ILoggerFactory _loggerFactory;
-        private ILogger<ShopTicket> _logger;
+        /// <summary>
+        /// Used for constructing loggers in different classes.
+        /// </summary>
+        private readonly ILoggerFactory _loggerFactory;
 
-        public byte[] PdfBytes { get; }                             // Bytearray of PDF file
-        public DateTime dateTimeExtracted { get; }                  // Date and time when ShopTicket was constructed
-        public int NumberOfPages { get; private set; }              // Number of pages in the PDF file.
-        public string[] PageNames { get; private set; }             // Page names extracted from view labels.
-        public string FileName { get; private set; }                // File name of the PDF file.
-        public string? FileNamePieceMark { get; private set; }      // Piece Mark extracted from the file name.
-        public string ProjectNumber { get; private  set; }          // Project Number from the title block labelled "JOB NO.".
-        public string ProjectName { get; private set; }             // Project Name from the title block labelled "PROJECT:".
-        public string FileContentPieceMark { get; private set; }    // Piece Mark from the title block labelled "PIECE MARK".
-        public string[]? ControlNumbers { get; private set; }       // Control numbers from the square above the title block labelled "CONTROL NO.:".
-        public int PiecesRequired { get; private set; }             // Pieces required from the title block labelled "PIECES REQ'D:".
-        public decimal Weight { get; private set; }                 // Weight from the title block labelled "WEIGHT:".
-        public string DesignNumber { get; private set; }            // Design number from the title block labelled "DESIGN:".
-        public int RectanglePage { get; private set; }              // 0-based index of the page containing form and section view rectangles.
-        public double FormViewRectangleX { get; private set; }      // Distance from left edge of PDF to left edge of the form view rectangle (inches).
-        public double FormViewRectangleY { get; private set; }      // Distance from top edge of PDF to top edge of the form view rectangle (inches).
-        public double FormViewRectangleWidth { get; private set; }  // Width of the form view rectangle (inches).
-        public double FormViewRectangleHeight { get; private set; }  // Height of the form view rectangle (inches).
-        public double? SectionViewRectangleX { get; private set; }          // Distance from left edge of PDF to left edge of the section view rectangle (inches).
-        public double? SectionViewRectangleY { get; private set; }          // Distance from top edge of PDF to top edge of the section view rectangle (inches).
-        public double? SectionViewRectangleWidth { get; private set; }      // Width of the section view rectangle (inches).
-        public double? SectionViewRectangleHeight { get; private set; }     // Height of the section view rectangle (inches).
+        /// <summary>
+        /// Logs messages for this class.
+        /// </summary>
+        private readonly ILogger<ShopTicket> _logger;
+
+        /// <summary>
+        /// Bytearray of PDF file.
+        /// </summary>
+        public byte[] PdfBytes { get; }
+
+        /// <summary>
+        /// Date and time when ShopTicket was constructed.
+        /// </summary>
+        public DateTime dateTimeExtracted { get; }
+
+        /// <summary>
+        /// Number of pages in the PDF file.
+        /// </summary>
+        public int NumberOfPages { get; private set; }
+
+        /// <summary>
+        /// Page names extracted from view labels.
+        /// </summary>
+        public string[] PageNames { get; private set; }
+
+        /// <summary>
+        /// File name of the PDF file.
+        /// </summary>
+        public string FileName { get; private set; }
+
+        /// <summary>
+        /// Piece Mark extracted from the file name.
+        /// </summary>
+        public string? FileNamePieceMark { get; private set; }
+
+        /// <summary>
+        /// Project Number from the title block labelled "JOB NO.".
+        /// </summary>
+        public string ProjectNumber { get; private  set; }
+
+        /// <summary>
+        /// Project Name from the title block labelled "PROJECT:".
+        /// </summary>
+        public string ProjectName { get; private set; }
+
+        /// <summary>
+        /// Piece Mark from the title block labelled "PIECE MARK".
+        /// </summary>
+        public string FileContentPieceMark { get; private set; }
+
+        /// <summary>
+        /// Control numbers from the square above the title block labelled "CONTROL NO.:".
+        /// </summary>
+        public string[]? ControlNumbers { get; private set; }
+
+        /// <summary>
+        /// Pieces required from the title block labelled "PIECES REQ'D:".
+        /// </summary>
+        public int PiecesRequired { get; private set; }
+
+        /// <summary>
+        /// Weight from the title block labelled "WEIGHT:".
+        /// </summary>
+        public decimal Weight { get; private set; }
+
+        /// <summary>
+        /// Design number from the title block labelled "DESIGN:".
+        /// </summary>
+        public string DesignNumber { get; private set; }
+
+        /// <summary>
+        /// 0-based index of the page containing form and section view rectangles.
+        /// </summary>
+        public int RectanglePage { get; private set; }
+
+        /// <summary>
+        /// Distance from left edge of PDF to left edge of the form view rectangle (inches).
+        /// </summary>
+        public double FormViewRectangleX { get; private set; }
+
+        /// <summary>
+        /// Distance from top edge of PDF to top edge of the form view rectangle (inches).
+        /// </summary>
+        public double FormViewRectangleY { get; private set; }
+
+        /// <summary>
+        /// Width of the form view rectangle (inches).
+        /// </summary>
+        public double FormViewRectangleWidth { get; private set; }
+
+        /// <summary>
+        /// Height of the form view rectangle (inches).
+        /// </summary>
+        public double FormViewRectangleHeight { get; private set; }
+
+        /// <summary>
+        /// Distance from left edge of PDF to left edge of the section view rectangle (inches).
+        /// </summary>
+        public double? SectionViewRectangleX { get; private set; }
+
+        /// <summary>
+        /// Distance from top edge of PDF to top edge of the section view rectangle (inches).
+        /// </summary>
+        public double? SectionViewRectangleY { get; private set; }
+
+        /// <summary>
+        /// Width of the section view rectangle (inches).
+        /// </summary>
+        public double? SectionViewRectangleWidth { get; private set; }
+
+        /// <summary>
+        /// Height of the section view rectangle (inches).
+        /// </summary>
+        public double? SectionViewRectangleHeight { get; private set; }
 
         /// <summary>
         /// ShopTicket constructor initializing from a PDF file path.

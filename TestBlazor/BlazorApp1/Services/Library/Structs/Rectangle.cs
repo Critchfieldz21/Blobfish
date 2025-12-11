@@ -1,5 +1,9 @@
 ﻿namespace BackendLibrary
 {
+    /// <summary>
+    /// Represents extracted rectangle information from ShopTicket PDF content.
+    /// (ex: FormViewRectangle and SectionViewRectangle)
+    /// </summary>
     public struct Rectangle
     {
         public int pageNumber;

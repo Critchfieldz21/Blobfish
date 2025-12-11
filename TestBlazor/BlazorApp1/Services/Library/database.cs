@@ -16,6 +16,10 @@ namespace SQL3cs
         private readonly string _dbPath;
         private readonly string _connectionString;
 
+        /// <summary>
+        /// Constructor that initializes the database path and connection string.
+        /// </summary>
+        /// <param name="env"></param>
         public CustomerData(Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
         {
             // Ensure DB lives under the content root so it's predictable
@@ -23,6 +27,10 @@ namespace SQL3cs
             _connectionString = $"Data Source={_dbPath}";
         }
 
+        /// <summary>
+        /// Creates ShopTicket, Rectangle, and Project tables if they do not already exist
+        /// in the database.
+        /// </summary>
         public void CreateTables()
         {
             using (var connection = new SqliteConnection(_connectionString))
@@ -87,6 +95,10 @@ namespace SQL3cs
             }
         }
 
+        /// <summary>
+        /// Takes a ShopTicket object and inserts its data into the database.
+        /// </summary>
+        /// <param name="pdf"></param>
         public void AddDataToTables(ShopTicket pdf)
         {
             try
@@ -291,6 +303,11 @@ namespace SQL3cs
             }
         }
 
+        /// <summary>
+        /// Loads all ShopTicket records from the database and returns them as a list of ShopTicket objects.
+        /// </summary>
+        /// <param name="loggerFactory"></param>
+        /// <returns></returns>
         public List<ShopTicket> LoadTickets(ILoggerFactory loggerFactory)
         {
             var result = new List<ShopTicket>();
@@ -505,6 +522,10 @@ namespace SQL3cs
             }
         }
 
+        /// <summary>
+        /// Removes a row from the ShopTicket, Project, and Rectangle tables based on the provided fileName.
+        /// </summary>
+        /// <param name="fileName"></param>
         public void RemoveRowByFileName(string fileName)
         {
             using (var connection = new SqliteConnection(_connectionString))
