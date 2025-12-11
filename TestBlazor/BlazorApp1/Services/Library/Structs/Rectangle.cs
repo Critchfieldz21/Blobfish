@@ -7,12 +7,12 @@
     public struct Rectangle
     {
         public int pageNumber;
-        public float boxX;
-        public float boxY;
-        public float boxWidth;
-        public float boxHeight;
+        public float? boxX;
+        public float? boxY;
+        public float? boxWidth;
+        public float? boxHeight;
 
-        public Rectangle(int pageNumber, float boxX, float boxY, float boxWidth, float boxHeight)
+        public Rectangle(int pageNumber, float? boxX, float? boxY, float? boxWidth, float? boxHeight)
         {
             this.pageNumber = pageNumber;
             this.boxX = boxX;

@@ -203,10 +203,10 @@ namespace BackendLibrary
 
                 Rectangle FormViewRectangle = Detect.GetRectInfo(_loggerFactory.CreateLogger<Detect>(), dMService.formViewModel, fileName, stream);
                 RectanglePage = FormViewRectangle.pageNumber;
-                FormViewRectangleX = FormViewRectangle.boxX;
-                FormViewRectangleY = FormViewRectangle.boxY;
-                FormViewRectangleWidth = FormViewRectangle.boxWidth;
-                FormViewRectangleHeight = FormViewRectangle.boxHeight;
+                FormViewRectangleX = (double) FormViewRectangle.boxX;
+                FormViewRectangleY = (double) FormViewRectangle.boxY;
+                FormViewRectangleWidth = (double) FormViewRectangle.boxWidth;
+                FormViewRectangleHeight = (double) FormViewRectangle.boxHeight;
                 _logger.LogDebug("FormViewRectangle extracted");
 
                 Rectangle SectionViewRectangle = Detect.GetRectInfo(_loggerFactory.CreateLogger<Detect>(), dMService.sectionViewModel, fileName, stream);

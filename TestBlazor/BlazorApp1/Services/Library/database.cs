@@ -218,10 +218,10 @@ namespace SQL3cs
                     commandSelectRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandSelectRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandSelectRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
-                    commandSelectRect.Parameters.AddWithValue("$svrx", pdf.SectionViewRectangleX);
-                    commandSelectRect.Parameters.AddWithValue("$svry", pdf.SectionViewRectangleY);
-                    commandSelectRect.Parameters.AddWithValue("$svrw", pdf.SectionViewRectangleWidth);
-                    commandSelectRect.Parameters.AddWithValue("$svrh", pdf.SectionViewRectangleHeight);
+                    commandSelectRect.Parameters.AddWithValue("$svrx", (object?)pdf.SectionViewRectangleX ?? DBNull.Value);
+                    commandSelectRect.Parameters.AddWithValue("$svry", (object?)pdf.SectionViewRectangleY ?? DBNull.Value);
+                    commandSelectRect.Parameters.AddWithValue("$svrw", (object?)pdf.SectionViewRectangleWidth ?? DBNull.Value);
+                    commandSelectRect.Parameters.AddWithValue("$svrh", (object?)pdf.SectionViewRectangleHeight ?? DBNull.Value);
 
                     // No matching rectangle found, insert a new one
                     var commandInsertRect = connection.CreateCommand();
@@ -238,10 +238,10 @@ namespace SQL3cs
                     commandInsertRect.Parameters.AddWithValue("$fvry", pdf.FormViewRectangleY);
                     commandInsertRect.Parameters.AddWithValue("$fvrw", pdf.FormViewRectangleWidth);
                     commandInsertRect.Parameters.AddWithValue("$fvrh", pdf.FormViewRectangleHeight);
-                    commandInsertRect.Parameters.AddWithValue("$svrx", pdf.SectionViewRectangleX);
-                    commandInsertRect.Parameters.AddWithValue("$svry", pdf.SectionViewRectangleY);
-                    commandInsertRect.Parameters.AddWithValue("$svrw", pdf.SectionViewRectangleWidth);
-                    commandInsertRect.Parameters.AddWithValue("$svrh",pdf.SectionViewRectangleHeight);
+                    commandInsertRect.Parameters.AddWithValue("$svrx", (object?)pdf.SectionViewRectangleX ?? DBNull.Value);
+                    commandInsertRect.Parameters.AddWithValue("$svry", (object?)pdf.SectionViewRectangleY ?? DBNull.Value);
+                    commandInsertRect.Parameters.AddWithValue("$svrw", (object?)pdf.SectionViewRectangleWidth ?? DBNull.Value);
+                    commandInsertRect.Parameters.AddWithValue("$svrh", (object?)pdf.SectionViewRectangleHeight ?? DBNull.Value);
 
                     var insRectRes = commandInsertRect.ExecuteScalar();
                     if (insRectRes == null) throw new InvalidOperationException("Failed to retrieve new RecID.");

@@ -27,7 +27,7 @@ namespace BackendLibrary
             Match match = Regex.Match(input, pattern);
             int pageNumber = int.Parse(match.Groups[1].Value);
             // Implement image processing logic here
-            float boxWidth = -1, boxHeight = -1, boxX = -1, boxY = -1;
+            float? boxWidth = null, boxHeight = null, boxX = null, boxY = null;
             try
             {
                 
@@ -48,6 +48,10 @@ namespace BackendLibrary
                 boxY = detectedBoundingBox.Top / dpiY;
                 logger.LogDebug("Detected Bounding Box - X: {boxX}, Y: {boxY}, Width: {boxWidth}, Height: {boxHeight}", boxX, boxY, boxWidth, boxHeight);
 
+            }
+            catch (DetectionException ex)
+            {
+                logger.LogInformation("Rectangle not found");
             }
             catch (Exception ex)
             {
@@ -79,8 +83,7 @@ namespace BackendLibrary
             
             if (results.Count == 0)
             {
-                //Custom exception can be thrown here
-                throw new Exception("No objects detected.");
+                throw new DetectionException("No objects detected.");
             }
             return results[0].BoundingBox; //return the first bounding box
         }
