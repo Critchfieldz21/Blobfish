@@ -377,7 +377,7 @@ namespace BackendLibrary
         /// </summary>
         public string ToCsv()
         {
-            var dict = ToExportDictionary();
+            var dict = ToExportDictionaryForCsv();
             var values = dict.Values.Select(v =>
             {
                 if (v is not IEnumerable<string> list)
@@ -398,8 +398,40 @@ namespace BackendLibrary
 
         /// <summary>
         /// Helper method to convert ShopTicket data to a dictionary for export.
+        /// Used specifically for display on web page.
         /// </summary>
         public Dictionary<string, object> ToExportDictionary()
+        {
+            return new Dictionary<string, object>
+            {
+                { "FileName", FileName },
+                { "ProcessedDate", dateTimeExtracted },
+                { "NumberOfPages", NumberOfPages },
+                { "PageNames", PageNames != null ? string.Join(", ", PageNames) : "" },
+                { "FileNamePieceMark", FileNamePieceMark ?? string.Empty },
+                { "ProjectNumber", ProjectNumber },
+                { "ProjectName", ProjectName },
+                { "FileContentPieceMark", FileContentPieceMark },
+                { "ControlNumbers", ControlNumbers != null ? string.Join(", ", ControlNumbers) : "" },
+                { "PiecesRequired", PiecesRequired },
+                { "Weight", Weight },
+                { "DesignNumber", DesignNumber },
+                { "RectanglePage", RectanglePage },
+                { "FormViewRectangleX", Double.Round(FormViewRectangleX, 4)},
+                { "FormViewRectangleY", Double.Round(FormViewRectangleY, 4)},
+                { "FormViewRectangleWidth", Double.Round(FormViewRectangleWidth,4)},
+                { "FormViewRectangleHeight", Double.Round(FormViewRectangleHeight, 4)},
+                { "SectionViewRectangleX", Double.Round(SectionViewRectangleX, 4)},
+                { "SectionViewRectangleY", Double.Round(SectionViewRectangleY, 4)},
+                { "SectionViewRectangleWidth", Double.Round(SectionViewRectangleWidth, 4)},
+                { "SectionViewRectangleHeight", Double.Round(SectionViewRectangleHeight,4)}
+            };
+        }
+
+        /// <summary>
+        /// Helper method to convert ShopTicket data to a dictionary for exporting in CSV.
+        /// </summary>
+        public Dictionary<string, object> ToExportDictionaryForCsv()
         {
             return new Dictionary<string, object>
             {
