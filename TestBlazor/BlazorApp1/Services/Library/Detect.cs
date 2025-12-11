@@ -82,6 +82,8 @@ namespace BackendLibrary
                 //Custom exception can be thrown here
                 throw new Exception("No objects detected.");
             }
+
+            File.Delete(filePath);
             return results[0].BoundingBox; //return the first bounding box
         }
     }
