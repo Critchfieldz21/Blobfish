@@ -92,5 +92,41 @@ namespace PlaywrightTests
             await _browser.CloseAsync();
             _playwright.Dispose();
         }
+        [TestCase("chromium")]
+        [TestCase("firefox")]
+        public async Task UploadBadPdf_ShouldShowErrorModal(string browserName)
+        {
+            using var playwright = await Playwright.CreateAsync();
+            var browserType = browserName switch
+            {
+                "chromium" => playwright.Chromium,
+                "firefox"  => playwright.Firefox,
+                _          => playwright.Chromium
+            };
+
+            _browser = await browserType.LaunchAsync(new BrowserTypeLaunchOptions
+            {
+                Headless = false,
+                SlowMo = 250
+            });
+
+            var page = await _browser.NewPageAsync();
+            await page.GotoAsync("http://localhost:5283/");
+            await page.EvaluateAsync("document.body.style.zoom = '80%'");
+
+            // Upload a deliberately bad PDF
+            await page.SetInputFilesAsync("#uploadFiles", "TestFiles/20-NE0881-W001_P2.pdf");
+
+            // Click Process
+            await page.ClickAsync("button.processbtn");
+
+            // Wait for modal to appear
+            var modal = page.Locator("div[role='dialog']");
+            await modal.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 10000 });
+
+            // Assert it is visible
+            Assert.That(await modal.IsVisibleAsync(), Is.True);
+        }
+
     }
 }
