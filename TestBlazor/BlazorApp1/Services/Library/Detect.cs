@@ -13,12 +13,6 @@ namespace BackendLibrary
         // Make sure to read the README section "Accuracy Depends on Configuration":
         // https://github.com/NickSwardh/YoloDotNet/tree/master#%EF%B8%8F-accuracy-depends-on-configuration
 
-        public static Rectangle GetRectInfo(ILogger<Detect> logger, Yolo model, string filePath)
-        {
-            System.IO.Directory.CreateDirectory(".\\temp\\");
-            return ProcessImage(logger, model, filePath, ".\\temp\\", 72, 72);
-        }
-
         public static Rectangle GetRectInfo(ILogger<Detect> logger, Yolo model, string filePath, Stream pdffile)
         {
             System.IO.Directory.CreateDirectory(".\\temp\\");
@@ -55,46 +49,11 @@ namespace BackendLibrary
                 logger.LogDebug("Detected Bounding Box - X: {boxX}, Y: {boxY}, Width: {boxWidth}, Height: {boxHeight}", boxX, boxY, boxWidth, boxHeight);
 
             }
-
             catch (Exception ex)
             {
                 //custom exception can be handled.
                 Console.WriteLine("An error occurred: " + ex.Message);
-            }
-            return new Rectangle(pageNumber, boxX, boxY, boxWidth, boxHeight);
-        }
-
-        public static Rectangle ProcessImage(ILogger<Detect> logger, Yolo model, string imagePath, string outputFolder, float dpiX = 72, float dpiY = 72)
-        {
-            string input = Path.GetFileName(imagePath);
-            string pattern = @"(?:_P)(\d+)";
-            Match match = Regex.Match(input, pattern);
-            int pageNumber = int.Parse(match.Groups[1].Value);
-            // Implement image processing logic here
-            float boxWidth = -1, boxHeight = -1, boxX = -1, boxY = -1;
-            try
-            {
-                using var document = PdfiumViewer.PdfDocument.Load(imagePath);
-                using var image = document.Render(pageNumber, dpiX, dpiY, true);
-
-                // only supported for window
-                string savedFilePath = Path.Combine(outputFolder, Path.GetFileName(imagePath)[..^4] + ".jpg");
-                image.Save(savedFilePath, System.Drawing.Imaging.ImageFormat.Jpeg);
-                Console.WriteLine("Image processed and saved successfully.");
-                Console.WriteLine("Image dimensions: " + document.PageSizes[pageNumber]);
-                var detectedBoundingBox = Detect.Detection(logger, model, savedFilePath, savedFilePath);
-                boxWidth = detectedBoundingBox.Width / dpiX;
-                boxHeight = detectedBoundingBox.Height / dpiY;
-                boxX = detectedBoundingBox.Left / dpiX;
-                boxY = detectedBoundingBox.Top / dpiY;
-                Console.WriteLine($"Detected Bounding Box - X: {boxX}, Y: {boxY}, Width: {boxWidth}, Height: {boxHeight}");
-
-            }
-
-            catch (Exception ex)
-            {
-                //custom exception can be handled.
-                Console.WriteLine("An error occurred: " + ex.Message);
+                throw;
             }
             return new Rectangle(pageNumber, boxX, boxY, boxWidth, boxHeight);
         }
