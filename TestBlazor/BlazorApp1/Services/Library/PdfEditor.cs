@@ -6,7 +6,7 @@ namespace BackendLibrary
 {
     public class PdfEditor
     {
-        public static MemoryStream AddRect(PdfDocument pdf, int pageIndex, double x, double y, double width, double height, int dpiX, int dpiY)
+        public static byte[] AddRect(PdfDocument pdf, int pageIndex, double form_x, double form_y, double form_width, double form_height, double section_x, double section_y, double section_width, double section_height, int dpiX, int dpiY)
         {
             MemoryStream mStream = new MemoryStream();
             using PdfDocument newPdf = new PdfDocument(mStream);
@@ -27,14 +27,16 @@ namespace BackendLibrary
                 // var rect = new PdfSharp.Drawing.XRect(x * dpiX, y * dpiY, width * dpiX, height * dpiY); // Convert inches to points
 
                 XPen pen = new XPen(XColors.Blue, 2);
-                var rect = PdfSharp.Drawing.XRect.FromLTRB(x * dpiX, y * dpiY, (x + width) * dpiX, (y + height) * dpiY);
-                gfx.DrawRectangle(pen, rect);
+                var form_rect = PdfSharp.Drawing.XRect.FromLTRB(form_x * dpiX, form_y * dpiY, (form_x + form_width) * dpiX, (form_y + form_height) * dpiY);
+                var section_rect = PdfSharp.Drawing.XRect.FromLTRB(section_x * dpiX, section_y * dpiY, (section_x + section_width) * dpiX, (section_y + section_height) * dpiY);
+                gfx.DrawRectangle(pen, form_rect);
+                gfx.DrawRectangle(pen, section_rect);
             }
 
             
             newPdf.Save(mStream);
 
-            return mStream;
+            return mStream.ToArray();
         }
     }
 }

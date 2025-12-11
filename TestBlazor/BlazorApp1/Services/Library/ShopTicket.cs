@@ -113,22 +113,22 @@ namespace BackendLibrary
         /// <summary>
         /// Distance from left edge of PDF to left edge of the section view rectangle (inches).
         /// </summary>
-        public double? SectionViewRectangleX { get; private set; }
+        public double SectionViewRectangleX { get; private set; }
 
         /// <summary>
         /// Distance from top edge of PDF to top edge of the section view rectangle (inches).
         /// </summary>
-        public double? SectionViewRectangleY { get; private set; }
+        public double SectionViewRectangleY { get; private set; }
 
         /// <summary>
         /// Width of the section view rectangle (inches).
         /// </summary>
-        public double? SectionViewRectangleWidth { get; private set; }
+        public double SectionViewRectangleWidth { get; private set; }
 
         /// <summary>
         /// Height of the section view rectangle (inches).
         /// </summary>
-        public double? SectionViewRectangleHeight { get; private set; }
+        public double SectionViewRectangleHeight { get; private set; }
 
         /// <summary>
         /// ShopTicket constructor initializing from a PDF file path.
@@ -208,9 +208,21 @@ namespace BackendLibrary
                 FormViewRectangleHeight = FormViewRectangle.boxHeight;
                 _logger.LogDebug("FormViewRectangle extracted");
 
-                MemoryStream mStream = PdfEditor.AddRect(pdf, RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight, 72, 72);
-                PdfBytes = mStream.ToArray();
-                _logger.LogDebug("Added form view rectangle to PDF page {RectanglePage}", RectanglePage);
+                Rectangle SectionViewRectangle = Detect.GetRectInfo(_loggerFactory.CreateLogger<Detect>(), dMService.sectionViewModel, fileName, stream);
+                RectanglePage = SectionViewRectangle.pageNumber;
+                SectionViewRectangleX = SectionViewRectangle.boxX;
+                SectionViewRectangleY = SectionViewRectangle.boxY;
+                SectionViewRectangleWidth = SectionViewRectangle.boxWidth;
+                SectionViewRectangleHeight = SectionViewRectangle.boxHeight;
+                _logger.LogDebug("SectionViewRectangle extracted");
+
+                PdfBytes = PdfEditor.AddRect(
+                    pdf, 
+                    RectanglePage, 
+                    FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight, 
+                    SectionViewRectangleX, SectionViewRectangleY, SectionViewRectangleWidth, SectionViewRectangleHeight, 72, 72);
+                _logger.LogDebug("Added form view and section view rectangles to PDF page {RectanglePage}", RectanglePage);
+
 
                 dateTimeExtracted = DateTime.Now;
                 _logger.LogDebug("Ending ShopTicket construction for {FileName}", fileName);

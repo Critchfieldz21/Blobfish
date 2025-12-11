@@ -37,7 +37,7 @@ namespace BackendLibrary
             try
             {
                 
-                using var document = PdfiumViewer.PdfDocument.Load(pdffile);
+                var document = PdfiumViewer.PdfDocument.Load(pdffile);
                 logger.LogDebug("Loaded PdfiumViewer PdfDocument");
                 using var image = document.Render(pageNumber, dpiX, dpiY, true);
                 logger.LogDebug("Rendered page {pageNumber} as image", pageNumber);

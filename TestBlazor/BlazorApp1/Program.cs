@@ -10,8 +10,9 @@ builder.Services.AddSingleton<SQL3cs.CustomerData>();
 builder.Services.AddSingleton<DetectModelService>(sp =>
 {
     var logger = sp.GetRequiredService<ILogger<DetectModelService>>();
-    var formViewModelPath = "Services/Models/bestFormView.onnx";
-    return new DetectModelService(logger, formViewModelPath);
+    var formViewModelPath = "Services/Models/form_best.onnx";
+    var sectionViewModelPath = "Services/Models/section_best.onnx";
+    return new DetectModelService(logger, formViewModelPath, sectionViewModelPath);
 });
 
 // Add services to the container.

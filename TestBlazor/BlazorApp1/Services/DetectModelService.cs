@@ -11,7 +11,7 @@ namespace BackendLibrary
         public Yolo formViewModel { get; }
         public Yolo sectionViewModel { get; }
 
-        public DetectModelService(ILogger<DetectModelService> logger, string formViewModelPath)
+        public DetectModelService(ILogger<DetectModelService> logger, string formViewModelPath, string sectionViewModelPath)
         {
             YoloOptions options = new YoloOptions
             {
@@ -40,6 +40,10 @@ namespace BackendLibrary
             options.OnnxModel = formViewModelPath;
             formViewModel = new Yolo(options);
             logger.LogDebug("Loaded YOLO model at {modelPath}", formViewModelPath);
+            
+            options.OnnxModel = sectionViewModelPath;
+            sectionViewModel = new Yolo(options);
+            logger.LogDebug("Loaded YOLO model at {modelPath}", sectionViewModelPath);
         }
     }
 }
