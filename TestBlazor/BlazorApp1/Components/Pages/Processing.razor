@@ -42,7 +42,7 @@
         <div class="pdfinfo-content">
         <h4 class="pdfinfo-subtitle">Details</h4>
         <table class="info-table">
-            @foreach (var kvp in ticket.ToExportDictionary().Where(k =>
+            @foreach (var kvp in ticket.ToExportDictionary(true).Where(k =>
                 k.Key is "FileName" or "ProcessedDate" or "NumberOfPages" or "PageNames" or "FileNamePieceMark" or "ProjectNumber" or "ProjectName" or "FileContentPieceMark" or "ControlNumbers" or "PiecesRequired" or "Weight" or "DesignNumber"))
             {
                 <tr>
@@ -54,7 +54,7 @@
 
         <h3 class="pdfinfo-title">Form View</h3>
         <table class="info-table">
-            @foreach (var kvp in ticket.ToExportDictionary().Where(k =>
+            @foreach (var kvp in ticket.ToExportDictionary(true).Where(k =>
                 k.Key is "RectanglePage" or "FormViewRectangleX" or "FormViewRectangleY" or "FormViewRectangleWidth" or "FormViewRectangleHeight"))
             {
                 <tr>
@@ -66,7 +66,7 @@
 
         <h3 class="pdfinfo-title" >Section View</h3>
         <table class="info-table">
-            @foreach (var kvp in ticket.ToExportDictionary().Where(k =>
+            @foreach (var kvp in ticket.ToExportDictionary(true).Where(k =>
                 k.Key is "SectionViewRectangleX" or "SectionViewRectangleY" or "SectionViewRectangleWidth" or "SectionViewRectangleHeight"))
             {
                 <tr>

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using DocumentFormat.OpenXml.Office2010.PowerPoint;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 
@@ -113,22 +114,22 @@ namespace BackendLibrary
         /// <summary>
         /// Distance from left edge of PDF to left edge of the section view rectangle (inches).
         /// </summary>
-        public double SectionViewRectangleX { get; private set; }
+        public double? SectionViewRectangleX { get; private set; }
 
         /// <summary>
         /// Distance from top edge of PDF to top edge of the section view rectangle (inches).
         /// </summary>
-        public double SectionViewRectangleY { get; private set; }
+        public double? SectionViewRectangleY { get; private set; }
 
         /// <summary>
         /// Width of the section view rectangle (inches).
         /// </summary>
-        public double SectionViewRectangleWidth { get; private set; }
+        public double? SectionViewRectangleWidth { get; private set; }
 
         /// <summary>
         /// Height of the section view rectangle (inches).
         /// </summary>
-        public double SectionViewRectangleHeight { get; private set; }
+        public double? SectionViewRectangleHeight { get; private set; }
 
         /// <summary>
         /// ShopTicket constructor initializing from a PDF file path.
@@ -255,10 +256,10 @@ namespace BackendLibrary
             double formViewRectangleY,
             double formViewRectangleWidth,
             double formViewRectangleHeight,
-            double sectionViewRectangleX,
-            double sectionViewRectangleY,
-            double sectionViewRectangleWidth,
-            double sectionViewRectangleHeight,
+            double? sectionViewRectangleX,
+            double? sectionViewRectangleY,
+            double? sectionViewRectangleWidth,
+            double? sectionViewRectangleHeight,
             DateTime processedDate)
         {
             _loggerFactory = loggerFactory;
@@ -366,7 +367,7 @@ namespace BackendLibrary
         /// </summary>
         public string ToJson()
         {
-            return JsonSerializer.Serialize(ToExportDictionary(), new JsonSerializerOptions
+            return JsonSerializer.Serialize(ToExportDictionary(false), new JsonSerializerOptions
             {
                 WriteIndented = true
             });
@@ -377,7 +378,7 @@ namespace BackendLibrary
         /// </summary>
         public string ToCsv()
         {
-            var dict = ToExportDictionaryForCsv();
+            var dict = ToExportDictionary(false);
             var values = dict.Values.Select(v =>
             {
                 if (v is not IEnumerable<string> list)
@@ -400,40 +401,9 @@ namespace BackendLibrary
         /// Helper method to convert ShopTicket data to a dictionary for export.
         /// Used specifically for display on web page.
         /// </summary>
-        public Dictionary<string, object> ToExportDictionary()
+        public Dictionary<string, object> ToExportDictionary(Boolean roundValues)
         {
-            return new Dictionary<string, object>
-            {
-                { "FileName", FileName },
-                { "ProcessedDate", dateTimeExtracted },
-                { "NumberOfPages", NumberOfPages },
-                { "PageNames", PageNames != null ? string.Join(", ", PageNames) : "" },
-                { "FileNamePieceMark", FileNamePieceMark ?? string.Empty },
-                { "ProjectNumber", ProjectNumber },
-                { "ProjectName", ProjectName },
-                { "FileContentPieceMark", FileContentPieceMark },
-                { "ControlNumbers", ControlNumbers != null ? string.Join(", ", ControlNumbers) : "" },
-                { "PiecesRequired", PiecesRequired },
-                { "Weight", Weight },
-                { "DesignNumber", DesignNumber },
-                { "RectanglePage", RectanglePage },
-                { "FormViewRectangleX", Double.Round(FormViewRectangleX, 4)},
-                { "FormViewRectangleY", Double.Round(FormViewRectangleY, 4)},
-                { "FormViewRectangleWidth", Double.Round(FormViewRectangleWidth,4)},
-                { "FormViewRectangleHeight", Double.Round(FormViewRectangleHeight, 4)},
-                { "SectionViewRectangleX", Double.Round(SectionViewRectangleX, 4)},
-                { "SectionViewRectangleY", Double.Round(SectionViewRectangleY, 4)},
-                { "SectionViewRectangleWidth", Double.Round(SectionViewRectangleWidth, 4)},
-                { "SectionViewRectangleHeight", Double.Round(SectionViewRectangleHeight,4)}
-            };
-        }
-
-        /// <summary>
-        /// Helper method to convert ShopTicket data to a dictionary for exporting in CSV.
-        /// </summary>
-        public Dictionary<string, object> ToExportDictionaryForCsv()
-        {
-            return new Dictionary<string, object>
+            Dictionary<string, object> dict = new Dictionary<string, object>
             {
                 { "FileName", FileName },
                 { "ProcessedDate", dateTimeExtracted },
@@ -451,12 +421,23 @@ namespace BackendLibrary
                 { "FormViewRectangleX", FormViewRectangleX },
                 { "FormViewRectangleY", FormViewRectangleY },
                 { "FormViewRectangleWidth", FormViewRectangleWidth },
-                { "FormViewRectangleHeight", FormViewRectangleHeight },
-                { "SectionViewRectangleX", SectionViewRectangleX},
-                { "SectionViewRectangleY", SectionViewRectangleY},
-                { "SectionViewRectangleWidth", SectionViewRectangleWidth},
-                { "SectionViewRectangleHeight", SectionViewRectangleHeight}
-            };
+                { "FormViewRectangleHeight", FormViewRectangleHeight }
+            };           
+            if (!roundValues)
+            {
+                dict.Add("SectionViewRectangleX", SectionViewRectangleX != null ? SectionViewRectangleX : "");
+                dict.Add("SectionViewRectangleY", SectionViewRectangleY != null ? SectionViewRectangleY : "");
+                dict.Add("SectionViewRectangleWidth", SectionViewRectangleWidth != null ? SectionViewRectangleWidth : "");
+                dict.Add("SectionViewRectangleHeight", SectionViewRectangleHeight != null ? SectionViewRectangleHeight : "");
+            }
+            else
+            {
+                dict.Add("SectionViewRectangleX", SectionViewRectangleX != null ? Double.Round((double)SectionViewRectangleX, 4) : "");
+                dict.Add("SectionViewRectangleY", SectionViewRectangleY != null ? Double.Round((double)SectionViewRectangleY, 4) : "");
+                dict.Add("SectionViewRectangleWidth", SectionViewRectangleWidth != null ? Double.Round((double)SectionViewRectangleWidth, 4) : "");
+                dict.Add("SectionViewRectangleHeight", SectionViewRectangleHeight != null ? Double.Round((double)SectionViewRectangleHeight, 4) : "");
+            }
+            return dict;
         }
     }
 }
