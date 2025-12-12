@@ -142,8 +142,8 @@
         if (index >= 0 && index < history.Count)
         {
             //removes from database first and then from the history list
-            Db.RemoveRowByFileName(loggerFactory, history[index].FileName);
             String fileName = history[index].FileName;
+            Db.RemoveRowByFileName(loggerFactory, fileName);
             history.RemoveAt(index);
             sTService.History.RemoveAt(index);
             Logger.LogInformation("Successfully deleted file in database and history: {fileName}", fileName);
