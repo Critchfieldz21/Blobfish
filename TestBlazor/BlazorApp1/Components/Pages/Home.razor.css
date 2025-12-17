@@ -10,77 +10,77 @@
   font-size: 4rem;
 }
 .animated-word:nth-child(2) {
-  color: #f7fbff;
+  color: #ffffff;
   animation-delay: 0.4s;
   font-size: 4rem;
 }
 .animated-word:nth-child(3) {
-  color: #eff7ff;
+  color: #ffffff;
   animation-delay: 0.6s;
   font-size: 4rem;
 }
 .animated-word:nth-child(4) {
-  color: #e6f3ff;
+  color: #ffffff;
   animation-delay: 0.8s;
   font-size: 4rem;
 }
 .animated-word:nth-child(5) {
-  color: #cfeaff;
+  color: #ffffff;
   animation-delay: 1s;
   font-size: 4rem;
 }
 .animated-word:nth-child(6) {
-  color: #b8e1ff;
+  color: #ffffff;
   animation-delay: 1.2s;
   font-size: 4rem;
 }
 .animated-word:nth-child(7) {
-  color: #99d1ff;
+  color: #ffffff;
   animation-delay: 1.4s;
   font-size: 4rem;
 }
 .animated-word:nth-child(8) {
-  color: #66baff;
+  color: #ffffff;
   animation-delay: 1.6s;
   font-size: 4rem;
 }
 .animated-word:nth-child(9) {
-  color: #66baff;
+  color: #ffffff;
   animation-delay: 1.8s;
   font-size: 4rem;
 }
 .animated-word:nth-child(10) {
-  color: #66baff;
+  color: #ffffff;
   animation-delay: 2s;
   font-size: 4rem;
 }
 .animated-word:nth-child(11) {
-  color: #99d1ff;
+  color: #ffffff;
   animation-delay: 2.2s;
   font-size: 4rem;
 }
 .animated-word:nth-child(12) {
-  color: #b8e1ff;
+  color: #ffffff;
   animation-delay: 2.4s;
   font-size: 4rem;
 }
 .animated-word:nth-child(13) {
-  color: #cfeaff;
+  color: #ffffff;
   animation-delay: 2.6s;
   font-size: 4rem;
 }
 .animated-word:nth-child(14) {
-  color: #e6f3ff;
+  color: #ffffff;
   animation-delay: 2.8s;
   font-size: 4rem;
 }
 .animated-word:nth-child(15) {
-  color: #eff7ff;
+  color: #ffffff;
   animation-delay: 3s;
   font-size: 4rem;
 }
 .animated-word:nth-child(16) {
-  color: #f7fbff;
+  color: #ffffff;
   animation-delay: 3.2s;
   font-size: 4rem;
 }
@@ -133,22 +133,6 @@
   height: 6px;
   border-radius: 6px;
   background: linear-gradient(90deg,
-    #ffffff 0%,
-    #f7fbff 6.25%,
-    #eff7ff 12.5%,
-    #e6f3ff 18.75%,
-    #cfeaff 25%,
-    #b8e1ff 31.25%,
-    #99d1ff 37.5%,
-    #66baff 43.75%,
-    #66baff 50%,
-    #66baff 56.25%,
-    #99d1ff 62.5%,
-    #b8e1ff 68.75%,
-    #cfeaff 75%,
-    #e6f3ff 81.25%,
-    #eff7ff 87.5%,
-    #f7fbff 93.75%,
     #ffffff 100%
   );
   background-size: 100% 100%;

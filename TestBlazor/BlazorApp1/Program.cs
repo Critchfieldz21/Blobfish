@@ -6,6 +6,15 @@ builder.Services.AddSingleton<ShopTicketService>();
 // Use existing SQLite helper in Services/database.cs
 builder.Services.AddSingleton<SQL3cs.CustomerData>();
 
+// Load detection models
+builder.Services.AddSingleton<DetectModelService>(sp =>
+{
+    var logger = sp.GetRequiredService<ILogger<DetectModelService>>();
+    var formViewModelPath = "Services/Models/form_best.onnx";
+    var sectionViewModelPath = "Services/Models/section_best.onnx";
+    return new DetectModelService(logger, formViewModelPath, sectionViewModelPath);
+});
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

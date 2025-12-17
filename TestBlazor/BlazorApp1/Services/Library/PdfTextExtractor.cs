@@ -18,7 +18,7 @@ namespace BackendLibrary
         public static TextGroup GetExtractedText(ILogger<PdfTextExtractor> logger, byte[] pdfBytes)
         {
             logger.LogDebug("Start PdfPig PdfDocument initialization");
-            PdfDocument pdf = PdfDocument.Open(pdfBytes);
+            using PdfDocument pdf = PdfDocument.Open(pdfBytes);
             logger.LogDebug("PdfPig PdfDocument opened");
 
             List<Page> pages = pdf.GetPages().ToList();
@@ -32,7 +32,7 @@ namespace BackendLibrary
             // Check if PDF has text
             for (int i = 0; i < pages.Count; i++)
             {
-                if (pages[i].GetWords().Count() > 0)
+                if (pages[i].GetWords().Any())
                 {
                     break;
                 }
@@ -42,10 +42,10 @@ namespace BackendLibrary
                 }
             }
 
-            TextGroup textGroup = new TextGroup();
+            TextGroup textGroup = new();
 
-            var cts = new CancellationTokenSource();
-            List<Exception> exceptions = new();
+            CancellationTokenSource cts = new();
+            List<Exception> exceptions = [];
             ParallelOptions opts = new() { CancellationToken = cts.Token };
 
             var jobs = new (Action Extract, string label)[]
@@ -90,15 +90,15 @@ namespace BackendLibrary
         /// </summary>
         private static string[] ExtractPageNames(List<Page> pages)
         {
-            List<String> resultList = new List<String>();
+            List<String> resultList = [];
             foreach (Page page in pages)
             {
                 IEnumerable<Annotation> annotations = page.GetAnnotations();
-                List<String> annotationStrings = new List<String>();
+                List<String> annotationStrings = [];
 
                 // PDFs can either have AutoCAD annotations to signify view labels or no annotations
                 // Move on to word search if there are no annotations
-                if (annotations.Count() == 0)
+                if (!annotations.Any())
                 {
                     resultList.Add(ExtractPageNameNoAnnotations(page));
                     continue;
@@ -115,7 +115,7 @@ namespace BackendLibrary
                     String content = annotation.Content.Replace("%%U", "").Trim().ToLower();
                     annotationStrings.Add(content);
                 }
-                List<String> validPageNames = new List<String> { "FORM VIEW", "FOAM DRAWING", "REVEAL DRAWING" };
+                List<String> validPageNames = ["FORM VIEW", "FOAM DRAWING", "REVEAL DRAWING"];
 
                 if (annotationStrings.Intersect(validPageNames, StringComparer.OrdinalIgnoreCase).Any())
                 {
@@ -146,7 +146,7 @@ namespace BackendLibrary
 
             foreach (Word word in formWords)
             {
-                DetectionBox formWordDetectionBox = new DetectionBox(minX: 20, maxX: 50, minY: -1, maxY: 1);
+                DetectionBox formWordDetectionBox = new(MinX: 20, MaxX: 50, MinY: -1, MaxY: 1);
                 Word? foundWord = FindWordNextTo(word, words, formWordDetectionBox);
                 if (foundWord is null)
                 {
@@ -154,7 +154,7 @@ namespace BackendLibrary
                     {
                         continue;
                     }
-                    DetectionBox formWordDetectionBox2 = new DetectionBox(minX: -80, maxX: -20, minY: -1, maxY: 1);
+                    DetectionBox formWordDetectionBox2 = new(MinX: -80, MaxX: -20, MinY: -1, MaxY: 1);
                     List<Word> foundWords = FindWordsNextTo(word, words, formWordDetectionBox2);
                     foreach (Word foundWord2 in foundWords)
                     {
@@ -173,7 +173,7 @@ namespace BackendLibrary
 
             foreach (Word word in drawingWords)
             {
-                DetectionBox drawingWordDetectionBox = new DetectionBox(minX: -80, maxX: -20, minY: -1, maxY: 1);
+                DetectionBox drawingWordDetectionBox = new(MinX: -80, MaxX: -20, MinY: -1, MaxY: 1);
                 Word? foundWord = FindWordNextTo(word, words, drawingWordDetectionBox);
                 if (foundWord is null)
                 {
@@ -211,9 +211,9 @@ namespace BackendLibrary
                 List<Word> jobWords = GetWordsEqualTo("JOB", words);
                 foreach (Word word in jobWords)
                 {
-                    DetectionBox jobWordDetectionBox = new DetectionBox(minX: 5, maxX: 15, minY: -1, maxY: 1);
+                    DetectionBox jobWordDetectionBox = new(MinX: 5, MaxX: 15, MinY: -1, MaxY: 1);
                     Word? foundWord = FindWordNextTo(word, words, jobWordDetectionBox);
-                    List<String> searchTerms = new List<String> { "NO.", "NO.:", "NUMBER", "NUMBER:", "NUM", "NUM:", "#", "#:" };
+                    List<String> searchTerms = ["NO.", "NO.:", "NUMBER", "NUMBER:", "NUM", "NUM:", "#", "#:"];
                     if (foundWord is null)
                     {
                         continue;
@@ -221,7 +221,7 @@ namespace BackendLibrary
                     // If the word next to "JOB" is "NO." or a variation of it
                     if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                     {
-                        DetectionBox numberWordDetectionBox = new DetectionBox(minX: -4, maxX: 8, minY: -12, maxY: -4);
+                        DetectionBox numberWordDetectionBox = new(MinX: -4, MaxX: 8, MinY: -12, MaxY: -4);
                         Word? piecesreqdWord = FindWordNextTo(word, words, numberWordDetectionBox);
                         if (piecesreqdWord is null)
                         {
@@ -245,18 +245,18 @@ namespace BackendLibrary
                 List<Word> projectWords = GetWordsContaining("PROJECT", words);
                 foreach (Word word in projectWords)
                 {
-                    DetectionBox projectWordDetectionBox = new DetectionBox(minX: -2, maxX: 120, minY: -10, maxY: 0);
+                    DetectionBox projectWordDetectionBox = new(MinX: -2, MaxX: 120, MinY: -10, MaxY: 0);
                     List<Word> projectNameWords = FindWordsNextTo(word, words, projectWordDetectionBox);
                     if (projectNameWords.Count == 0)
                     {
-                        throw new ExtractionException($"Missing data under ProjectName field.");
+                        throw new ExtractionException("Missing data under ProjectName field.");
                     }
 
                     List<String> projectNameStrList = projectNameWords.Select(w => w.Text).ToList();
                     return string.Join(" ", projectNameStrList);
                 }
             }
-            throw new ExtractionException($"Failed to get ProjectName.");
+            throw new ExtractionException("Failed to get ProjectName.");
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace BackendLibrary
                 List<Word> pieceWords = GetWordsEqualTo("PIECE", words);
                 foreach (Word word in pieceWords)
                 {
-                    DetectionBox pieceWordDetectionBox = new DetectionBox(minX: 5, maxX: 15, minY: -1, maxY: 1);
+                    DetectionBox pieceWordDetectionBox = new(MinX: 5, MaxX: 15, MinY: -1, MaxY: 1);
                     Word? foundWord = FindWordNextTo(word, words, pieceWordDetectionBox);
                     if (foundWord is null)
                     {
@@ -278,17 +278,17 @@ namespace BackendLibrary
                     }
                     if (string.Equals(foundWord.Text, "MARK", StringComparison.OrdinalIgnoreCase))
                     {
-                        DetectionBox markWordDetectionBox = new DetectionBox(minX: -2, maxX: 15, minY: -10, maxY: -2);
+                        DetectionBox markWordDetectionBox = new(MinX: -2, MaxX: 15, MinY: -10, MaxY: -2);
                         Word? piecemarkWord = FindWordNextTo(word, words, markWordDetectionBox);
                         if (piecemarkWord is null)
                         {
-                            throw new ExtractionException($"Missing data under FileContentPieceMark field.");
+                            throw new ExtractionException("Missing data under FileContentPieceMark field.");
                         }
                         return piecemarkWord.Text;
                     }
                 }
             }
-            throw new ExtractionException($"Failed to get FileContentPieceMark.");
+            throw new ExtractionException("Failed to get FileContentPieceMark.");
         }
 
         /// <summary>
@@ -296,18 +296,18 @@ namespace BackendLibrary
         /// </summary>
         private static string[]? ExtractControlNumbers(List<Page> pages)
         {
-            List<Word> controlnumWords = new List<Word>();
-            List<String> controlnumstrList = new List<String>();
-            List<String> resultList = new List<String>();
+            List<Word> controlnumWords = [];
+            List<String> controlnumstrList = [];
+            List<String> resultList = [];
 
             foreach (Page page in pages)
             {
                 IEnumerable<Word> words = page.GetWords();
-                List<String> searchTerms = new List<String> { "CONTROL", "CTRL" };
+                List<String> searchTerms = ["CONTROL", "CTRL"];
                 List<Word> controlWords = GetWordsEqualTo(searchTerms, words);
                 foreach (Word word in controlWords)
                 {
-                    DetectionBox controlWordDetectionBox = new DetectionBox(minX: 5, maxX: 35, minY: -1, maxY: 1);
+                    DetectionBox controlWordDetectionBox = new DetectionBox(MinX: 5, MaxX: 35, MinY: -1, MaxY: 1);
                     Word? foundWord = FindWordNextTo(word, words, controlWordDetectionBox);
                     if (foundWord is null)
                     {
@@ -315,34 +315,34 @@ namespace BackendLibrary
                     }
 
                     // Search method for when the word after "CONTROL" or "CTRL" is "NUMBER" or "NUMBER:"
-                    searchTerms = new List<String> { "NUMBER", "NUMBER:" };
+                    searchTerms = ["NUMBER", "NUMBER:"];
                     if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                     {
-                        DetectionBox numberWordDetectionBox = new DetectionBox(minX: -4, maxX: 50, minY: -12, maxY: -2);
+                        DetectionBox numberWordDetectionBox = new(MinX: -4, MaxX: 50, MinY: -12, MaxY: -2);
                         controlnumWords = FindWordsNextTo(word, words, numberWordDetectionBox);
                         if (controlnumWords.Count == 0)
                         {
-                            throw new ExtractionException($"Missing data under ControlNumbers field.");
+                            throw new ExtractionException("Missing data under ControlNumbers field.");
                         }
                     }
 
                     // Search method for when the word after "CONTROL" or "CTRL" is "NO.", "NO:", or "NO.:"
-                    searchTerms = new List<String> { "NO.", "NO:", "NO.:" };
+                    searchTerms = ["NO.", "NO:", "NO.:"];
                     if (searchTerms.Any(searchTerm => searchTerm.Equals(foundWord.Text, StringComparison.OrdinalIgnoreCase)))
                     {
                         if (word.BoundingBox.Left > 800 && word.BoundingBox.Left < 860)
                         {
-                            DetectionBox numberWordDetectionBox2 = new DetectionBox(minX: -4, maxX: 30, minY: -15, maxY: -2);
+                            DetectionBox numberWordDetectionBox2 = new(MinX: -4, MaxX: 30, MinY: -15, MaxY: -2);
                             controlnumWords = FindWordsNextTo(word, words, numberWordDetectionBox2);
                         }
                         else
                         {
-                            DetectionBox numberWordDetectionBox3 = new DetectionBox(minX: -4, maxX: 150, minY: -40, maxY: -2);
+                            DetectionBox numberWordDetectionBox3 = new(MinX: -4, MaxX: 150, MinY: -40, MaxY: -2);
                             controlnumWords = FindWordsNextTo(word, words, numberWordDetectionBox3);
                         }
                         if (controlnumWords.Count == 0)
                         {
-                            throw new ExtractionException($"Missing data under ControlNumbers field.");
+                            throw new ExtractionException("Missing data under ControlNumbers field.");
                         }
                     }
 
@@ -387,7 +387,7 @@ namespace BackendLibrary
                 List<Word> piecesWords = GetWordsEqualTo("PIECES", words);
                 foreach (Word word in piecesWords)
                 {
-                    DetectionBox piecesWordDetectionBox = new DetectionBox(minX: 5, maxX: 15, minY: -1, maxY: 1);
+                    DetectionBox piecesWordDetectionBox = new(MinX: 5, MaxX: 15, MinY: -1, MaxY: 1);
                     Word? foundWord = FindWordNextTo(word, words, piecesWordDetectionBox);
                     if (foundWord is null)
                     {
@@ -395,17 +395,17 @@ namespace BackendLibrary
                     }
                     if (foundWord.Text.Contains("REQ", StringComparison.OrdinalIgnoreCase))
                     {
-                        DetectionBox reqWordDetectionBox = new DetectionBox(minX: -2, maxX: 30, minY: -10, maxY: -4);
+                        DetectionBox reqWordDetectionBox = new(MinX: -2, MaxX: 30, MinY: -10, MaxY: -4);
                         Word? piecesreqdWord = FindWordNextTo(word, words, reqWordDetectionBox);
                         if (piecesreqdWord is null)
                         {
-                            throw new ExtractionException($"Missing data under PiecesRequired field.");
+                            throw new ExtractionException("Missing data under PiecesRequired field.");
                         }
                         return int.Parse(piecesreqdWord.Text);
                     }
                 }
             }
-            throw new ExtractionException($"Failed to get PiecesRequired.");
+            throw new ExtractionException("Failed to get PiecesRequired.");
         }
 
         /// <summary>
@@ -419,12 +419,12 @@ namespace BackendLibrary
                 List<Word> weightWords = GetWordsContaining("WEIGHT", words);
                 foreach (Word word in weightWords)
                 {
-                    DetectionBox weightWordDetectionBox = new DetectionBox(minX: -10, maxX: 30, minY: -20, maxY: -1);
+                    DetectionBox weightWordDetectionBox = new(MinX: -10, MaxX: 30, MinY: -20, MaxY: -1);
                     Word? weightWord = FindWordNextTo(word, words, weightWordDetectionBox);
 
                     if (weightWord is null)
                     {
-                        throw new ExtractionException($"Missing data under Weight field.");
+                        throw new ExtractionException("Missing data under Weight field.");
                     }
 
                     // Remove any non-numeric characters except for decimal points and commas
@@ -434,7 +434,7 @@ namespace BackendLibrary
                     return decimal.Parse(weightStr);
                 }
             }
-            throw new ExtractionException($"Failed to get Weight.");
+            throw new ExtractionException("Failed to get Weight.");
         }
 
         /// <summary>
@@ -448,16 +448,16 @@ namespace BackendLibrary
                 List<Word> designWords = GetWordsEqualTo("DESIGN:", words);
                 foreach (Word word in designWords)
                 {
-                    DetectionBox designWordDetectionBox = new DetectionBox(minX: -2, maxX: 30, minY: -20, maxY: -4);
+                    DetectionBox designWordDetectionBox = new(MinX: -2, MaxX: 30, MinY: -20, MaxY: -4);
                     Word? foundWord = FindWordNextTo(word, words, designWordDetectionBox);
                     if (foundWord is null)
                     {
-                        throw new ExtractionException($"Missing data under DesignNumber field.");
+                        throw new ExtractionException("Missing data under DesignNumber field.");
                     }
                     return foundWord.Text;
                 }
             }
-            throw new ExtractionException($"Failed to get DesignNumber.");
+            throw new ExtractionException("Failed to get DesignNumber.");
         }
 
         /// <summary>
@@ -493,7 +493,7 @@ namespace BackendLibrary
         /// <summary>
         /// Holds the detection boundary values for find word(s) methods
         /// </summary>
-        private record DetectionBox(int minX, int maxX, int minY, int maxY);
+        private record DetectionBox(int MinX, int MaxX, int MinY, int MaxY);
 
         /// <summary>
         /// Finds one word among IEnumerable&lt;Word&gt; words relative to an anchorWord given specified bounds
@@ -501,10 +501,10 @@ namespace BackendLibrary
         private static Word? FindWordNextTo(Word anchorWord, IEnumerable<Word> words, DetectionBox detectionBox)
         {
             return (from Word word in words
-                    where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > detectionBox.minX) &&
-                      (word.BoundingBox.Left - anchorWord.BoundingBox.Left < detectionBox.maxX) &&
-                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top > detectionBox.minY) &&
-                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top < detectionBox.maxY)
+                    where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > detectionBox.MinX) &&
+                      (word.BoundingBox.Left - anchorWord.BoundingBox.Left < detectionBox.MaxX) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top > detectionBox.MinY) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top < detectionBox.MaxY)
                     select word).FirstOrDefault();
         }
 
@@ -514,10 +514,10 @@ namespace BackendLibrary
         private static List<Word> FindWordsNextTo(Word anchorWord, IEnumerable<Word> words, DetectionBox detectionBox)
         {
             return (from Word word in words
-                    where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > detectionBox.minX) &&
-                      (word.BoundingBox.Left - anchorWord.BoundingBox.Left < detectionBox.maxX) &&
-                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top > detectionBox.minY) &&
-                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top < detectionBox.maxY)
+                    where (word.BoundingBox.Left - anchorWord.BoundingBox.Left > detectionBox.MinX) &&
+                      (word.BoundingBox.Left - anchorWord.BoundingBox.Left < detectionBox.MaxX) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top > detectionBox.MinY) &&
+                      (word.BoundingBox.Top - anchorWord.BoundingBox.Top < detectionBox.MaxY)
                     select word).ToList();
         }
     }

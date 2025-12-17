@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using DocumentFormat.OpenXml.Office2010.PowerPoint;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 
@@ -9,30 +11,125 @@ namespace BackendLibrary
     /// </summary>
     public class ShopTicket
     {
-        private readonly ILogger<ShopTicket> _logger;
+        /// <summary>
+        /// Used for constructing loggers in different classes.
+        /// </summary>
         private readonly ILoggerFactory _loggerFactory;
-        public byte[] PdfBytes { get; }                              // Bytearray of PDF file
-        public DateTime dateTimeExtracted { get; }                   // Date and time when ShopTicket was constructed
-        public int NumberOfPages { get; private set; }               // Number of pages in the PDF file.
-        public string[] PageNames { get; private set; }              // Page names extracted from view labels.
-        public string FileName { get; private set; }                 // File name of the PDF file.
-        public string? FileNamePieceMark { get; private set; }       // Piece Mark extracted from the file name.
-        public string ProjectNumber { get; private set; }            // Project Number from the title block labelled "JOB NO.".
-        public string ProjectName { get; private set; }              // Project Name from the title block labelled "PROJECT:".
-        public string FileContentPieceMark { get; private set; }     // Piece Mark from the title block labelled "PIECE MARK".
-        public string[]? ControlNumbers { get; private set; }        // Control numbers from the square above the title block labelled "CONTROL NO.:".
-        public int PiecesRequired { get; private set; }              // Pieces required from the title block labelled "PIECES REQ'D:".
-        public decimal Weight { get; private set; }                  // Weight from the title block labelled "WEIGHT:".
-        public string DesignNumber { get; private set; }             // Design number from the title block labelled "DESIGN:".
-        public int RectanglePage { get; private set; }               // 0-based index of the page containing form and section view rectangles.
-        public double FormViewRectangleX { get; private set; }       // Distance from left edge of PDF to left edge of the form view rectangle (inches).
-        public double FormViewRectangleY { get; private set; }       // Distance from top edge of PDF to top edge of the form view rectangle (inches).
-        public double FormViewRectangleWidth { get; private set; }   // Width of the form view rectangle (inches).
-        public double FormViewRectangleHeight { get; private set; }  // Height of the form view rectangle (inches).
-        //public double SectionViewRectangleX { get; set; }          // Distance from left edge of PDF to left edge of the section view rectangle (inches).
-        //public double SectionViewRectangleY { get; set; }          // Distance from top edge of PDF to top edge of the section view rectangle (inches).
-        //public double SectionViewRectangleWidth { get; set; }      // Width of the section view rectangle (inches).
-        //public double SectionViewRectangleHeight { get; set; }     // Height of the section view rectangle (inches).
+
+        /// <summary>
+        /// Logs messages for this class.
+        /// </summary>
+        private readonly ILogger<ShopTicket> _logger;
+
+        /// <summary>
+        /// Bytearray of PDF file.
+        /// </summary>
+        public byte[] PdfBytes { get; }
+
+        /// <summary>
+        /// Date and time when ShopTicket was constructed.
+        /// </summary>
+        public DateTime dateTimeExtracted { get; }
+
+        /// <summary>
+        /// Number of pages in the PDF file.
+        /// </summary>
+        public int NumberOfPages { get; private set; }
+
+        /// <summary>
+        /// Page names extracted from view labels.
+        /// </summary>
+        public string[] PageNames { get; private set; }
+
+        /// <summary>
+        /// File name of the PDF file.
+        /// </summary>
+        public string FileName { get; private set; }
+
+        /// <summary>
+        /// Piece Mark extracted from the file name.
+        /// </summary>
+        public string? FileNamePieceMark { get; private set; }
+
+        /// <summary>
+        /// Project Number from the title block labelled "JOB NO.".
+        /// </summary>
+        public string ProjectNumber { get; private  set; }
+
+        /// <summary>
+        /// Project Name from the title block labelled "PROJECT:".
+        /// </summary>
+        public string ProjectName { get; private set; }
+
+        /// <summary>
+        /// Piece Mark from the title block labelled "PIECE MARK".
+        /// </summary>
+        public string FileContentPieceMark { get; private set; }
+
+        /// <summary>
+        /// Control numbers from the square above the title block labelled "CONTROL NO.:".
+        /// </summary>
+        public string[]? ControlNumbers { get; private set; }
+
+        /// <summary>
+        /// Pieces required from the title block labelled "PIECES REQ'D:".
+        /// </summary>
+        public int PiecesRequired { get; private set; }
+
+        /// <summary>
+        /// Weight from the title block labelled "WEIGHT:".
+        /// </summary>
+        public decimal Weight { get; private set; }
+
+        /// <summary>
+        /// Design number from the title block labelled "DESIGN:".
+        /// </summary>
+        public string DesignNumber { get; private set; }
+
+        /// <summary>
+        /// 0-based index of the page containing form and section view rectangles.
+        /// </summary>
+        public int RectanglePage { get; private set; }
+
+        /// <summary>
+        /// Distance from left edge of PDF to left edge of the form view rectangle (inches).
+        /// </summary>
+        public double FormViewRectangleX { get; private set; }
+
+        /// <summary>
+        /// Distance from top edge of PDF to top edge of the form view rectangle (inches).
+        /// </summary>
+        public double FormViewRectangleY { get; private set; }
+
+        /// <summary>
+        /// Width of the form view rectangle (inches).
+        /// </summary>
+        public double FormViewRectangleWidth { get; private set; }
+
+        /// <summary>
+        /// Height of the form view rectangle (inches).
+        /// </summary>
+        public double FormViewRectangleHeight { get; private set; }
+
+        /// <summary>
+        /// Distance from left edge of PDF to left edge of the section view rectangle (inches).
+        /// </summary>
+        public double? SectionViewRectangleX { get; private set; }
+
+        /// <summary>
+        /// Distance from top edge of PDF to top edge of the section view rectangle (inches).
+        /// </summary>
+        public double? SectionViewRectangleY { get; private set; }
+
+        /// <summary>
+        /// Width of the section view rectangle (inches).
+        /// </summary>
+        public double? SectionViewRectangleWidth { get; private set; }
+
+        /// <summary>
+        /// Height of the section view rectangle (inches).
+        /// </summary>
+        public double? SectionViewRectangleHeight { get; private set; }
 
         /// <summary>
         /// ShopTicket constructor initializing from a PDF file path.
@@ -60,17 +157,17 @@ namespace BackendLibrary
         /// <summary>
         /// ShopTicket constructor initializing from PDF byte array.
         /// </summary>>
-        public ShopTicket(ILoggerFactory loggerFactory, String fileName, byte[] pdfBytes)
+        public ShopTicket(ILoggerFactory loggerFactory, String fileName, byte[] byteArray)
         {
             try
             {
                 _loggerFactory = loggerFactory;
                 _logger = _loggerFactory.CreateLogger<ShopTicket>();
-                PdfBytes = pdfBytes;
+                PdfBytes = byteArray;
                 FileName = fileName;
 
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
-                MemoryStream stream = new MemoryStream(pdfBytes);
+                MemoryStream stream = new MemoryStream(byteArray);
                 PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
 
                 InitializeFromPdf(pdf);
@@ -84,7 +181,7 @@ namespace BackendLibrary
         /// <summary>
         /// ShopTicket constructor initializing from PDF byte array with form view rectangle detection.
         /// </summary>
-        public ShopTicket(ILoggerFactory loggerFactory, String fileName, byte[] pdfBytes, string modelPath)
+        public ShopTicket(ILoggerFactory loggerFactory, String fileName, byte[] byteArray, DetectModelService dMService)
         {
             try
             {
@@ -92,11 +189,11 @@ namespace BackendLibrary
                 _logger = _loggerFactory.CreateLogger<ShopTicket>();
                 _logger.LogDebug("Starting ShopTicket construction for {FileName}", fileName);
                
-                PdfBytes = pdfBytes;
+                PdfBytes = byteArray;
                 FileName = fileName;
 
                 // Use PdfSharp PdfReader to initialize a PdfDocument object off of pdf byte array
-                MemoryStream stream = new MemoryStream(pdfBytes);
+                MemoryStream stream = new MemoryStream(byteArray);
                 _logger.LogDebug("MemoryStream created from PdfBytes");
 
                 PdfDocument pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
@@ -104,9 +201,29 @@ namespace BackendLibrary
 
                 InitializeFromPdf(pdf);
 
-                (RectanglePage, FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight) 
-                    = Detect.GetRectInfo(_loggerFactory.CreateLogger<Detect>(), modelPath, fileName, stream);
+                Rectangle FormViewRectangle = Detect.GetRectInfo(_loggerFactory.CreateLogger<Detect>(), dMService.formViewModel, fileName, stream);
+                RectanglePage = FormViewRectangle.pageNumber;
+                FormViewRectangleX = (double) FormViewRectangle.boxX;
+                FormViewRectangleY = (double) FormViewRectangle.boxY;
+                FormViewRectangleWidth = (double) FormViewRectangle.boxWidth;
+                FormViewRectangleHeight = (double) FormViewRectangle.boxHeight;
                 _logger.LogDebug("FormViewRectangle extracted");
+
+                Rectangle SectionViewRectangle = Detect.GetRectInfo(_loggerFactory.CreateLogger<Detect>(), dMService.sectionViewModel, fileName, stream);
+                RectanglePage = SectionViewRectangle.pageNumber;
+                SectionViewRectangleX = SectionViewRectangle.boxX;
+                SectionViewRectangleY = SectionViewRectangle.boxY;
+                SectionViewRectangleWidth = SectionViewRectangle.boxWidth;
+                SectionViewRectangleHeight = SectionViewRectangle.boxHeight;
+                _logger.LogDebug("SectionViewRectangle extracted");
+
+                PdfBytes = PdfEditor.AddRect(
+                    pdf, 
+                    RectanglePage, 
+                    FormViewRectangleX, FormViewRectangleY, FormViewRectangleWidth, FormViewRectangleHeight, 
+                    SectionViewRectangleX, SectionViewRectangleY, SectionViewRectangleWidth, SectionViewRectangleHeight, 72, 72);
+                _logger.LogDebug("Added form view and section view rectangles to PDF page {RectanglePage}", RectanglePage);
+
 
                 dateTimeExtracted = DateTime.Now;
                 _logger.LogDebug("Ending ShopTicket construction for {FileName}", fileName);
@@ -139,6 +256,10 @@ namespace BackendLibrary
             double formViewRectangleY,
             double formViewRectangleWidth,
             double formViewRectangleHeight,
+            double? sectionViewRectangleX,
+            double? sectionViewRectangleY,
+            double? sectionViewRectangleWidth,
+            double? sectionViewRectangleHeight,
             DateTime processedDate)
         {
             _loggerFactory = loggerFactory;
@@ -161,6 +282,10 @@ namespace BackendLibrary
             FormViewRectangleY = formViewRectangleY;
             FormViewRectangleWidth = formViewRectangleWidth;
             FormViewRectangleHeight = formViewRectangleHeight;
+            SectionViewRectangleX = sectionViewRectangleX;
+            SectionViewRectangleY = sectionViewRectangleY;
+            SectionViewRectangleWidth = sectionViewRectangleWidth;
+            SectionViewRectangleHeight = sectionViewRectangleHeight;
             dateTimeExtracted = processedDate;
 
             _logger.LogDebug("ShopTicket loaded for {FileName}", fileName);
@@ -169,6 +294,8 @@ namespace BackendLibrary
         /// <summary>
         /// Combine shared construction logic.
         /// </summary>
+        // Supress warnings about nullable properties being uninitialized
+        [MemberNotNull(nameof(PageNames), nameof(ProjectNumber), nameof(ProjectName), nameof(FileContentPieceMark), nameof(DesignNumber))]
         private void InitializeFromPdf(PdfDocument pdf)
         {
             // OwnerPassword property needs a password to set SecuritySettings
@@ -201,6 +328,11 @@ namespace BackendLibrary
                 PiecesRequired = textGroup.PiecesRequired;
                 Weight = textGroup.Weight;
                 DesignNumber = textGroup.DesignNumber;
+
+                if (FileNamePieceMark != FileContentPieceMark)
+                {
+                    throw new ExtractionException($"Piece Mark mismatch: FileNamePieceMark '{FileNamePieceMark}' does not match FileContentPieceMark '{FileContentPieceMark}'");
+                }
             }
             catch (Exception ex)
             {
@@ -240,7 +372,7 @@ namespace BackendLibrary
         /// </summary>
         public string ToJson()
         {
-            return JsonSerializer.Serialize(ToExportDictionary(), new JsonSerializerOptions
+            return JsonSerializer.Serialize(ToExportDictionary(false), new JsonSerializerOptions
             {
                 WriteIndented = true
             });
@@ -251,7 +383,7 @@ namespace BackendLibrary
         /// </summary>
         public string ToCsv()
         {
-            var dict = ToExportDictionary();
+            var dict = ToExportDictionary(false);
             var values = dict.Values.Select(v =>
             {
                 if (v is not IEnumerable<string> list)
@@ -272,20 +404,21 @@ namespace BackendLibrary
 
         /// <summary>
         /// Helper method to convert ShopTicket data to a dictionary for export.
+        /// Used specifically for display on web page.
         /// </summary>
-        private Dictionary<string, object> ToExportDictionary()
+        public Dictionary<string, object> ToExportDictionary(Boolean roundValues)
         {
-            return new Dictionary<string, object>
+            Dictionary<string, object> dict = new Dictionary<string, object>
             {
                 { "FileName", FileName },
                 { "ProcessedDate", dateTimeExtracted },
                 { "NumberOfPages", NumberOfPages },
-                { "PageNames", PageNames },
+                { "PageNames", PageNames != null ? string.Join(", ", PageNames) : "" },
                 { "FileNamePieceMark", FileNamePieceMark ?? string.Empty },
                 { "ProjectNumber", ProjectNumber },
                 { "ProjectName", ProjectName },
                 { "FileContentPieceMark", FileContentPieceMark },
-                { "ControlNumbers", ControlNumbers ?? Array.Empty<string>() },
+                { "ControlNumbers", ControlNumbers != null ? string.Join(", ", ControlNumbers) : "" },
                 { "PiecesRequired", PiecesRequired },
                 { "Weight", Weight },
                 { "DesignNumber", DesignNumber },
@@ -294,7 +427,22 @@ namespace BackendLibrary
                 { "FormViewRectangleY", FormViewRectangleY },
                 { "FormViewRectangleWidth", FormViewRectangleWidth },
                 { "FormViewRectangleHeight", FormViewRectangleHeight }
-            };
+            };           
+            if (!roundValues)
+            {
+                dict.Add("SectionViewRectangleX", SectionViewRectangleX != null ? SectionViewRectangleX : "");
+                dict.Add("SectionViewRectangleY", SectionViewRectangleY != null ? SectionViewRectangleY : "");
+                dict.Add("SectionViewRectangleWidth", SectionViewRectangleWidth != null ? SectionViewRectangleWidth : "");
+                dict.Add("SectionViewRectangleHeight", SectionViewRectangleHeight != null ? SectionViewRectangleHeight : "");
+            }
+            else
+            {
+                dict.Add("SectionViewRectangleX", SectionViewRectangleX != null ? Double.Round((double)SectionViewRectangleX, 4) : "");
+                dict.Add("SectionViewRectangleY", SectionViewRectangleY != null ? Double.Round((double)SectionViewRectangleY, 4) : "");
+                dict.Add("SectionViewRectangleWidth", SectionViewRectangleWidth != null ? Double.Round((double)SectionViewRectangleWidth, 4) : "");
+                dict.Add("SectionViewRectangleHeight", SectionViewRectangleHeight != null ? Double.Round((double)SectionViewRectangleHeight, 4) : "");
+            }
+            return dict;
         }
     }
 }

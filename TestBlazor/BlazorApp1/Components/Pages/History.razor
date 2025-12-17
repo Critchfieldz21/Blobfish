@@ -4,6 +4,9 @@
 @using System.Linq
 @inject ShopTicketService sTService
 @inject NavigationManager Navigation
+@inject SQL3cs.CustomerData Db
+@inject ILogger<History> Logger
+@inject ILoggerFactory loggerFactory;
 @rendermode InteractiveServer
 
 
@@ -16,7 +19,7 @@
         <input class="search-input" placeholder="Search by file name, piece mark, or project (you can also type a date like 12/11/2025)..." @bind="searchTerm" @bind:event="oninput" />
         <button class="btn btn-sm btn-secondary" type="button" @onclick="ClearSearch">Clear</button>
         <div class="export-dropdown @(IsAnySelected ? "" : "disabled")" style="margin-left:8px;">
-            <button type="button" class="ViewButton export-toggle" aria-haspopup="menu" disabled="@(!IsAnySelected)" aria-disabled="@(!IsAnySelected)">Export Selected ▾</button>
+            <button type="button" class="ViewButton export-toggle" aria-haspopup="menu" disabled="@(!IsAnySelected)" aria-disabled="@(!IsAnySelected)">Export Selected </button>
             <div class="export-list" role="menu">
                 <ul>
                     <li role="none"><button role="menuitem" class="dropdown-item" type="button" @onclick="() => BatchExport(true)">Export Selected JSON</button></li>
@@ -60,7 +63,7 @@
                         <td>
                             <button class = "ViewButton" @onclick="() => OpenTicket(item.historyIndex)">View</button>
                                 <div class="export-dropdown">
-                                    <button type="button" class="ViewButton export-toggle" aria-haspopup="menu" aria-expanded="false">Export ▾</button>
+                                    <button type="button" class="ViewButton export-toggle" aria-haspopup="menu" aria-expanded="false">Export </button>
                                     <div class="export-list" role="menu">
                                         <ul>
                                             <li role="none"><button role="menuitem" class="dropdown-item" type="button" @onclick="() => HandleExportClick(true, item.historyIndex)">Export JSON <span class="hint">.json</span></button></li>
@@ -68,6 +71,7 @@
                                         </ul>
                                     </div>
                                 </div>
+                            <button class = "RemoveButton" @onclick="() => DeleteTicket(item.displayIndex)">Delete</button>
                         </td>
                     </tr>
                 }
@@ -77,7 +81,7 @@
 </div>
 
 @code {
-   
+
     private List<ShopTicket> history = new List<ShopTicket>();
     private string searchTerm = string.Empty;
 
@@ -119,7 +123,7 @@
     private void ClearSearch()
     {
         searchTerm = string.Empty;
-       
+
     }
 
     private void OpenTicket(int index)
@@ -131,6 +135,22 @@
             Navigation.NavigateTo("/processing");
         }
     }
+
+    private void DeleteTicket(int index)
+    {
+        // Remove the selected history ticket
+        if (index >= 0 && index < history.Count)
+        {
+            //removes from database first and then from the history list
+            String fileName = history[index].FileName;
+            Db.RemoveRowByFileName(loggerFactory, fileName);
+            history.RemoveAt(index);
+            sTService.History.RemoveAt(index);
+            Logger.LogInformation("Successfully deleted file in database and history: {fileName}", fileName);
+            StateHasChanged();
+        }
+    }
+
     private void HandleExportClick(bool val, int index){
         var valString = val.ToString().ToLower();
         Navigation.NavigateTo($"/export/{valString}/{index}", forceLoad: true);
